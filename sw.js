@@ -1,8 +1,9 @@
-const STATIC_CACHE = 'geography-quiz-static-v6';
-const PAGE_CACHE = 'geography-quiz-pages-v6';
+const STATIC_CACHE = 'geography-quiz-static-v7';
+const PAGE_CACHE = 'geography-quiz-pages-v7';
 
 const STATIC_ASSETS = [
   './manifest.webmanifest',
+  './assets/fonts/Geist-Variable.ttf',
   './icon-192.png',
   './icon-512.png',
   './apple-touch-icon.png'
