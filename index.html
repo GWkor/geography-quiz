@@ -30,7 +30,9 @@ select{background:var(--panel);color:var(--text);border:1px solid var(--line);bo
 svg{display:block;width:100%;height:auto}.country{fill:#334155;stroke:#111827;stroke-width:.55}.country.target{fill:var(--accent);stroke:#dbeafe;stroke-width:1.4}
 .fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;color:var(--muted);font-size:13px;margin:0 0 6px}.field-label-row{display:flex;align-items:center;justify-content:flex-start;gap:6px;margin:0 0 6px}.field-label-row label{margin:0}.hint-btn{padding:2px 5px;border-radius:7px;font-size:14px;line-height:1;background:transparent;color:var(--muted);border-color:transparent;vertical-align:middle}.hint-btn:hover{color:var(--text)}
 .field input{width:100%;background:#0f141d;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:13px 12px;font-size:17px;outline:none}.field input:focus{border-color:var(--accent)}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.result{margin-top:18px;border-top:1px solid var(--line);padding-top:18px;display:none}.result.show{display:block}
+.actions{display:flex;gap:10px;align-items:center;margin-top:14px}
+.actions #checkBtn{flex:1;min-width:0}
+.actions #nextBtn{margin-left:auto;width:56px;min-width:56px;padding-left:0;padding-right:0;font-size:24px;line-height:1}.result{margin-top:18px;border-top:1px solid var(--line);padding-top:18px;display:none}.result.show{display:block}
 .answerline{font-size:22px;font-weight:800}.good{color:var(--good)}.bad{color:var(--bad)}.warn{color:var(--warn)}
 .note{color:var(--muted);margin-top:8px;line-height:1.55}.similar{margin-top:14px}.similar-grid{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
 .sim-card{background:#111722;border:1px solid var(--line);border-radius:12px;padding:10px 14px;min-width:150px}.sim-flag{font-size:44px;vertical-align:middle;margin-right:8px}
@@ -43,11 +45,17 @@ svg{display:block;width:100%;height:auto}.country{fill:#334155;stroke:#111827;st
 .session-pause svg{width:17px;height:17px;fill:currentColor;stroke:none}
 .start-panel{display:none;justify-content:center;align-items:center;min-height:180px}
 .start-btn{min-width:140px;font-size:18px;padding:13px 24px}
-.pause-panel{display:none;min-height:280px;align-items:center;justify-content:center;text-align:center}
+.pause-panel{display:none;min-height:260px;align-items:flex-start;justify-content:center;text-align:center;padding-top:28px}
 .pause-panel.show{display:flex}
-.pause-actions{display:flex;gap:10px;justify-content:center}
-.pause-actions button{min-width:112px}
+.pause-actions{display:flex;flex-direction:column;gap:10px;align-items:center}
+.pause-actions button{width:180px;min-width:180px}
 .pause-title{font-size:28px;font-weight:800;margin:0 0 18px}
+.finished-panel{display:none;min-height:300px;align-items:flex-start;justify-content:center;text-align:center;padding-top:28px}
+.finished-panel.show{display:flex}
+.finished-title{font-size:30px;font-weight:900;color:var(--good);margin:0 0 14px}
+.finished-score{font-size:22px;font-weight:800;color:var(--text);margin-bottom:14px}
+.finished-note{color:var(--muted);font-size:15px;line-height:1.5;max-width:320px;margin:0 auto}
+.finished-pep{color:var(--text);font-size:16px;font-weight:700;line-height:1.5;max-width:320px;margin:12px auto 0}
 .answer-review{width:100%;min-height:48px;background:#0f141d;border:1px solid var(--line);border-radius:10px;padding:11px 12px;display:flex;align-items:center;gap:10px}
 .answer-review-main{min-width:0;flex:1;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .answer-review.correct .correct-answer{font-weight:800;color:var(--text)}
@@ -147,12 +155,21 @@ svg{display:block;width:100%;height:auto}.country{fill:#334155;stroke:#111827;st
         </div>
       </div>
     </div>
+    <div class="finished-panel" id="finishedPanel">
+      <div>
+        <div class="finished-title" id="finishedTitle">Finished!</div>
+        <div class="finished-score" id="finishedScore"></div>
+        <div class="finished-note" id="finishedNote"></div>
+        <div class="finished-pep" id="finishedPep"></div>
+        <button id="restartSessionBtn" class="primary" type="button" style="display:none;margin:20px auto 0;min-width:180px">Start</button>
+      </div>
+    </div>
     <form id="answerForm">
       <div class="fields">
         <div class="field" id="countryField"><div class="field-label-row"><label for="countryInput">Country <button id="countryHintBtn" class="hint-btn" type="button" tabindex="-1" title="Show next letter (; shortcut)" aria-label="Country hint">💡</button></label></div><input id="countryInput" autocomplete="off" placeholder="Type country name in English"></div>
         <div class="field" id="capitalField"><div class="field-label-row"><label for="capitalInput">Capital <button id="capitalHintBtn" class="hint-btn" type="button" tabindex="-1" title="Show next letter (; shortcut)" aria-label="Capital hint">💡</button></label></div><input id="capitalInput" autocomplete="off" placeholder="Type capital name in English"></div>
       </div>
-      <div class="actions"><button id="checkBtn" class="primary" type="submit">Check answer</button><button id="nextBtn" type="button" disabled>Next question</button></div>
+      <div class="actions"><button id="checkBtn" class="primary" type="submit">Check answer</button><button id="nextBtn" type="button" disabled aria-label="Next question">→</button></div>
     </form>
     <div class="result" id="result">
       <div class="answerline" id="answerline"></div>
@@ -197,7 +214,7 @@ const COUNTRIES = [{"name":"Afghanistan","capital":"Kabul","code":"AF","region":
 const SIMILAR = {"Lithuania":["Mali","Guinea"],"Mali":["Guinea","Lithuania"],"Guinea":["Mali","Lithuania"],"Bahrain":["Qatar"],"Qatar":["Bahrain"],"Romania":["Chad"],"Chad":["Romania"],"Indonesia":["Monaco"],"Monaco":["Indonesia"],"Ireland":["Côte d'Ivoire"],"Côte d'Ivoire":["Ireland"],"Netherlands":["Luxembourg"],"Luxembourg":["Netherlands"],"Australia":["New Zealand"],"New Zealand":["Australia"],"Colombia":["Ecuador","Venezuela"],"Ecuador":["Colombia","Venezuela"],"Venezuela":["Colombia","Ecuador"],"Norway":["Iceland"],"Iceland":["Norway"],"Slovenia":["Slovakia","Russia"],"Slovakia":["Slovenia","Russia"],"Paraguay":["Netherlands"],"Mauritania":["Pakistan"],"Burundi":["Dominica"],"Dominica":["Burundi"]};
 const byName = new Map(COUNTRIES.map(c => [c.name, c]));
 const SESSION_MS=15*60*1000,REGION_ORDER=['All','Africa','Asia','Europe','Americas','Oceania'];
-const els={pageTitle:document.getElementById('pageTitle'),timer:document.getElementById('timer'),timerControls:document.getElementById('timerControls'),sessionPauseBtn:document.getElementById('sessionPauseBtn'),startPanel:document.getElementById('startPanel'),startBtn:document.getElementById('startBtn'),pausePanel:document.getElementById('pausePanel'),resumeBtn:document.getElementById('resumeBtn'),quitBtn:document.getElementById('quitBtn'),score:document.getElementById('score'),streak:document.getElementById('streak'),mistakes:document.getElementById('mistakes'),hintsUsed:document.getElementById('hintsUsed'),prompt:document.getElementById('prompt'),questionText:document.getElementById('questionText'),visual:document.getElementById('visual'),form:document.getElementById('answerForm'),quiz:document.querySelector('.quiz'),settingsPanel:document.getElementById('settingsPanel'),countryField:document.getElementById('countryField'),capitalField:document.getElementById('capitalField'),countryInput:document.getElementById('countryInput'),capitalInput:document.getElementById('capitalInput'),countryHintBtn:document.getElementById('countryHintBtn'),capitalHintBtn:document.getElementById('capitalHintBtn'),checkBtn:document.getElementById('checkBtn'),nextBtn:document.getElementById('nextBtn'),result:document.getElementById('result'),answerline:document.getElementById('answerline'),detail:document.getElementById('detail'),wikiLink:document.getElementById('wikiLink'),similar:document.getElementById('similar'),region:document.getElementById('region'),resetStats:document.getElementById('resetStats'),profileSessionInfo:document.getElementById('profileSessionInfo'),endSessionBtn:document.getElementById('endSessionBtn'),mistakeList:document.getElementById('mistakeList'),mobileRegionOptions:document.getElementById('mobileRegionOptions'),statCorrect:document.getElementById('statCorrect'),statAnswered:document.getElementById('statAnswered'),statMistakes:document.getElementById('statMistakes'),statHints:document.getElementById('statHints')};
+const els={pageTitle:document.getElementById('pageTitle'),timer:document.getElementById('timer'),timerControls:document.getElementById('timerControls'),sessionPauseBtn:document.getElementById('sessionPauseBtn'),startPanel:document.getElementById('startPanel'),startBtn:document.getElementById('startBtn'),pausePanel:document.getElementById('pausePanel'),resumeBtn:document.getElementById('resumeBtn'),quitBtn:document.getElementById('quitBtn'),finishedPanel:document.getElementById('finishedPanel'),finishedTitle:document.getElementById('finishedTitle'),finishedScore:document.getElementById('finishedScore'),finishedNote:document.getElementById('finishedNote'),finishedPep:document.getElementById('finishedPep'),restartSessionBtn:document.getElementById('restartSessionBtn'),score:document.getElementById('score'),streak:document.getElementById('streak'),mistakes:document.getElementById('mistakes'),hintsUsed:document.getElementById('hintsUsed'),prompt:document.getElementById('prompt'),questionText:document.getElementById('questionText'),visual:document.getElementById('visual'),form:document.getElementById('answerForm'),quiz:document.querySelector('.quiz'),settingsPanel:document.getElementById('settingsPanel'),countryField:document.getElementById('countryField'),capitalField:document.getElementById('capitalField'),countryInput:document.getElementById('countryInput'),capitalInput:document.getElementById('capitalInput'),countryHintBtn:document.getElementById('countryHintBtn'),capitalHintBtn:document.getElementById('capitalHintBtn'),checkBtn:document.getElementById('checkBtn'),nextBtn:document.getElementById('nextBtn'),result:document.getElementById('result'),answerline:document.getElementById('answerline'),detail:document.getElementById('detail'),wikiLink:document.getElementById('wikiLink'),similar:document.getElementById('similar'),region:document.getElementById('region'),resetStats:document.getElementById('resetStats'),profileSessionInfo:document.getElementById('profileSessionInfo'),endSessionBtn:document.getElementById('endSessionBtn'),mistakeList:document.getElementById('mistakeList'),mobileRegionOptions:document.getElementById('mobileRegionOptions'),statCorrect:document.getElementById('statCorrect'),statAnswered:document.getElementById('statAnswered'),statMistakes:document.getElementById('statMistakes'),statHints:document.getElementById('statHints')};
 let state={mode:'flag',lastGameMode:'flag',activeTab:'flag',current:null,questionType:null,answered:false,countryHintChars:0,capitalHintChars:0,hintUsed:false,shownCapital:null,stats:loadStats(),sessions:loadSessions(),region:localStorage.getItem('geoQuizRegion')||'All',timerHandle:null,lastTimerTick:null};
 function loadStats(){try{return JSON.parse(localStorage.getItem('geoQuizStats'))||{correct:0,total:0,streak:0,wrongByCode:{},hintedByCode:{}}}catch(e){return {correct:0,total:0,streak:0,wrongByCode:{},hintedByCode:{}}}}
 function loadSessions(){try{return JSON.parse(localStorage.getItem('geoQuizSessionsV2'))||{}}catch(e){return {}}}
@@ -211,7 +228,7 @@ function capitalMatches(input,c){return (c.capitals||[c.capital]).some(v=>norm(i
 function shuffled(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function poolFor(mode,region=state.region){let p=COUNTRIES.filter(c=>region==='All'||c.region===region);if(mode==='map')p=p.filter(c=>c.geometry);return p}
 function sessionKey(mode,region=state.region){return `${mode}:${region}`}
-function createSession(mode,region=state.region){const pool=poolFor(mode,region);return {mode,region,order:shuffled(pool.map(c=>c.code)),index:0,correct:0,answered:0,streak:0,mistakes:0,hinted:0,remainingMs:SESSION_MS,capitalVariants:{},completed:false,started:false}}
+function createSession(mode,region=state.region){const pool=poolFor(mode,region);return {mode,region,order:shuffled(pool.map(c=>c.code)),index:0,correct:0,answered:0,streak:0,mistakes:0,hinted:0,remainingMs:SESSION_MS,capitalVariants:{},completed:false,started:false,paused:false,draft:null,review:null}}
 function getSession(mode=state.lastGameMode,create=true){const key=sessionKey(mode);if(!state.sessions[key]&&create){state.sessions[key]=createSession(mode);saveSessions()}return state.sessions[key]||null}
 function currentSession(){return getSession(state.lastGameMode,false)}
 function getCountryByCode(code){return COUNTRIES.find(c=>c.code===code)}
@@ -229,11 +246,176 @@ function resetQuestionUI(){
 document.querySelectorAll('.answer-review').forEach(x=>x.remove());
 els.countryInput.style.display='block';els.capitalInput.style.display='block';
 state.answered=false;state.countryHintChars=0;state.capitalHintChars=0;state.hintUsed=false;state.shownCapital=null;els.result.classList.remove('show');els.nextBtn.disabled=true;els.checkBtn.disabled=false;els.countryInput.value='';els.capitalInput.value='';els.countryInput.disabled=false;els.capitalInput.disabled=false;els.countryInput.placeholder='Type country name in English';els.capitalInput.placeholder='Type capital name in English';els.countryHintBtn.disabled=false;els.capitalHintBtn.disabled=false;els.countryField.style.display='block';els.capitalField.style.display='block'}
-function renderReadySession(s){resetQuestionUI();state.isPaused=false;els.pausePanel.classList.remove('show');els.prompt.style.display='';els.questionText.style.display='';els.visual.style.display='';state.answered=false;els.prompt.innerHTML=`<button class="ready-region-link" type="button" id="readyRegionLink">${state.region}</button>`;els.questionText.textContent='Ready?';els.visual.innerHTML='';els.startPanel.style.display='flex';els.form.style.display='none';els.result.classList.remove('show');const link=document.getElementById('readyRegionLink');if(link)link.addEventListener('click',openRegionSettings);renderTimer()}
-function beginSession(){const s=getSession(state.lastGameMode,true);if(!s||s.completed)return;state.isPaused=false;s.started=true;saveSessions();els.startPanel.style.display='none';els.form.style.display='block';showCurrentQuestion();updateStats();updateSettingsViews();startTimer()}
-function loadMode(mode){pauseTimer();state.isPaused=false;els.pausePanel.classList.remove('show');state.mode=mode;state.lastGameMode=mode;state.activeTab=mode;updatePageTitle();els.quiz.style.display='block';els.settingsPanel.style.display='none';els.timerControls.style.display='flex';document.querySelectorAll('.mobile-nav').forEach(b=>b.classList.toggle('active',b.dataset.tab===mode));document.querySelectorAll('.mode').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));const s=getSession(mode,true);if(s.started===undefined)s.started=false;if(s.completed||s.index>=s.order.length||s.remainingMs<=0){els.startPanel.style.display='none';els.form.style.display='block';renderCompletedSession(s);updateStats();renderTimer();return}if(!s.started){renderReadySession(s);updateStats();updateSettingsViews();return}els.startPanel.style.display='none';els.form.style.display='block';showCurrentQuestion();updateStats();updateSettingsViews();startTimer()}
-function showCurrentQuestion(){resetQuestionUI();state.isPaused=false;els.pausePanel.classList.remove('show');els.prompt.style.display='';els.questionText.style.display='';els.visual.style.display='';els.form.style.display='block';const s=getSession(state.lastGameMode,true);if(!s.order.length){els.prompt.textContent='No questions available';els.questionText.textContent='Try another region.';els.visual.innerHTML='';els.checkBtn.disabled=true;return}if(s.index>=s.order.length){s.completed=true;saveSessions();renderCompletedSession(s);return}state.current=getCountryByCode(s.order[s.index]);if(state.lastGameMode==='flag')renderFlag();else if(state.lastGameMode==='capital')renderCapital(s);else renderMap()}
-function renderCompletedSession(s){resetQuestionUI();state.answered=true;els.prompt.textContent='Session complete';els.questionText.textContent=`${s.correct}/${s.order.length}`;els.visual.innerHTML='';els.answerline.innerHTML='<span class="good">Finished</span>';els.detail.textContent=`You completed every ${state.region} question in this session. Start a new session from User > Profile.`;els.wikiLink.innerHTML='';els.similar.innerHTML='';els.result.classList.add('show');els.checkBtn.disabled=true;els.nextBtn.disabled=true;els.countryInput.disabled=true;els.capitalInput.disabled=true}
+
+function ensureSessionState(s){
+  if(s.started===undefined)s.started=false;
+  if(s.paused===undefined)s.paused=false;
+  if(s.draft===undefined)s.draft=null;
+  if(s.review===undefined)s.review=null;
+}
+function saveCurrentDraft(s){
+  if(!s||!s.started||s.completed)return;
+  if(!state.answered){
+    s.draft={country:els.countryInput.value||'',capital:els.capitalInput.value||''};
+  }
+  saveSessions();
+}
+function restoreDraft(s){
+  if(s&&s.draft&&!state.answered){
+    els.countryInput.value=s.draft.country||'';
+    els.capitalInput.value=s.draft.capital||'';
+  }
+}
+function autoPauseCurrentSession(){
+  if(!['flag','capital','map'].includes(state.activeTab))return;
+  const s=currentSession();
+  if(!s)return;
+  ensureSessionState(s);
+  if(s.started&&!s.completed){
+    saveCurrentDraft(s);
+    s.paused=true;
+    pauseTimer();
+    saveSessions();
+  }
+}
+function renderPausedView(){els.finishedPanel.classList.remove('show');
+  const s=currentSession();
+  if(!s)return;
+  ensureSessionState(s);
+  state.isPaused=true;
+  s.paused=true;
+  pauseTimer();
+  els.startPanel.style.display='none';
+  els.visual.style.display='none';
+  els.form.style.display='none';
+  els.result.style.display='none';
+  els.pausePanel.classList.add('show');
+  saveSessions();
+}
+
+function renderReadySession(s){els.finishedPanel.classList.remove('show');resetQuestionUI();state.isPaused=false;els.pausePanel.classList.remove('show');els.prompt.style.display='';els.questionText.style.display='';els.visual.style.display='';state.answered=false;els.prompt.innerHTML=`<button class="ready-region-link" type="button" id="readyRegionLink">${state.region}</button>`;els.questionText.textContent='Ready?';els.visual.innerHTML='';els.startPanel.style.display='flex';els.form.style.display='none';els.result.classList.remove('show');const link=document.getElementById('readyRegionLink');if(link)link.addEventListener('click',openRegionSettings);renderTimer()}
+function beginSession(){els.finishedPanel.classList.remove('show');const s=getSession(state.lastGameMode,true);if(!s||s.completed)return;ensureSessionState(s);state.isPaused=false;s.started=true;s.paused=false;saveSessions();els.startPanel.style.display='none';els.form.style.display='block';showCurrentQuestion();updateStats();updateSettingsViews();startTimer()}
+function loadMode(mode){
+  pauseTimer();
+  state.mode=mode;
+  state.lastGameMode=mode;
+  state.activeTab=mode;
+  updatePageTitle();
+  els.quiz.style.display='block';
+  els.settingsPanel.style.display='none';
+  els.timerControls.style.display='flex';
+  
+let quizSwipeStartX=0,quizSwipeStartY=0;
+const quizEl=document.querySelector('.quiz');
+quizEl.addEventListener('touchstart',e=>{
+  if(!e.touches||!e.touches[0])return;
+  quizSwipeStartX=e.touches[0].clientX;
+  quizSwipeStartY=e.touches[0].clientY;
+},{passive:true});
+quizEl.addEventListener('touchend',e=>{
+  if(!state.answered||state.isPaused||!e.changedTouches||!e.changedTouches[0])return;
+  const dx=e.changedTouches[0].clientX-quizSwipeStartX;
+  const dy=e.changedTouches[0].clientY-quizSwipeStartY;
+  if(dx<-55&&Math.abs(dx)>Math.abs(dy)*1.2)advanceQuestion();
+},{passive:true});
+
+document.querySelectorAll('.mobile-nav').forEach(b=>b.classList.toggle('active',b.dataset.tab===mode));
+  document.querySelectorAll('.mode').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
+
+  const s=getSession(mode,true);
+  ensureSessionState(s);
+
+  if(s.completed||s.index>=s.order.length||s.remainingMs<=0){
+    state.isPaused=false;
+    s.paused=false;
+    els.startPanel.style.display='none';
+    els.form.style.display='block';
+    renderCompletedSession(s);
+    updateStats();renderTimer();return;
+  }
+
+  if(!s.started){
+    state.isPaused=false;
+    renderReadySession(s);
+    updateStats();updateSettingsViews();return;
+  }
+
+  els.startPanel.style.display='none';
+  els.form.style.display='block';
+  showCurrentQuestion();
+  restoreDraft(s);
+  updateStats();updateSettingsViews();
+
+  if(s.paused){
+    renderPausedView();
+  }else{
+    state.isPaused=false;
+    startTimer();
+  }
+}
+function showCurrentQuestion(){els.finishedPanel.classList.remove('show');resetQuestionUI();els.pausePanel.classList.remove('show');els.prompt.style.display='';els.questionText.style.display='';els.visual.style.display='';els.form.style.display='block';const s=getSession(state.lastGameMode,true);if(!s.order.length){els.prompt.textContent='No questions available';els.questionText.textContent='Try another region.';els.visual.innerHTML='';els.checkBtn.disabled=true;return}if(s.index>=s.order.length){s.completed=true;saveSessions();renderCompletedSession(s);return}state.current=getCountryByCode(s.order[s.index]);if(state.lastGameMode==='flag')renderFlag();else if(state.lastGameMode==='capital')renderCapital(s);else renderMap()}
+
+function sessionPercent(s){
+  const denom=s.order.length||1;
+  return Math.round((s.correct/denom)*100);
+}
+function pepTalkForScore(percent){
+  if(percent<50)return "Keep going — every round makes the next one easier.";
+  if(percent<70)return "Nice progress. A little more practice and you'll climb quickly.";
+  if(percent<90)return "Great job — you're getting very close to mastery.";
+  return "Excellent score! You're really locking these in.";
+}
+function renderQuitResult(s){
+  pauseTimer();
+  state.isPaused=false;
+  s.paused=false;
+  saveSessions();
+
+  els.startPanel.style.display='none';
+  els.pausePanel.classList.remove('show');
+  els.finishedPanel.classList.add('show');
+
+  els.prompt.style.display='none';
+  els.questionText.style.display='none';
+  els.visual.style.display='none';
+  els.form.style.display='none';
+  els.result.style.display='none';
+
+  els.finishedTitle.textContent='Session ended';
+  els.finishedTitle.style.color='var(--text)';
+  els.finishedScore.textContent=`Score ${s.correct}/${s.answered}`;
+  els.finishedNote.textContent=`You answered ${s.answered} of ${s.order.length} questions.`;
+  els.finishedPep.textContent='Reset, refocus, and give it another try.';
+  els.restartSessionBtn.style.display='block';
+  renderTimer();
+}
+
+function renderCompletedSession(s){
+  pauseTimer();
+  state.isPaused=false;
+  s.completed=true;
+  s.paused=false;
+  saveSessions();
+
+  els.startPanel.style.display='none';
+  els.pausePanel.classList.remove('show');
+  els.finishedPanel.classList.add('show');
+
+  els.prompt.style.display='none';
+  els.questionText.style.display='none';
+  els.visual.style.display='none';
+  els.form.style.display='none';
+  els.result.style.display='none';
+
+  const percent=sessionPercent(s);
+  els.finishedTitle.textContent='Finished!';
+  els.finishedTitle.style.color='var(--good)';
+  els.finishedScore.textContent=`Score ${s.correct}/${s.order.length}`;
+  els.finishedNote.textContent='You completed every question in this session.';
+  els.finishedPep.textContent=pepTalkForScore(percent);
+  els.restartSessionBtn.style.display='none';
+  renderTimer();
+}
 function renderFlag(){state.questionType='flag';els.prompt.innerHTML=`<span class="region-name">${state.region}</span>`;els.questionText.textContent='Country & Capital';els.visual.innerHTML=`<div class="flag-wrap"><div class="flag">${flagEmoji(state.current.code)}</div></div>`;setTimeout(()=>els.countryInput.focus(),0)}
 function renderCapital(session){state.questionType='capital';els.visual.innerHTML='';let variant=session.capitalVariants[session.index];if(!variant){variant=Math.random()<.5?'country':'capital';session.capitalVariants[session.index]=variant;saveSessions()}if(variant==='country'){els.prompt.innerHTML=`<span class="region-name">${state.region}</span> · Capital → Country`;const caps=state.current.capitals||[state.current.capital];state.shownCapital=caps[0];els.questionText.textContent=state.shownCapital;els.capitalField.style.display='none';setTimeout(()=>els.countryInput.focus(),0)}else{els.prompt.innerHTML=`<span class="region-name">${state.region}</span> · Country → Capital`;els.questionText.textContent=state.current.name;els.countryField.style.display='none';setTimeout(()=>els.capitalInput.focus(),0)}}
 function renderMap(){state.questionType='map';els.prompt.innerHTML=`<span class="region-name">${state.region}</span>`;els.questionText.textContent='Country & Capital';els.visual.innerHTML=buildMap(state.current.code);setTimeout(()=>els.countryInput.focus(),0)}
@@ -265,40 +447,32 @@ function renderFieldResult(field,input,ok,correctText,hinted,url){
 }
 function pauseSession(){
   const s=currentSession();
-  if(!s||!s.started||s.completed||state.answered&&s.index>=s.order.length)return;
-  pauseTimer();
-  state.isPaused=true;
-  els.prompt.style.display='none';
-  els.questionText.style.display='none';
-  els.visual.style.display='none';
-  els.startPanel.style.display='none';
-  els.form.style.display='none';
-  els.result.style.display='none';
-  els.pausePanel.classList.add('show');
+  if(!s||!s.started||s.completed)return;
+  ensureSessionState(s);
+  saveCurrentDraft(s);
+  s.paused=true;
+  saveSessions();
+  renderPausedView();
 }
-function resumeSession(){
-  if(!state.isPaused)return;
+function resumeSession(){els.finishedPanel.classList.remove('show');
+  const s=currentSession();
+  if(!s)return;
+  ensureSessionState(s);
+  s.paused=false;
   state.isPaused=false;
+  saveSessions();
   els.pausePanel.classList.remove('show');
-  els.prompt.style.display='';
-  els.questionText.style.display='';
   els.visual.style.display='';
   els.form.style.display='block';
   els.result.style.display='';
+  restoreDraft(s);
   startTimer();
 }
 function quitSession(){
+  const s=currentSession();
+  if(!s)return;
   pauseTimer();
-  const key=sessionKey(state.lastGameMode);
-  delete state.sessions[key];
-  saveSessions();
-  state.isPaused=false;
-  els.pausePanel.classList.remove('show');
-  els.prompt.style.display='';
-  els.questionText.style.display='';
-  els.visual.style.display='';
-  els.result.style.display='';
-  loadMode(state.lastGameMode);
+  renderQuitResult(s);
 }
 
 els.form.addEventListener('submit',e=>{e.preventDefault();if(state.answered)advanceQuestion();else checkAnswer()});
@@ -339,6 +513,19 @@ function checkAnswer(){
   const capitalMatched=capitals.find(v=>norm(els.capitalInput.value)===norm(v));
   const capitalCorrectText=capitalOK&&capitalMatched?capitalMatched:capitals.join(' / ');
   const url=wikiUrlForCurrent();
+  s.review={
+    answered:true,
+    countryVisible,
+    capitalVisible,
+    countryOK,
+    capitalOK,
+    countryTyped:els.countryInput.value||'',
+    capitalTyped:els.capitalInput.value||'',
+    countryHinted:state.countryHintChars>0,
+    capitalHinted:state.capitalHintChars>0
+  };
+  s.draft=null;
+  saveSessions();
 
   if(countryVisible){
     renderFieldResult(
@@ -375,21 +562,63 @@ function checkAnswer(){
   els.capitalHintBtn.disabled=true;
   els.nextBtn.focus();
 }
-function advanceQuestion(){const s=getSession(state.lastGameMode,true);s.index++;if(s.index>=s.order.length){s.completed=true;pauseTimer();saveSessions();renderCompletedSession(s);updateStats();updateSettingsViews();return}saveSessions();showCurrentQuestion();updateStats()}
+function advanceQuestion(){const s=getSession(state.lastGameMode,true);ensureSessionState(s);s.review=null;s.draft=null;s.index++;if(s.index>=s.order.length){s.completed=true;pauseTimer();saveSessions();renderCompletedSession(s);updateStats();updateSettingsViews();return}saveSessions();showCurrentQuestion();updateStats()}
 function renderSimilar(){if(state.questionType!=='flag'){els.similar.innerHTML='';return}const names=SIMILAR[state.current.name]||[];if(!names.length){els.similar.innerHTML='';return}const cards=names.map(n=>{const c=byName.get(n);return c?`<div class="sim-card"><span class="sim-flag">${flagEmoji(c.code)}</span><b>${c.name}</b><div class="note">${(c.capitals||[c.capital]).join(" / ")}</div></div>`:''}).join('');els.similar.innerHTML=`<b>Similar flags to compare</b><div class="similar-grid">${cards}</div>`}
-function showHint(kind){if(!state.current||state.answered)return;const isCountry=kind==='country',input=isCountry?els.countryInput:els.capitalInput,btn=isCountry?els.countryHintBtn:els.capitalHintBtn,answer=isCountry?state.current.name:(state.current.capitals||[state.current.capital])[0],key=isCountry?'countryHintChars':'capitalHintChars';state[key]=Math.min(answer.length,state[key]+1);state.hintUsed=true;input.placeholder=answer.slice(0,state[key]);if(state[key]>=answer.length)btn.disabled=true;input.focus()}
+function showHint(kind){
+  if(!state.current||state.answered||state.isPaused)return;
+  const isCountry=kind==='country';
+  const input=isCountry?els.countryInput:els.capitalInput;
+  const btn=isCountry?els.countryHintBtn:els.capitalHintBtn;
+  const answer=isCountry?state.current.name:(state.current.capitals||[state.current.capital])[0];
+  const key=isCountry?'countryHintChars':'capitalHintChars';
+  const typed=input.value||'';
+
+  let pos=0;
+  while(pos<typed.length&&pos<answer.length){
+    const a=typed[pos].normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    const b=answer[pos].normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    if(a!==b)break;
+    pos++;
+  }
+
+  const nextLen=Math.min(answer.length,pos+1);
+  input.value=answer.slice(0,nextLen);
+  input.setSelectionRange(nextLen,nextLen);
+  state[key]=Math.max(state[key],nextLen);
+  state.hintUsed=true;
+  if(nextLen>=answer.length)btn.disabled=true;
+  const s=currentSession();if(s){s.draft={country:els.countryInput.value||'',capital:els.capitalInput.value||''};saveSessions()}
+  input.focus();
+}
 els.countryHintBtn.addEventListener('click',()=>showHint('country'));els.capitalHintBtn.addEventListener('click',()=>showHint('capital'));
 document.addEventListener('keydown',e=>{if(e.key!==';'||state.answered||state.activeTab==='settings')return;const active=document.activeElement,countryVisible=els.countryField.style.display!=='none',capitalVisible=els.capitalField.style.display!=='none';let kind=null;if(active===els.countryInput&&countryVisible)kind='country';else if(active===els.capitalInput&&capitalVisible)kind='capital';else if(countryVisible&&!capitalVisible)kind='country';else if(capitalVisible&&!countryVisible)kind='capital';else if(countryVisible&&capitalVisible)kind='country';if(kind){e.preventDefault();showHint(kind)}});
 function openSettings(){pauseTimer();state.activeTab='settings';updatePageTitle();els.quiz.style.display='none';els.settingsPanel.style.display='block';els.timerControls.style.display='none';document.querySelectorAll('.mobile-nav').forEach(b=>b.classList.toggle('active',b.dataset.tab==='settings'));updateStats();updateSettingsViews();renderTimer()}
-function openRegionSettings(){openSettings();document.querySelectorAll('.settings-tab').forEach(x=>x.classList.toggle('active',x.dataset.settings==='region'));document.querySelectorAll('.settings-section').forEach(x=>x.classList.toggle('active',x.dataset.section==='region'));updateSettingsViews()}
-document.querySelectorAll('.mobile-nav').forEach(b=>b.addEventListener('click',()=>{const tab=b.dataset.tab;if(tab==='settings')openSettings();else loadMode(tab)}));
+function openRegionSettings(){autoPauseCurrentSession();openSettings();document.querySelectorAll('.settings-tab').forEach(x=>x.classList.toggle('active',x.dataset.settings==='region'));document.querySelectorAll('.settings-section').forEach(x=>x.classList.toggle('active',x.dataset.section==='region'));updateSettingsViews()}
+document.querySelectorAll('.mobile-nav').forEach(b=>b.addEventListener('click',()=>{
+  const tab=b.dataset.tab;
+  if(tab===state.activeTab)return;
+  autoPauseCurrentSession();
+  if(tab==='settings')openSettings();
+  else loadMode(tab);
+}));
 document.querySelectorAll('.settings-tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.settings-tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.settings-section').forEach(x=>x.classList.toggle('active',x.dataset.section===b.dataset.settings));updateSettingsViews()}));
 els.endSessionBtn.addEventListener('click',()=>{const key=sessionKey(state.lastGameMode);if(confirm(`End this ${state.lastGameMode} session and start over?`)){delete state.sessions[key];saveSessions();updateSettingsViews();updateStats()}});
-els.startBtn.addEventListener('click',beginSession);
+
+function restartSession(){
+  pauseTimer();
+  const key=sessionKey(state.lastGameMode);
+  delete state.sessions[key];
+  saveSessions();
+  state.isPaused=false;
+  els.finishedPanel.classList.remove('show');
+  loadMode(state.lastGameMode);
+}
+
+els.startBtn.addEventListener('click',beginSession);els.restartSessionBtn.addEventListener('click',restartSession);
 els.sessionPauseBtn.addEventListener('click',pauseSession);els.resumeBtn.addEventListener('click',resumeSession);els.quitBtn.addEventListener('click',quitSession);
-els.nextBtn.addEventListener('click',advanceQuestion);els.region.addEventListener('change',()=>setRegion(els.region.value));document.querySelectorAll('.mode').forEach(b=>b.addEventListener('click',()=>loadMode(b.dataset.mode)));
+els.nextBtn.addEventListener('click',advanceQuestion);els.region.addEventListener('change',()=>setRegion(els.region.value));document.querySelectorAll('.mode').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.mode!==state.activeTab){autoPauseCurrentSession();loadMode(b.dataset.mode)}}));
 els.resetStats.addEventListener('click',()=>{if(confirm('Reset all quiz statistics and mistake history?')){state.stats={correct:0,total:0,streak:0,wrongByCode:{},hintedByCode:{}};saveStats()}});
-document.addEventListener('visibilitychange',()=>{if(document.hidden)pauseTimer();else if(state.activeTab!=='settings'&&!state.isPaused)startTimer()});window.addEventListener('beforeunload',pauseTimer);
+document.addEventListener('visibilitychange',()=>{if(document.hidden){const s=currentSession();if(s)saveCurrentDraft(s);pauseTimer()}else if(state.activeTab!=='settings'&&!state.isPaused)startTimer()});window.addEventListener('beforeunload',pauseTimer);
 const scrollRoot=document.querySelector('.app');let touchStartY=0;
 scrollRoot.addEventListener('touchstart',e=>{if(e.touches&&e.touches[0])touchStartY=e.touches[0].clientY},{passive:true});
 scrollRoot.addEventListener('touchmove',e=>{if(!e.touches||!e.touches[0])return;const maxScroll=scrollRoot.scrollHeight-scrollRoot.clientHeight;if(maxScroll<=1){e.preventDefault();return}const y=e.touches[0].clientY,down=y>touchStartY;if((scrollRoot.scrollTop<=0&&down)||(scrollRoot.scrollTop>=maxScroll-1&&!down))e.preventDefault()},{passive:false});
