@@ -92,19 +92,28 @@ svg{display:block;width:100%;height:auto}.country{fill:#334155;stroke:#111827;st
   .quiz{display:flex;flex-direction:column}
   .quiz.state-screen{
     flex:0 0 auto;
-    height:min(56dvh,520px);
-    min-height:400px;
+    height:42dvh;
+    min-height:330px;
+    max-height:430px;
     margin-top:auto;
     margin-bottom:auto;
+    justify-content:center;
   }
   .quiz.state-screen .start-panel,
   .quiz.state-screen .pause-panel,
   .quiz.state-screen .finished-panel{
-    flex:1;
+    flex:1 1 auto;
     min-height:0;
+    width:100%;
     align-items:center;
     justify-content:center;
-    padding-top:0;
+    padding:0;
+  }
+  .quiz.state-screen .start-panel > *,
+  .quiz.state-screen .pause-panel > *,
+  .quiz.state-screen .finished-panel > *{
+    margin-top:auto;
+    margin-bottom:auto;
   }
 
   html,body{height:100%;overscroll-behavior:none}
