@@ -384,10 +384,10 @@ function ensureSessionState(s){
   if(!s.answerMode)s.answerMode='both';
   if(!s.capitalDirection)s.capitalDirection='shuffle';
 }
-const ANSWER_OPTIONS={flag:[['country','Country'],['capital','Capital'],['both','Both']],map:[['country','Country'],['capital','Capital'],['both','Both']],capital:[['country','Capital → Country'],['capital','Country → Capital'],['shuffle','Shuffle']]};
+const ANSWER_OPTIONS={flag:[['country','Country'],['capital','Capital']],map:[['country','Country'],['capital','Capital']],capital:[['country','Capital → Country'],['capital','Country → Capital'],['shuffle','Shuffle']]};
 function answerModeFor(s){return (s&&s.answerMode)||'both'}
 function applyAnswerFields(){const mode=state.lastGameMode==='capital'?'both':answerModeFor(currentSession());const showCountry=mode!=='capital',showCapital=mode!=='country';els.countryField.style.display=showCountry?'block':'none';els.capitalField.style.display=showCapital?'block':'none';els.questionText.textContent=mode==='country'?'Country':mode==='capital'?'Capital':'Country & Capital';setTimeout(()=>(showCountry?els.countryInput:els.capitalInput).focus(),0)}
-function renderAnswerModeOptions(s){const mode=state.lastGameMode;const opts=ANSWER_OPTIONS[mode]||[];const current=mode==='capital'?((s&&s.capitalDirection)||'shuffle'):answerModeFor(s);els.answerModeOptions.classList.toggle('show',opts.length>0);els.answerModeOptions.innerHTML=opts.map(([v,label])=>`<button type="button" data-answer-mode="${v}" class="${v===current?'active':''}">${label}</button>`).join('')}
+function renderAnswerModeOptions(s){const mode=state.lastGameMode;const opts=ANSWER_OPTIONS[mode]||[];const current=mode==='capital'?((s&&s.capitalDirection)||'shuffle'):answerModeFor(s);els.answerModeOptions.classList.toggle('show',opts.length>0);const isOn=v=>mode==='capital'?v===current:(current==='both'||current===v);els.answerModeOptions.innerHTML=opts.map(([v,label])=>`<button type="button" data-answer-mode="${v}" aria-pressed="${isOn(v)}" class="${isOn(v)?'active':''}">${label}</button>`).join('')}
 function saveCurrentDraft(s){
   if(!s||!s.started||s.completed)return;
   if(!state.answered){
@@ -432,6 +432,7 @@ function renderPausedView(){els.quiz.classList.add('state-screen');els.finishedP
 }
 
 function renderQuestionUnderlay(s){
+  els.quiz.style.minHeight='';
   resetQuestionUI();
   const index=Math.min(s.index,s.order.length-1);
   state.current=getCountryByCode(s.order[index]);
@@ -454,10 +455,14 @@ function renderReadySession(s){
   els.startPanel.style.display='flex';
   document.getElementById('readyRegionLink').textContent=state.region;
   renderAnswerModeOptions(s);
+  lockReadyPanelOffset();
   renderTimer();
 }
+// Centre the Ready content against the single-field layout, then keep that
+// offset so adding the second field only grows the card downward.
+function lockReadyPanelOffset(){const panel=els.startPanel,inner=panel.firstElementChild;const prev=els.capitalField.style.display;const bothShown=els.countryField.style.display!=='none'&&prev!=='none';if(bothShown)els.capitalField.style.display='none';const cs=getComputedStyle(panel);const avail=els.quiz.offsetHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom)-parseFloat(cs.borderTopWidth)-parseFloat(cs.borderBottomWidth);if(bothShown)els.capitalField.style.display=prev;const top=Math.max(0,(avail-inner.offsetHeight)/2);panel.style.alignItems='flex-start';inner.style.margin=`${Math.round(top)}px auto auto`;els.quiz.style.minHeight=`${Math.ceil(inner.offsetHeight+els.quiz.offsetHeight-avail)}px`}
 document.getElementById('readyRegionLink').addEventListener('click',openRegionSettings);
-els.answerModeOptions.addEventListener('click',e=>{const b=e.target.closest('[data-answer-mode]');if(!b)return;const s=getSession(state.lastGameMode,true);ensureSessionState(s);if(s.started)return;const v=b.dataset.answerMode;if(state.lastGameMode==='capital'){s.capitalDirection=v;localStorage.setItem('geoQuizCapitalDirection',v)}else{s.answerMode=v;localStorage.setItem('geoQuizAnswerMode',v)}saveSessions();renderReadySession(s)});
+els.answerModeOptions.addEventListener('click',e=>{const b=e.target.closest('[data-answer-mode]');if(!b)return;const s=getSession(state.lastGameMode,true);ensureSessionState(s);if(s.started)return;const v=b.dataset.answerMode;if(state.lastGameMode==='capital'){s.capitalDirection=v;localStorage.setItem('geoQuizCapitalDirection',v)}else{const cur=answerModeFor(s);let country=cur!=='capital',capital=cur!=='country';if(v==='country')country=!country;else capital=!capital;if(!country&&!capital)return;s.answerMode=country&&capital?'both':country?'country':'capital';localStorage.setItem('geoQuizAnswerMode',s.answerMode)}saveSessions();renderReadySession(s)});
 function beginSession(){els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);els.finishedPanel.classList.remove('show');setSessionControl('pause');const s=getSession(state.lastGameMode,true);if(!s||s.completed)return;ensureSessionState(s);state.isPaused=false;s.started=true;s.paused=false;saveSessions();els.startPanel.style.display='none';els.form.style.display='block';showCurrentQuestion();updateStats();updateSettingsViews();startTimer()}
 function loadMode(mode){
   document.body.classList.remove('settings-open');
@@ -519,7 +524,7 @@ document.querySelectorAll('.mobile-nav').forEach(b=>b.classList.toggle('active',
     startTimer();
   }
 }
-function showCurrentQuestion(){els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);els.finishedPanel.classList.remove('show');setSessionControl('pause');resetQuestionUI();els.pausePanel.classList.remove('show');els.prompt.style.display='';els.questionText.style.display='';els.visual.style.display='';els.form.style.display='block';const s=getSession(state.lastGameMode,true);if(!s.order.length){els.prompt.textContent='No questions available';els.questionText.textContent='Try another region.';els.visual.innerHTML='';els.checkBtn.disabled=true;return}if(s.index>=s.order.length){s.completed=true;saveSessions();renderCompletedSession(s);return}state.current=getCountryByCode(s.order[s.index]);if(state.lastGameMode==='flag')renderFlag();else if(state.lastGameMode==='capital')renderCapital(s);else renderMap()}
+function showCurrentQuestion(){els.quiz.style.minHeight='';els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);els.finishedPanel.classList.remove('show');setSessionControl('pause');resetQuestionUI();els.pausePanel.classList.remove('show');els.prompt.style.display='';els.questionText.style.display='';els.visual.style.display='';els.form.style.display='block';const s=getSession(state.lastGameMode,true);if(!s.order.length){els.prompt.textContent='No questions available';els.questionText.textContent='Try another region.';els.visual.innerHTML='';els.checkBtn.disabled=true;return}if(s.index>=s.order.length){s.completed=true;saveSessions();renderCompletedSession(s);return}state.current=getCountryByCode(s.order[s.index]);if(state.lastGameMode==='flag')renderFlag();else if(state.lastGameMode==='capital')renderCapital(s);else renderMap()}
 
 function sessionPercent(s){
   const denom=s.order.length||1;
