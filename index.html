@@ -35,7 +35,7 @@ select{background:var(--panel);color:var(--text);border:1px solid var(--line);bo
 .flag{font-size:150px;line-height:1}.map-wrap{background:var(--bg);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:6px 0 18px}
 svg{display:block;width:100%;height:auto}.map-wrap svg{max-height:520px;margin:0 auto}.country{fill:#505050;stroke:var(--bg);stroke-width:1;vector-effect:non-scaling-stroke}.country.target{fill:var(--accent);stroke:var(--text);stroke-width:1.6}.target-ring{fill:none;stroke:var(--accent);stroke-width:2;vector-effect:non-scaling-stroke;opacity:.95}.map-inset-bg{fill:var(--panel2)}.map-inset-frame{fill:none;stroke:color-mix(in srgb,var(--accent) 70%,transparent);stroke-width:1.5;vector-effect:non-scaling-stroke}
 .fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;color:var(--muted);font-size:13px;margin:0 0 6px}.field-label-row{display:flex;align-items:center;justify-content:flex-start;gap:6px;margin:0 0 6px}.field-label-row label{margin:0}.hint-btn{padding:2px 5px;border-radius:7px;font-size:14px;line-height:1;background:transparent;color:var(--muted);border-color:transparent;vertical-align:middle}.hint-btn:hover{color:var(--text)}
-.field input{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:13px 12px;font-size:17px;font-weight:700;outline:none}.field input:focus{border-color:var(--accent)}
+.field input{width:100%;height:50px;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:0 12px;font-size:17px;font-weight:700;outline:none}.field input:focus{border-color:var(--accent)}
 .actions{display:flex;gap:10px;align-items:center;margin-top:14px}
 .actions #checkBtn{flex:1;min-width:0}
 .actions #nextBtn{margin-left:auto;width:56px;min-width:56px;padding-left:0;padding-right:0;font-size:24px;line-height:1}.actions #prevBtn{width:56px;min-width:56px;padding-left:0;padding-right:0;font-size:24px;line-height:1}.result{margin-top:18px;border-top:1px solid var(--line);padding-top:18px;display:none}.result.show{display:block}
@@ -69,7 +69,7 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{max-height:520px;margin:0
 .finished-score{font-size:22px;font-weight:700;color:var(--text);margin-bottom:14px}
 .finished-note{color:var(--muted);font-size:15px;line-height:1.5;max-width:320px;margin:0 auto}
 .finished-pep{color:var(--text);font-size:16px;font-weight:700;line-height:1.5;max-width:320px;margin:12px auto 0}
-.answer-review{width:100%;min-height:48px;font-size:17px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px;display:flex;align-items:center;gap:10px}
+.answer-review{width:100%;min-height:50px;font-size:17px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:4px 12px;display:flex;align-items:center;gap:10px}
 .answer-review-main{min-width:0;flex:1;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .answer-review.correct .correct-answer{font-weight:700;color:var(--text)}
 .answer-review.wrong .user-answer{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -699,7 +699,7 @@ function quitSession(){
   renderQuitResult(s);
 }
 
-els.form.addEventListener('submit',e=>{e.preventDefault();if(state.reviewIndex!==null)return;if(state.answered){advanceQuestion();return}const empty=[els.countryInput,els.capitalInput].find(i=>i.closest('.field').style.display!=='none'&&!i.value.trim());if(empty&&!state.emptySubmitArmed){state.emptySubmitArmed=true;empty.focus();return}state.emptySubmitArmed=false;checkAnswer()});
+els.form.addEventListener('submit',e=>{e.preventDefault();if(state.reviewIndex!==null)return;if(state.answered){advanceQuestion();return}const empty=[els.countryInput,els.capitalInput].find(i=>i.closest('.field').style.display!=='none'&&!i.value.trim());if(empty&&!state.emptySubmitArmed){state.emptySubmitArmed=true;empty.focus();flashScreen('bad');return}state.emptySubmitArmed=false;checkAnswer()});
 [els.countryInput,els.capitalInput].forEach(i=>i.addEventListener('input',()=>{state.emptySubmitArmed=false}));
 function checkAnswer(){
   if(state.answered)return;
