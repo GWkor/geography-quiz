@@ -19,8 +19,12 @@ button.primary{background:var(--accent);color:#08111f;border-color:var(--accent)
 select{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .quiz{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;scroll-margin-top:14px}
 .prompt{font-size:14px;color:var(--muted);margin-bottom:8px}
-.prompt .region-name{font-weight:800;color:var(--text)}
-.ready-region-link{appearance:none;border:0;background:transparent;padding:0;margin:0;color:var(--text);font:inherit;font-weight:800;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;cursor:pointer}.big-question{font-size:34px;font-weight:800;line-height:1.15;margin:4px 0 18px}
+.prompt .region-name{font-weight:800;color:var(--text);display:inline-flex;align-items:center;padding:4px 8px;border:1px solid var(--line);border-radius:999px;background:var(--panel2);line-height:1}
+.ready-region-link{appearance:none;border:1px solid var(--line);background:var(--panel2);padding:4px 8px;margin:0;color:var(--text);font:inherit;font-weight:800;border-radius:999px;cursor:pointer;line-height:1}
+.region-card{font-weight:800}
+.region-card.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(110,168,254,.22);background:var(--panel2)}
+.region-card .region-label{font-weight:800}
+.region-card .globe-icon{width:18px;height:18px;display:inline-block;vertical-align:-3px;margin-right:6px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.big-question{font-size:34px;font-weight:800;line-height:1.15;margin:4px 0 18px}
 .flag-wrap{display:flex;justify-content:center;align-items:center;min-height:220px;margin:2px 0 18px;background:#111722;border:1px solid var(--line);border-radius:16px}
 .flag{font-size:150px;line-height:1}.map-wrap{background:#111722;border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:6px 0 18px}
 svg{display:block;width:100%;height:auto}.country{fill:#334155;stroke:#111827;stroke-width:.55}.country.target{fill:var(--accent);stroke:#dbeafe;stroke-width:1.4}
@@ -144,7 +148,7 @@ svg{display:block;width:100%;height:auto}.country{fill:#334155;stroke:#111827;st
     </div>
     <section class="settings-section active" data-section="profile"><div class="settings-card"><h3>Local Profile</h3><p>Quiz progress and active sessions are saved on this device.</p><p id="profileSessionInfo"></p><button id="endSessionBtn" class="secondary" type="button">End current session</button></div></section>
     <section class="settings-section" data-section="mistakes"><div class="settings-card"><h3>Wrong Answers</h3><div id="mistakeList" class="mistake-list"></div></div></section>
-    <section class="settings-section" data-section="region"><div class="settings-card"><h3>Question Region</h3><p>Flag, Capital and Map sessions use this region.</p><div class="region-grid" id="mobileRegionOptions"></div></div></section>
+    <section class="settings-section" data-section="region"><div class="settings-card"><h3>Question Region</h3><p>Used for all quiz modes.</p><div class="region-grid" id="mobileRegionOptions"></div></div></section>
     <section class="settings-section" data-section="statistics"><div class="settings-card"><h3>Statistics</h3><div class="mini-stat-grid"><div class="mini-stat"><b id="statCorrect">0</b><span>Total correct</span></div><div class="mini-stat"><b id="statAnswered">0</b><span>Total answered</span></div><div class="mini-stat"><b id="statMistakes">0</b><span>Total mistakes</span></div><div class="mini-stat"><b id="statHints">0</b><span>Total hinted</span></div></div></div></section>
   </div>
 </div>
