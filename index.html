@@ -220,11 +220,7 @@ button.primary{font-weight:500}
       <div>
         <button class="ready-region-link" type="button" id="readyRegionLink">All</button>
         <div class="pause-title">Ready?</div>
-        <div class="answer-mode" id="answerModeOptions" role="group" aria-label="What to answer">
-          <button type="button" data-answer-mode="country">Country</button>
-          <button type="button" data-answer-mode="capital">Capital</button>
-          <button type="button" data-answer-mode="both">Both</button>
-        </div>
+        <div class="answer-mode" id="answerModeOptions" role="group" aria-label="Question type"></div>
         <button id="startBtn" class="primary start-btn" type="button">Start</button>
       </div>
     </div>
@@ -243,7 +239,7 @@ button.primary{font-weight:500}
         <div class="finished-score" id="finishedScore"></div>
         <div class="finished-note" id="finishedNote"></div>
         <div class="finished-pep" id="finishedPep"></div>
-        <button id="restartSessionBtn" class="primary" type="button" style="display:none;margin:20px auto 0;min-width:180px">Start</button>
+        <button id="restartSessionBtn" class="primary" type="button" style="display:none;margin:20px auto 0;min-width:180px">Back</button>
       </div>
     </div>
     <form id="answerForm">
@@ -310,7 +306,7 @@ function capitalMatches(input,c){return (c.capitals||[c.capital]).some(v=>norm(i
 function shuffled(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function poolFor(mode,region=state.region){let p=COUNTRIES.filter(c=>region==='All'||c.region===region);if(mode==='map')p=p.filter(c=>c.geometry);return p}
 function sessionKey(mode,region=state.region){return `${mode}:${region}`}
-function createSession(mode,region=state.region){const pool=poolFor(mode,region);return {mode,region,order:shuffled(pool.map(c=>c.code)),index:0,correct:0,answered:0,streak:0,mistakes:0,hinted:0,remainingMs:SESSION_MS,capitalVariants:{},completed:false,started:false,paused:false,draft:null,review:null,answerMode:localStorage.getItem('geoQuizAnswerMode')||'both'}}
+function createSession(mode,region=state.region){const pool=poolFor(mode,region);return {mode,region,order:shuffled(pool.map(c=>c.code)),index:0,correct:0,answered:0,streak:0,mistakes:0,hinted:0,remainingMs:SESSION_MS,capitalVariants:{},completed:false,started:false,paused:false,draft:null,review:null,answerMode:localStorage.getItem('geoQuizAnswerMode')||'both',capitalDirection:localStorage.getItem('geoQuizCapitalDirection')||'shuffle'}}
 function getSession(mode=state.lastGameMode,create=true){const key=sessionKey(mode);if(!state.sessions[key]&&create){state.sessions[key]=createSession(mode);saveSessions()}return state.sessions[key]||null}
 function currentSession(){return getSession(state.lastGameMode,false)}
 function getCountryByCode(code){return COUNTRIES.find(c=>c.code===code)}
@@ -386,10 +382,12 @@ function ensureSessionState(s){
   if(s.draft===undefined)s.draft=null;
   if(s.review===undefined)s.review=null;
   if(!s.answerMode)s.answerMode='both';
+  if(!s.capitalDirection)s.capitalDirection='shuffle';
 }
+const ANSWER_OPTIONS={flag:[['country','Country'],['capital','Capital'],['both','Both']],map:[['country','Country'],['capital','Capital'],['both','Both']],capital:[['country','Capital → Country'],['capital','Country → Capital'],['shuffle','Shuffle']]};
 function answerModeFor(s){return (s&&s.answerMode)||'both'}
 function applyAnswerFields(){const mode=state.lastGameMode==='capital'?'both':answerModeFor(currentSession());const showCountry=mode!=='capital',showCapital=mode!=='country';els.countryField.style.display=showCountry?'block':'none';els.capitalField.style.display=showCapital?'block':'none';els.questionText.textContent=mode==='country'?'Country':mode==='capital'?'Capital':'Country & Capital';setTimeout(()=>(showCountry?els.countryInput:els.capitalInput).focus(),0)}
-function renderAnswerModeOptions(s){const show=state.lastGameMode!=='capital';els.answerModeOptions.classList.toggle('show',show);if(!show)return;const mode=answerModeFor(s);els.answerModeOptions.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.answerMode===mode))}
+function renderAnswerModeOptions(s){const mode=state.lastGameMode;const opts=ANSWER_OPTIONS[mode]||[];const current=mode==='capital'?((s&&s.capitalDirection)||'shuffle'):answerModeFor(s);els.answerModeOptions.classList.toggle('show',opts.length>0);els.answerModeOptions.innerHTML=opts.map(([v,label])=>`<button type="button" data-answer-mode="${v}" class="${v===current?'active':''}">${label}</button>`).join('')}
 function saveCurrentDraft(s){
   if(!s||!s.started||s.completed)return;
   if(!state.answered){
@@ -459,7 +457,7 @@ function renderReadySession(s){
   renderTimer();
 }
 document.getElementById('readyRegionLink').addEventListener('click',openRegionSettings);
-els.answerModeOptions.addEventListener('click',e=>{const b=e.target.closest('[data-answer-mode]');if(!b)return;const s=getSession(state.lastGameMode,true);ensureSessionState(s);if(s.started)return;s.answerMode=b.dataset.answerMode;localStorage.setItem('geoQuizAnswerMode',s.answerMode);saveSessions();renderReadySession(s)});
+els.answerModeOptions.addEventListener('click',e=>{const b=e.target.closest('[data-answer-mode]');if(!b)return;const s=getSession(state.lastGameMode,true);ensureSessionState(s);if(s.started)return;const v=b.dataset.answerMode;if(state.lastGameMode==='capital'){s.capitalDirection=v;localStorage.setItem('geoQuizCapitalDirection',v)}else{s.answerMode=v;localStorage.setItem('geoQuizAnswerMode',v)}saveSessions();renderReadySession(s)});
 function beginSession(){els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);els.finishedPanel.classList.remove('show');setSessionControl('pause');const s=getSession(state.lastGameMode,true);if(!s||s.completed)return;ensureSessionState(s);state.isPaused=false;s.started=true;s.paused=false;saveSessions();els.startPanel.style.display='none';els.form.style.display='block';showCurrentQuestion();updateStats();updateSettingsViews();startTimer()}
 function loadMode(mode){
   document.body.classList.remove('settings-open');
@@ -585,7 +583,7 @@ function renderCompletedSession(s){els.quiz.classList.add('state-screen');setSta
   renderTimer();
 }
 function renderFlag(){state.questionType='flag';els.prompt.innerHTML=`<span class="region-name">${state.region}</span>`;els.visual.innerHTML=`<div class="flag-wrap"><div class="flag">${flagEmoji(state.current.code)}</div></div>`;applyAnswerFields()}
-function renderCapital(session){state.questionType='capital';els.visual.innerHTML='';let variant=session.capitalVariants[session.index];if(!variant){variant=Math.random()<.5?'country':'capital';session.capitalVariants[session.index]=variant;saveSessions()}if(variant==='country'){els.prompt.innerHTML=`<span class="region-name">${state.region}</span> · Capital → Country`;const caps=state.current.capitals||[state.current.capital];state.shownCapital=caps[0];els.questionText.textContent=state.shownCapital;els.capitalField.style.display='none';setTimeout(()=>els.countryInput.focus(),0)}else{els.prompt.innerHTML=`<span class="region-name">${state.region}</span> · Country → Capital`;els.questionText.textContent=state.current.name;els.countryField.style.display='none';setTimeout(()=>els.capitalInput.focus(),0)}}
+function renderCapital(session){state.questionType='capital';els.visual.innerHTML='';const direction=session.capitalDirection||'shuffle';let variant=direction==='shuffle'?session.capitalVariants[session.index]:direction;if(!variant){variant=Math.random()<.5?'country':'capital';session.capitalVariants[session.index]=variant;saveSessions()}if(variant==='country'){els.prompt.innerHTML=`<span class="region-name">${state.region}</span> · Capital → Country`;const caps=state.current.capitals||[state.current.capital];state.shownCapital=caps[0];els.questionText.textContent=state.shownCapital;els.capitalField.style.display='none';setTimeout(()=>els.countryInput.focus(),0)}else{els.prompt.innerHTML=`<span class="region-name">${state.region}</span> · Country → Capital`;els.questionText.textContent=state.current.name;els.countryField.style.display='none';setTimeout(()=>els.capitalInput.focus(),0)}}
 function renderMap(){state.questionType='map';els.prompt.innerHTML=`<span class="region-name">${state.region}</span>`;els.visual.innerHTML=buildMap(state.current.code);applyAnswerFields()}
 function buildMap(targetCode){const width=1000,height=500;const paths=COUNTRIES.filter(c=>c.geometry).map(c=>`<path class="country ${c.code===targetCode?'target':''}" d="${geometryPath(c.geometry,width,height)}"></path>`).join('');return `<div class="map-wrap"><svg viewBox="0 0 1000 500" aria-label="World map">${paths}</svg></div>`}
 function geometryPath(g,w,h){const pt=coord=>[(coord[0]+180)/360*w,(90-coord[1])/180*h];const ring=r=>r.map((c,i)=>{const p=pt(c);return `${i?'L':'M'}${p[0].toFixed(1)} ${p[1].toFixed(1)}`}).join(' ')+' Z';if(g.type==='Polygon')return g.coordinates.map(ring).join(' ');if(g.type==='MultiPolygon')return g.coordinates.flatMap(poly=>poly.map(ring)).join(' ');return ''}
@@ -772,14 +770,11 @@ els.endSessionBtn.addEventListener('click',()=>{const key=sessionKey(state.lastG
 function restartSession(){setSessionControl('hidden');
   pauseTimer();
   const key=sessionKey(state.lastGameMode);
-  const answerMode=answerModeFor(state.sessions[key]);
   delete state.sessions[key];
   saveSessions();
   state.isPaused=false;
   els.finishedPanel.classList.remove('show');
-  const s=getSession(state.lastGameMode,true);
-  s.answerMode=answerMode;
-  beginSession();
+  loadMode(state.lastGameMode);
 }
 
 els.startBtn.addEventListener('click',beginSession);els.restartSessionBtn.addEventListener('click',restartSession);
