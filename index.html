@@ -35,7 +35,7 @@ select{background:var(--panel);color:var(--text);border:1px solid var(--line);bo
 .flag{font-size:150px;line-height:1}.map-wrap{background:var(--bg);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:6px 0 18px}
 svg{display:block;width:100%;height:auto}.country{fill:#505050;stroke:var(--bg);stroke-width:.55}.country.target{fill:var(--accent);stroke:var(--text);stroke-width:1.4}
 .fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;color:var(--muted);font-size:13px;margin:0 0 6px}.field-label-row{display:flex;align-items:center;justify-content:flex-start;gap:6px;margin:0 0 6px}.field-label-row label{margin:0}.hint-btn{padding:2px 5px;border-radius:7px;font-size:14px;line-height:1;background:transparent;color:var(--muted);border-color:transparent;vertical-align:middle}.hint-btn:hover{color:var(--text)}
-.field input{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:13px 12px;font-size:17px;outline:none}.field input:focus{border-color:var(--accent)}
+.field input{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:13px 12px;font-size:17px;font-weight:700;outline:none}.field input:focus{border-color:var(--accent)}
 .actions{display:flex;gap:10px;align-items:center;margin-top:14px}
 .actions #checkBtn{flex:1;min-width:0}
 .actions #nextBtn{margin-left:auto;width:56px;min-width:56px;padding-left:0;padding-right:0;font-size:24px;line-height:1}.result{margin-top:18px;border-top:1px solid var(--line);padding-top:18px;display:none}.result.show{display:block}
@@ -67,7 +67,7 @@ svg{display:block;width:100%;height:auto}.country{fill:#505050;stroke:var(--bg);
 .finished-score{font-size:22px;font-weight:700;color:var(--text);margin-bottom:14px}
 .finished-note{color:var(--muted);font-size:15px;line-height:1.5;max-width:320px;margin:0 auto}
 .finished-pep{color:var(--text);font-size:16px;font-weight:700;line-height:1.5;max-width:320px;margin:12px auto 0}
-.answer-review{width:100%;min-height:48px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px;display:flex;align-items:center;gap:10px}
+.answer-review{width:100%;min-height:48px;font-size:17px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px;display:flex;align-items:center;gap:10px}
 .answer-review-main{min-width:0;flex:1;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .answer-review.correct .correct-answer{font-weight:700;color:var(--text)}
 .answer-review.wrong .user-answer{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -97,6 +97,7 @@ svg{display:block;width:100%;height:auto}.country{fill:#505050;stroke:var(--bg);
 .start-panel .ready-region-link{margin-bottom:14px}
 .answer-mode{display:none;gap:6px;justify-content:center;flex-wrap:wrap;margin:0 0 18px}.answer-mode.show{display:flex}
 .answer-mode button{padding:8px 14px;border-radius:999px;font-size:14px;background:var(--panel2)}.answer-mode button.active{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:700}
+.answer-mode button span{display:block;text-align:center}.answer-mode button span::after{content:attr(data-label);display:block;height:0;overflow:hidden;visibility:hidden;font-weight:700}
   .quiz.state-screen .start-panel,
   .quiz.state-screen .pause-panel,
   .quiz.state-screen .finished-panel{
@@ -147,7 +148,7 @@ h1{display:flex;align-items:center;gap:10px;letter-spacing:-.5px}
 .mode[data-mode="capital"],.mobile-nav[data-tab="capital"]{--accent:var(--capital)}
 .mode[data-mode="map"],.mobile-nav[data-tab="map"]{--accent:var(--map)}
 .mobile-nav[data-tab="settings"]{--accent:var(--settings)}
-.field input::placeholder{color:var(--muted);opacity:1}
+.field input::placeholder{color:var(--muted);opacity:1;font-weight:400}
 button.primary{font-weight:500}
 @media(max-width:680px){
   body:not(.settings-open) .stats{display:none}
@@ -244,8 +245,8 @@ button.primary{font-weight:500}
     </div>
     <form id="answerForm">
       <div class="fields">
-        <div class="field" id="countryField"><div class="field-label-row"><label for="countryInput">Country <button id="countryHintBtn" class="hint-btn" type="button" tabindex="-1" title="Show next letter (; shortcut)" aria-label="Country hint">💡</button></label></div><input id="countryInput" autocomplete="off" placeholder="Type country name in English"></div>
-        <div class="field" id="capitalField"><div class="field-label-row"><label for="capitalInput">Capital <button id="capitalHintBtn" class="hint-btn" type="button" tabindex="-1" title="Show next letter (; shortcut)" aria-label="Capital hint">💡</button></label></div><input id="capitalInput" autocomplete="off" placeholder="Type capital name in English"></div>
+        <div class="field" id="countryField"><div class="field-label-row"><label for="countryInput">Country <button id="countryHintBtn" class="hint-btn" type="button" tabindex="-1" title="Show next letter (; shortcut)" aria-label="Country hint">💡</button></label></div><input id="countryInput" autocomplete="off" autocorrect="off" spellcheck="false" lang="en" placeholder="Type country name in English"></div>
+        <div class="field" id="capitalField"><div class="field-label-row"><label for="capitalInput">Capital <button id="capitalHintBtn" class="hint-btn" type="button" tabindex="-1" title="Show next letter (; shortcut)" aria-label="Capital hint">💡</button></label></div><input id="capitalInput" autocomplete="off" autocorrect="off" spellcheck="false" lang="en" placeholder="Type capital name in English"></div>
       </div>
       <div class="actions"><button id="checkBtn" class="primary" type="submit">Check answer</button><button id="nextBtn" type="button" disabled aria-label="Next question">→</button></div>
     </form>
@@ -299,6 +300,14 @@ function loadSessions(){try{return JSON.parse(localStorage.getItem('geoQuizSessi
 function saveSessions(){localStorage.setItem('geoQuizSessionsV2',JSON.stringify(state.sessions))}
 function normalizeStats(){state.stats.wrongByCode=state.stats.wrongByCode||{};state.stats.hintedByCode=state.stats.hintedByCode||{};state.stats.correct=state.stats.correct||0;state.stats.total=state.stats.total||0;state.stats.streak=state.stats.streak||0}
 function saveStats(){localStorage.setItem('geoQuizStats',JSON.stringify(state.stats));updateStats();updateSettingsViews()}
+// Korean 2-beolsik layout -> QWERTY keys, so answers typed with the Korean
+// keyboard still active become the English letters that were physically pressed.
+const HANGUL_CHO=['r','R','s','e','E','f','a','q','Q','t','T','d','w','W','c','z','x','v','g'];
+const HANGUL_JUNG=['k','o','i','O','j','p','u','P','h','hk','ho','hl','y','n','nj','np','nl','b','m','ml','l'];
+const HANGUL_JONG=['','r','R','rt','s','sw','sg','e','f','fr','fa','fq','ft','fx','fv','fg','a','q','qt','t','T','d','w','c','z','x','v','g'];
+const HANGUL_JAMO=['r','R','rt','s','sw','sg','e','E','f','fr','fa','fq','ft','fx','fv','fg','a','q','Q','qt','t','T','d','w','W','c','z','x','v','g',...HANGUL_JUNG];
+function hangulToQwerty(str){let out='';for(const ch of str){const cp=ch.codePointAt(0);if(cp>=0xAC00&&cp<=0xD7A3){const i=cp-0xAC00;out+=HANGUL_CHO[Math.floor(i/588)]+HANGUL_JUNG[Math.floor((i%588)/28)]+HANGUL_JONG[i%28]}else if(cp>=0x3131&&cp<=0x3163){out+=HANGUL_JAMO[cp-0x3131]}else out+=ch}return out}
+function forceEnglishInput(input){const convert=()=>{const v=input.value;if(!/[\u3131-\u3163\uAC00-\uD7A3]/.test(v))return;input.value=hangulToQwerty(v);const n=input.value.length;try{input.setSelectionRange(n,n)}catch(e){}};input.addEventListener('compositionend',convert);input.addEventListener('input',e=>{if(!e.isComposing)convert()})}
 function flagEmoji(code){return code.replace(/./g,ch=>String.fromCodePoint(127397+ch.charCodeAt()))}
 function norm(s){return (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]/g,'')}
 function countryMatches(input,c){const n=norm(input);return !!n&&[c.name,...(c.aliases||[])].some(v=>norm(v)===n)}
@@ -387,7 +396,7 @@ function ensureSessionState(s){
 const ANSWER_OPTIONS={flag:[['country','Country'],['capital','Capital']],map:[['country','Country'],['capital','Capital']],capital:[['country','Capital → Country'],['capital','Country → Capital'],['shuffle','Shuffle']]};
 function answerModeFor(s){return (s&&s.answerMode)||'both'}
 function applyAnswerFields(){const mode=state.lastGameMode==='capital'?'both':answerModeFor(currentSession());const showCountry=mode!=='capital',showCapital=mode!=='country';els.countryField.style.display=showCountry?'block':'none';els.capitalField.style.display=showCapital?'block':'none';els.questionText.textContent=mode==='country'?'Country':mode==='capital'?'Capital':'Country & Capital';setTimeout(()=>(showCountry?els.countryInput:els.capitalInput).focus(),0)}
-function renderAnswerModeOptions(s){const mode=state.lastGameMode;const opts=ANSWER_OPTIONS[mode]||[];const current=mode==='capital'?((s&&s.capitalDirection)||'shuffle'):answerModeFor(s);els.answerModeOptions.classList.toggle('show',opts.length>0);const isOn=v=>mode==='capital'?v===current:(current==='both'||current===v);els.answerModeOptions.innerHTML=opts.map(([v,label])=>`<button type="button" data-answer-mode="${v}" aria-pressed="${isOn(v)}" class="${isOn(v)?'active':''}">${label}</button>`).join('')}
+function renderAnswerModeOptions(s){const mode=state.lastGameMode;const opts=ANSWER_OPTIONS[mode]||[];const current=mode==='capital'?((s&&s.capitalDirection)||'shuffle'):answerModeFor(s);els.answerModeOptions.classList.toggle('show',opts.length>0);const isOn=v=>mode==='capital'?v===current:(current==='both'||current===v);els.answerModeOptions.innerHTML=opts.map(([v,label])=>`<button type="button" data-answer-mode="${v}" aria-pressed="${isOn(v)}" class="${isOn(v)?'active':''}"><span data-label="${label}">${label}</span></button>`).join('')}
 function saveCurrentDraft(s){
   if(!s||!s.started||s.completed)return;
   if(!state.answered){
@@ -758,6 +767,7 @@ function showHint(kind){
   const s=currentSession();if(s){s.draft={country:els.countryInput.value||'',capital:els.capitalInput.value||''};saveSessions()}
   input.focus();
 }
+forceEnglishInput(els.countryInput);forceEnglishInput(els.capitalInput);
 els.countryHintBtn.addEventListener('click',()=>showHint('country'));els.capitalHintBtn.addEventListener('click',()=>showHint('capital'));
 document.addEventListener('keydown',e=>{if(e.key!==';'||state.answered||state.activeTab==='settings')return;const active=document.activeElement,countryVisible=els.countryField.style.display!=='none',capitalVisible=els.capitalField.style.display!=='none';let kind=null;if(active===els.countryInput&&countryVisible)kind='country';else if(active===els.capitalInput&&capitalVisible)kind='capital';else if(countryVisible&&!capitalVisible)kind='country';else if(capitalVisible&&!countryVisible)kind='capital';else if(countryVisible&&capitalVisible)kind='country';if(kind){e.preventDefault();showHint(kind)}});
 function openSettings(){pauseTimer();els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);document.body.classList.add('settings-open');state.activeTab='settings';updatePageTitle();els.quiz.style.display='none';els.settingsPanel.style.display='block';els.timerControls.style.display='none';document.querySelectorAll('.mobile-nav').forEach(b=>b.classList.toggle('active',b.dataset.tab==='settings'));updateStats();updateSettingsViews();renderTimer()}
