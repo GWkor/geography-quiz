@@ -20,6 +20,7 @@ h1{margin:0 0 4px;font-size:30px}.sub{color:var(--muted);font-size:14px}
 .stats{display:flex;gap:10px;flex-wrap:wrap}.stat{background:var(--panel);border:1px solid var(--line);padding:10px 14px;border-radius:12px;min-width:88px;text-align:center}.stat b{display:block;font-size:19px}
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}
 button,select,input{font:inherit}button{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:10px;padding:10px 14px;cursor:pointer}
+button{transition:transform .28s cubic-bezier(.34,1.56,.64,1),background-color .18s ease,border-color .18s ease,color .18s ease}button:active:not(:disabled){transform:scale(.96);transition-duration:.08s}
 button:hover{border-color:var(--hover)}button.active{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:700}
 button.primary{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:700}button.secondary{background:var(--panel2)}button:disabled{opacity:.45;cursor:not-allowed}
 select{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
@@ -59,7 +60,7 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .start-panel{display:none;justify-content:center;align-items:center;min-height:0}
 .state-btn{width:180px;min-width:180px;display:block;margin-left:auto;margin-right:auto}
 .state-region{display:inline-block;padding:4px 8px;border:1px solid var(--line);border-radius:999px;background:var(--panel2);color:var(--text);font-weight:700;line-height:1;margin-bottom:14px}
-.auto-toggle{display:inline-flex;align-items:center;gap:8px;margin:0 0 16px;padding:6px 12px 6px 6px;border-radius:999px;font-size:14px;background:var(--panel2);color:var(--muted)}.auto-toggle .switch{width:34px;height:20px;border-radius:999px;background:var(--line);position:relative;transition:background .18s ease;flex:0 0 auto}.auto-toggle .switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--text);transition:transform .18s ease}.auto-toggle[aria-pressed="true"]{color:var(--text);border-color:var(--accent)}.auto-toggle[aria-pressed="true"] .switch{background:var(--accent)}.auto-toggle[aria-pressed="true"] .switch::after{transform:translateX(14px);background:var(--bg)}
+.auto-toggle{display:inline-flex;align-items:center;gap:8px;margin:0 0 16px;padding:6px 12px 6px 6px;border-radius:999px;font-size:14px;background:var(--panel2);color:var(--muted)}.auto-toggle .switch{width:34px;height:20px;border-radius:999px;background:var(--line);position:relative;transition:background .18s ease;flex:0 0 auto}.auto-toggle .switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--text);transition:transform .32s cubic-bezier(.34,1.56,.64,1),background-color .18s ease}.auto-toggle[aria-pressed="true"]{color:var(--text);border-color:var(--accent)}.auto-toggle[aria-pressed="true"] .switch{background:var(--accent)}.auto-toggle[aria-pressed="true"] .switch::after{transform:translateX(14px);background:var(--bg)}
 .screen-flash{position:fixed;inset:0;z-index:2000;pointer-events:none;opacity:0;background:var(--flash,transparent)}.screen-flash.good{--flash:var(--good)}.screen-flash.warn{--flash:var(--warn)}.screen-flash.bad{--flash:var(--bad)}.screen-flash.run{animation:screenFlash .55s ease-out}@keyframes screenFlash{0%{opacity:0}15%{opacity:.38}100%{opacity:0}}
 .pause-panel{display:none;min-height:0;align-items:center;justify-content:center;text-align:center;padding-top:0}
 .pause-panel.show{display:flex}
@@ -78,7 +79,11 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .answer-review.correct .correct-answer{font-weight:700;color:var(--text)}
 .answer-review.wrong .user-answer{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .answer-review.wrong .correct-answer{font-weight:700;color:var(--text);text-align:right}
-.answer-status{width:28px;height:28px;flex:0 0 28px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none}
+.answer-status{width:28px;height:28px;flex:0 0 28px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;animation:popIn .3s cubic-bezier(.34,1.56,.64,1) both}
+.answer-status svg path{stroke-dasharray:1;stroke-dashoffset:1;animation:drawStroke .3s ease-out .08s forwards}.answer-status svg path+path{animation-delay:.22s}
+@keyframes popIn{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}@keyframes drawStroke{to{stroke-dashoffset:0}}
+.field.shake{animation:shake .4s cubic-bezier(.36,.07,.19,.97) both}@keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-6px)}40%,60%{transform:translateX(6px)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 .answer-status svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 .answer-status.good{color:var(--good);background:color-mix(in srgb,var(--good) 12%,transparent)}
 .answer-status.warn{color:var(--warn);background:color-mix(in srgb,var(--warn) 12%,transparent)}
@@ -693,10 +698,11 @@ function wikiUrlForCurrent(){
 function statusIconMarkup(kind,url){
   const cls=kind==='good'?'good':kind==='warn'?'warn':'bad';
   const svg=kind==='bad'
-    ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>'
-    : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>';
+    ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M6 6l12 12"/><path pathLength="1" d="M18 6 6 18"/></svg>'
+    : '<svg viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="m5 12 4 4L19 6"/></svg>';
   return `<a class="answer-status ${cls}" href="${url}" target="_blank" rel="noopener noreferrer" aria-label="Open NamuWiki">${svg}</a>`;
 }
+function shakeField(field){field.classList.remove('shake');void field.offsetWidth;field.classList.add('shake');field.addEventListener('animationend',()=>field.classList.remove('shake'),{once:true})}
 function renderFieldResult(field,input,ok,correctText,hinted,url){
   const typed=(input.value||'').trim()||'—';
   input.style.display='none';
@@ -742,7 +748,7 @@ function quitSession(){
   renderQuitResult(s);
 }
 
-els.form.addEventListener('submit',e=>{e.preventDefault();if(state.reviewIndex!==null)return;if(state.answered){advanceQuestion();return}const empty=[els.countryInput,els.capitalInput].find(i=>i.closest('.field').style.display!=='none'&&!i.value.trim());const active=document.activeElement;if(empty&&active!==empty&&(active===els.countryInput||active===els.capitalInput)&&active.value.trim()){empty.focus();return}if(empty&&!state.emptySubmitArmed){state.emptySubmitArmed=true;empty.focus();flashScreen('bad');return}state.emptySubmitArmed=false;checkAnswer()});
+els.form.addEventListener('submit',e=>{e.preventDefault();if(state.reviewIndex!==null)return;if(state.answered){advanceQuestion();return}const empty=[els.countryInput,els.capitalInput].find(i=>i.closest('.field').style.display!=='none'&&!i.value.trim());const active=document.activeElement;if(empty&&active!==empty&&(active===els.countryInput||active===els.capitalInput)&&active.value.trim()){empty.focus();return}if(empty&&!state.emptySubmitArmed){state.emptySubmitArmed=true;empty.focus();flashScreen('bad');shakeField(empty.closest('.field'));return}state.emptySubmitArmed=false;checkAnswer()});
 [els.countryInput,els.capitalInput].forEach(i=>i.addEventListener('input',()=>{state.emptySubmitArmed=false}));
 function checkAnswer(){
   if(state.answered)return;
@@ -811,6 +817,8 @@ function checkAnswer(){
     );
   }
 
+  if(countryVisible&&!countryOK)shakeField(els.countryField);
+  if(capitalVisible&&!capitalOK)shakeField(els.capitalField);
   finishAnswerUI(ok);
   flashScreen(ok?(state.hintUsed?'warn':'good'):'bad');
   if(state.autoMode&&ok)scheduleAutoAdvance();
