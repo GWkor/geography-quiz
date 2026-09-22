@@ -59,10 +59,8 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .session-pause svg{width:17px;height:17px;fill:currentColor;stroke:none}
 .start-panel{display:none;justify-content:center;align-items:center;min-height:0}
 .state-btn{width:180px;min-width:180px;display:block;margin-left:auto;margin-right:auto;transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s ease,background-color .22s ease,filter .22s ease}
-.state-btn.primary{position:relative;overflow:hidden;isolation:isolate}
-.state-btn.primary::after{content:"";position:absolute;top:-40%;bottom:-40%;left:0;width:45%;background:linear-gradient(105deg,transparent 0%,rgba(255,255,255,.08) 35%,rgba(255,255,255,.7) 50%,rgba(255,255,255,.08) 65%,transparent 100%);transform:translateX(-160%) skewX(-18deg);pointer-events:none;z-index:1}
-@media(hover:hover){.state-btn.primary:hover:not(:disabled)::after{animation:shineSweep .75s cubic-bezier(.2,.7,.3,1) forwards}}
-@keyframes shineSweep{to{transform:translateX(320%) skewX(-18deg)}}
+.state-btn.primary{background-image:linear-gradient(115deg,color-mix(in srgb,var(--accent) 88%,#000) 0%,var(--accent) 35%,color-mix(in srgb,var(--accent) 76%,#fff) 60%,var(--accent) 100%);background-size:250% 100%;background-position:0% 50%;transition:background-position .9s cubic-bezier(.2,.8,.2,1),transform .28s cubic-bezier(.34,1.56,.64,1)}
+@media(hover:hover){.state-btn.primary:hover:not(:disabled){background-position:100% 50%}}
 .placeholder{visibility:hidden!important;pointer-events:none}
 .state-region{display:inline-block;padding:4px 8px;border:1px solid var(--line);border-radius:999px;background:var(--panel2);color:var(--text);font-weight:700;line-height:1;margin-bottom:14px}
 .auto-toggle{display:inline-flex;align-items:center;gap:8px;margin:0 0 16px;padding:6px 12px 6px 6px;border-radius:999px;font-size:14px;background:var(--panel2);color:var(--muted)}.auto-toggle .switch{width:34px;height:20px;border-radius:999px;background:var(--line);position:relative;transition:background .18s ease;flex:0 0 auto}.auto-toggle .switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--text);transition:transform .32s cubic-bezier(.34,1.56,.64,1),background-color .18s ease}.auto-toggle[aria-pressed="true"]{color:var(--text);border-color:var(--accent)}.auto-toggle[aria-pressed="true"] .switch{background:var(--accent)}.auto-toggle[aria-pressed="true"] .switch::after{transform:translateX(14px);background:var(--bg)}
