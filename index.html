@@ -1107,6 +1107,8 @@ function showHint(kind){
 }
 forceEnglishInput(els.countryInput);forceEnglishInput(els.capitalInput);
 els.countryHintBtn.addEventListener('click',()=>showHint('country'));els.capitalHintBtn.addEventListener('click',()=>showHint('capital'));
+// Enter / Space on a result screen (Finished, Time's up, Session ended) presses Back.
+document.addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;if(state.activeTab==='settings'||!els.finishedPanel.classList.contains('show')||els.restartSessionBtn.style.display==='none')return;const t=e.target;if(t&&t.tagName==='BUTTON'&&t!==els.restartSessionBtn)return;e.preventDefault();els.restartSessionBtn.click()});
 document.addEventListener('keydown',e=>{if(e.key!=='Escape'||state.activeTab==='settings')return;const s=currentSession();if(!s||!s.started||s.completed)return;if(state.isPaused){e.preventDefault();resumeSession()}else if(!els.quiz.classList.contains('state-screen')){e.preventDefault();pauseSession()}});
 document.addEventListener('keydown',e=>{if(e.key!==';'||state.answered||state.activeTab==='settings')return;const active=document.activeElement,countryVisible=els.countryField.style.display!=='none',capitalVisible=els.capitalField.style.display!=='none';let kind=null;if(active===els.countryInput&&countryVisible)kind='country';else if(active===els.capitalInput&&capitalVisible)kind='capital';else if(countryVisible&&!capitalVisible)kind='country';else if(capitalVisible&&!countryVisible)kind='capital';else if(countryVisible&&capitalVisible)kind='country';if(kind){e.preventDefault();showHint(kind)}});
 const PAGE_TITLES={profile:'Profile',practice:'Practice',statistics:'Statistics',answers:'Answer key',settings:'Settings'};
