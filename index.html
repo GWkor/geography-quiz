@@ -60,8 +60,10 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .start-panel{display:none;justify-content:center;align-items:center;min-height:0}
 .state-btn{width:180px;min-width:180px;display:block;margin-left:auto;margin-right:auto;transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s ease,background-color .22s ease,filter .22s ease}
 .state-btn.primary{display:flex;justify-content:center;align-items:center}
-.state-btn.primary::after{content:"→";display:inline-block;width:0;margin-left:0;opacity:0;overflow:hidden;transform:translateX(-8px);transition:width .3s cubic-bezier(.2,.8,.2,1),margin-left .3s cubic-bezier(.2,.8,.2,1),opacity .25s ease,transform .45s cubic-bezier(.34,1.56,.64,1)}
-@media(hover:hover){.state-btn.primary:hover:not(:disabled)::after{width:14px;margin-left:8px;opacity:1;transform:translateX(0)}}
+#startBtn::after{content:"→";display:inline-block;width:0;margin-left:0;opacity:0;overflow:hidden;transform:translateX(-8px);transition:width .3s cubic-bezier(.2,.8,.2,1),margin-left .3s cubic-bezier(.2,.8,.2,1),opacity .25s ease,transform .45s cubic-bezier(.34,1.56,.64,1)}
+@media(hover:hover){#startBtn:hover:not(:disabled)::after{width:14px;margin-left:8px;opacity:1;transform:translateX(0)}}
+.state-btn.flow{background-image:linear-gradient(115deg,color-mix(in srgb,var(--accent) 86%,#000) 0%,var(--accent) 30%,color-mix(in srgb,var(--accent) 74%,#fff) 50%,var(--accent) 70%,color-mix(in srgb,var(--accent) 86%,#000) 100%);background-size:300% 100%;background-position:0% 50%}
+@media(hover:hover){.state-btn.flow:hover:not(:disabled){animation:gradientFlow 2.6s ease-in-out infinite alternate}}@keyframes gradientFlow{from{background-position:0% 50%}to{background-position:100% 50%}}
 .placeholder{visibility:hidden!important;pointer-events:none}
 .state-region{display:inline-block;padding:4px 8px;border:1px solid var(--line);border-radius:999px;background:var(--panel2);color:var(--text);font-weight:700;line-height:1;margin-bottom:14px}
 .auto-toggle{display:inline-flex;align-items:center;gap:8px;margin:0 0 16px;padding:6px 12px 6px 6px;border-radius:999px;font-size:14px;background:var(--panel2);color:var(--muted)}.auto-toggle .switch{width:34px;height:20px;border-radius:999px;background:var(--line);position:relative;transition:background .18s ease;flex:0 0 auto}.auto-toggle .switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--text);transition:transform .32s cubic-bezier(.34,1.56,.64,1),background-color .18s ease}.auto-toggle[aria-pressed="true"]{color:var(--text);border-color:var(--accent)}.auto-toggle[aria-pressed="true"] .switch{background:var(--accent)}.auto-toggle[aria-pressed="true"] .switch::after{transform:translateX(14px);background:var(--bg)}
@@ -271,7 +273,7 @@ button.primary{font-weight:500}
         <div class="answer-mode show placeholder" aria-hidden="true"><button type="button" tabindex="-1" disabled><span data-label="Country">Country</span></button></div>
         <div><button class="auto-toggle" type="button" aria-pressed="false"><span class="switch" aria-hidden="true"></span>Auto mode</button></div>
         <div class="pause-actions">
-          <button id="resumeBtn" class="primary state-btn" type="button">Resume</button>
+          <button id="resumeBtn" class="primary state-btn flow" type="button">Resume</button>
           <button id="quitBtn" class="secondary state-btn" type="button">Quit</button>
         </div>
       </div>
@@ -283,7 +285,7 @@ button.primary{font-weight:500}
         <div class="finished-score" id="finishedScore"></div>
         <div class="finished-note" id="finishedNote"></div>
         <div class="finished-pep" id="finishedPep"></div>
-        <button id="restartSessionBtn" class="primary state-btn" type="button" style="display:none;margin-top:20px">Back</button>
+        <div class="pause-actions" style="margin-top:20px"><button id="restartSessionBtn" class="primary state-btn flow" type="button" style="display:none">Back</button></div>
       </div>
     </div>
     <form id="answerForm">
@@ -483,7 +485,7 @@ function autoPauseCurrentSession(){
   const s=currentSession();
   if(!s)return;
   ensureSessionState(s);
-  if(s.started&&!s.completed){
+  if(s.started&&!s.completed&&!s.quit){
     saveCurrentDraft(s);
     s.paused=true;
     pauseTimer();
@@ -586,6 +588,15 @@ document.querySelectorAll('.mobile-nav').forEach(b=>b.classList.toggle('active',
   const s=getSession(mode,true);
   ensureSessionState(s);
 
+  if(s.quit){
+    state.isPaused=false;
+    els.startPanel.style.display='none';
+    els.form.style.display='block';
+    renderQuestionUnderlay(s);
+    renderQuitResult(s);
+    updateStats();renderTimer();return;
+  }
+
   if(s.completed||s.index>=s.order.length||s.remainingMs<=0){
     state.isPaused=false;
     s.paused=false;
@@ -635,6 +646,7 @@ function renderQuitResult(s){els.quiz.classList.add('state-screen');setStateUnde
   pauseTimer();
   state.isPaused=false;
   s.paused=false;
+  s.quit=true;
   saveSessions();
 
   els.startPanel.style.display='none';
@@ -653,7 +665,7 @@ function renderQuitResult(s){els.quiz.classList.add('state-screen');setStateUnde
   animateScore(els.finishedScore,s.correct,s.answered,accuracyPercent(s));
   els.finishedNote.textContent=`You answered ${s.answered} of ${s.order.length} questions.`;
   els.finishedPep.textContent='Reset, refocus, and give it another try.';
-  els.restartSessionBtn.style.display='block';
+  els.restartSessionBtn.style.display='flex';
   fitPanel(els.finishedPanel);
   renderTimer();
 }
@@ -691,7 +703,7 @@ function renderCompletedSession(s,celebrate=false,animate=celebrate){els.quiz.cl
     els.finishedPep.textContent=pepTalkForScore(sessionPercent(s));
     if(celebrate)launchConfetti();
   }
-  els.restartSessionBtn.style.display='block';
+  els.restartSessionBtn.style.display='flex';
   fitPanel(els.finishedPanel);
   if(animate)enterPanel(els.finishedPanel);
   renderTimer();
