@@ -423,6 +423,8 @@ function ensureSessionState(s){
   if(!s.answerMode)s.answerMode='both';
   if(!s.capitalDirection)s.capitalDirection='shuffle';
   if(!s.reviews)s.reviews={};
+  // Sessions saved before the 10-minute regional limit keep their old 15:00 until started.
+  if(!s.started&&!s.completed)s.remainingMs=sessionMsFor(s.region||state.region);
 }
 const ANSWER_OPTIONS={flag:[['country','Country'],['capital','Capital']],map:[['country','Country'],['capital','Capital']],capital:[['country','Country'],['capital','Capital']]};
 function answerModeFor(s){return (s&&s.answerMode)||'both'}
