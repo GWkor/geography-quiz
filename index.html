@@ -851,6 +851,8 @@ function quitSession(){
   const s=currentSession();
   if(!s)return;
   pauseTimer();
+  // Nothing answered yet: no result to show, go straight back to Ready.
+  if(!s.answered){els.pausePanel.classList.remove('show');restartSession();return}
   renderQuitResult(s);
 }
 
