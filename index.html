@@ -83,6 +83,25 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .answer-status svg path{stroke-dasharray:1;stroke-dashoffset:1;animation:drawStroke .3s ease-out .08s forwards}.answer-status svg path+path{animation-delay:.22s}
 @keyframes popIn{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}@keyframes drawStroke{to{stroke-dashoffset:0}}
 .field.shake{animation:shake .4s cubic-bezier(.36,.07,.19,.97) both}@keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-6px)}40%,60%{transform:translateX(6px)}}
+/* 4) question transition */
+.quiz.q-in :is(#prompt,#questionText,#visual,#answerForm){animation:questionIn .34s cubic-bezier(.2,.8,.2,1) both}.quiz.q-in #questionText{animation-delay:.03s}.quiz.q-in #visual{animation-delay:.06s}.quiz.q-in #answerForm{animation-delay:.09s}
+.quiz.q-in.q-back :is(#prompt,#questionText,#visual,#answerForm){animation-name:questionInBack}
+@keyframes questionIn{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}@keyframes questionInBack{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
+/* 5) state panels */
+.quiz.state-screen .start-panel,.pause-panel.show,.finished-panel.show{animation:panelIn .26s cubic-bezier(.2,.8,.2,1) both}@keyframes panelIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.quiz .state-underlay{transition:filter .3s ease}
+/* 6) counters */
+.progress .n{display:inline-block;animation:numIn .28s cubic-bezier(.2,.8,.2,1) both}@keyframes numIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+/* 7) hint reveal */
+.field input.hint-glow{animation:hintGlow .5s ease-out}@keyframes hintGlow{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--warn) 55%,transparent);border-color:var(--warn)}100%{box-shadow:0 0 0 10px transparent}}
+.hint-btn.bump{animation:bump .4s cubic-bezier(.34,1.56,.64,1)}@keyframes bump{40%{transform:translateY(-4px) scale(1.25)}}
+/* 8) map target */
+.target-ring{animation:ringPulse 1.6s ease-out infinite}@keyframes ringPulse{0%{stroke-width:2;opacity:1}100%{stroke-width:9;opacity:0}}
+.country.target{animation:targetIn .45s ease-out both}@keyframes targetIn{from{fill-opacity:.15}to{fill-opacity:1}}
+.map-inset,.map-inset-frame{animation:fadeIn .35s ease-out .15s both}@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+/* 9) bottom nav */
+.bottom-nav{position:relative}.nav-indicator{position:absolute;top:9px;height:52px;border-radius:18px;background:color-mix(in srgb,var(--accent) 14%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 42%,transparent);transition:left .38s cubic-bezier(.34,1.3,.64,1),width .38s cubic-bezier(.34,1.3,.64,1),background-color .2s ease,box-shadow .2s ease;pointer-events:none;opacity:0}.nav-indicator.on{opacity:1}
+.bottom-nav button{position:relative;z-index:1}.bottom-nav button.active .nav-icon{animation:iconBounce .45s cubic-bezier(.34,1.56,.64,1)}@keyframes iconBounce{35%{transform:translateY(-3px) scale(1.18)}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 .answer-status svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 .answer-status.good{color:var(--good);background:color-mix(in srgb,var(--good) 12%,transparent)}
@@ -181,7 +200,7 @@ button.primary{font-weight:500}
   .toolbar{display:none}.fields{grid-template-columns:1fr}.big-question{font-size:27px}.flag{font-size:128px}.flag-wrap,.name-wrap,.map-wrap{min-height:min(300px,36vh)}.name-wrap .name{font-size:30px}.quiz{padding:16px;margin-top:12px;min-height:calc(367px + min(300px,36vh))}.settings-panel{margin-top:12px}
   .bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:1000;display:grid;grid-template-columns:repeat(4,1fr);align-items:center;background:rgba(32,32,32,.96);border-top:1px solid var(--line);padding:9px 12px calc(9px + env(safe-area-inset-bottom));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
   .bottom-nav button{border:0;background:transparent;padding:0;height:52px;border-radius:18px;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:background .18s ease,color .18s ease,box-shadow .18s ease,transform .18s ease}
-  .bottom-nav button.active{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 42%,transparent)}
+  .bottom-nav button.active{color:var(--accent)}
   .bottom-nav button:active{transform:scale(.96)}
   .nav-icon{display:flex;align-items:center;justify-content:center;width:30px;height:30px}
   .nav-icon svg{width:28px;height:28px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -234,7 +253,7 @@ button.primary{font-weight:500}
     <div id="visual"></div>
     <div class="start-panel" id="startPanel">
       <div>
-        <div class="region-picker"><button class="ready-region-link" type="button" id="readyRegionLink" aria-expanded="false">All <span class="chev" aria-hidden="true">▾</span></button>
+        <div class="region-picker"><button class="ready-region-link" type="button" id="readyRegionLink" aria-expanded="false">All</button>
         <div class="region-options" id="readyRegionOptions" hidden></div></div>
         <div class="pause-title">Ready?</div>
         <div class="answer-mode" id="answerModeOptions" role="group" aria-label="Question type"></div>
@@ -297,6 +316,7 @@ button.primary{font-weight:500}
 
 <div class="screen-flash" id="screenFlash" aria-hidden="true"></div>
 <nav class="bottom-nav" id="bottomNav" aria-label="Quiz navigation">
+  <span class="nav-indicator" id="navIndicator" aria-hidden="true"></span>
   <button class="mobile-nav active" data-tab="flag" aria-label="Flag Quiz">
     <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 5.5c3-2 5.2 1.6 8.2-.1 2.1-1.2 3.7-.4 5.8.9v8.1c-2.1-1.3-3.7-2.1-5.8-.9-3 1.7-5.2-1.9-8.2.1"/></svg></span><span class="sr-only">Flag Quiz</span>
   </button>
@@ -519,7 +539,7 @@ function renderReadySession(s){
 function fitPanel(panel){const inner=panel.firstElementChild;const cs=getComputedStyle(panel);const extra=parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom)+parseFloat(cs.borderTopWidth)+parseFloat(cs.borderBottomWidth);const need=Math.ceil(inner.offsetHeight+extra);if(need>els.quiz.offsetHeight)els.quiz.style.minHeight=`${need}px`}
 function lockReadyPanelOffset(){const panel=els.startPanel,inner=panel.firstElementChild;const prev=els.capitalField.style.display;const bothShown=els.countryField.style.display!=='none'&&prev!=='none';if(bothShown)els.capitalField.style.display='none';const cs=getComputedStyle(panel);const avail=els.quiz.offsetHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom)-parseFloat(cs.borderTopWidth)-parseFloat(cs.borderBottomWidth);if(bothShown)els.capitalField.style.display=prev;const top=Math.max(0,(avail-inner.offsetHeight)/2);panel.style.alignItems='flex-start';inner.style.margin=`${Math.round(top)}px auto auto`;const need=Math.ceil(inner.offsetHeight+els.quiz.offsetHeight-avail);if(need>els.quiz.offsetHeight)els.quiz.style.minHeight=`${need}px`}
 // Region picker on the Ready screen: the pill expands into the list of regions.
-function renderReadyRegion(open){const link=document.getElementById('readyRegionLink'),opts=document.getElementById('readyRegionOptions');link.innerHTML=`${state.region} <span class="chev" aria-hidden="true">${open?'▴':'▾'}</span>`;link.setAttribute('aria-expanded',open?'true':'false');opts.hidden=!open;if(open)opts.innerHTML=REGION_ORDER.map(r=>`<button type="button" data-region="${r}" class="${r===state.region?'active':''}"><span data-label="${r}">${r}</span></button>`).join('')}
+function renderReadyRegion(open){const link=document.getElementById('readyRegionLink'),opts=document.getElementById('readyRegionOptions');link.textContent=state.region;link.setAttribute('aria-expanded',open?'true':'false');opts.hidden=!open;if(open)opts.innerHTML=REGION_ORDER.map(r=>`<button type="button" data-region="${r}" class="${r===state.region?'active':''}"><span data-label="${r}">${r}</span></button>`).join('')}
 document.getElementById('readyRegionLink').addEventListener('click',()=>renderReadyRegion(document.getElementById('readyRegionOptions').hidden));
 document.addEventListener('pointerdown',e=>{if(!e.target.closest('.region-picker')&&!document.getElementById('readyRegionOptions').hidden)renderReadyRegion(false)});
 document.getElementById('readyRegionOptions').addEventListener('click',e=>{const b=e.target.closest('[data-region]');if(!b)return;if(b.dataset.region===state.region){renderReadyRegion(false);return}setRegion(b.dataset.region)});
@@ -552,6 +572,7 @@ quizEl.addEventListener('touchend',e=>{
 
 document.querySelectorAll('.mobile-nav').forEach(b=>b.classList.toggle('active',b.dataset.tab===mode));
   document.querySelectorAll('.mode').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
+  moveNavIndicator();
 
   const s=getSession(mode,true);
   ensureSessionState(s);
@@ -586,8 +607,11 @@ document.querySelectorAll('.mobile-nav').forEach(b=>b.classList.toggle('active',
     startTimer();
   }
 }
+function animateQuestion(back){const q=els.quiz;q.classList.remove('q-in','q-back');void q.offsetWidth;q.classList.add('q-in');if(back)q.classList.add('q-back');clearTimeout(state.qAnimHandle);state.qAnimHandle=setTimeout(()=>q.classList.remove('q-in','q-back'),450)}
 function showCurrentQuestion(){state.reviewIndex=null;els.quiz.style.minHeight='';els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);els.finishedPanel.classList.remove('show');setSessionControl('pause');resetQuestionUI();els.pausePanel.classList.remove('show');els.prompt.style.display='';els.questionText.style.display='';els.visual.style.display='';els.form.style.display='block';const s=getSession(state.lastGameMode,true);if(!s.order.length){els.prompt.textContent='No questions available';els.questionText.textContent='Try another region.';els.visual.innerHTML='';els.checkBtn.disabled=true;return}if(s.index>=s.order.length){s.completed=true;saveSessions();renderCompletedSession(s);return}state.current=getCountryByCode(s.order[s.index]);if(state.lastGameMode==='flag')renderFlag();else if(state.lastGameMode==='capital')renderCapital(s);else renderMap();updateActionButtons()}
 
+// Count the finished score up from 0 over ~700ms.
+function animateScore(el,correct,total,percent){const t0=performance.now(),dur=700;const ease=x=>1-Math.pow(1-x,3);const step=now=>{const k=Math.min(1,(now-t0)/dur),e=ease(k);el.textContent=`Score ${Math.round(correct*e)}/${total} · ${Math.round(percent*e)}%`;if(k<1)requestAnimationFrame(step)};requestAnimationFrame(step)}
 function accuracyPercent(s){return s.answered?Math.round((s.correct/s.answered)*100):0}
 function sessionPercent(s){
   const denom=s.order.length||1;
@@ -618,7 +642,7 @@ function renderQuitResult(s){els.quiz.classList.add('state-screen');setStateUnde
   document.getElementById('finishedRegion').textContent=s.region||state.region;
   els.finishedTitle.textContent='Session ended';
   els.finishedTitle.style.color='var(--text)';
-  els.finishedScore.textContent=`Score ${s.correct}/${s.answered} · ${accuracyPercent(s)}%`;
+  animateScore(els.finishedScore,s.correct,s.answered,accuracyPercent(s));
   els.finishedNote.textContent=`You answered ${s.answered} of ${s.order.length} questions.`;
   els.finishedPep.textContent='Reset, refocus, and give it another try.';
   els.restartSessionBtn.style.display='block';
@@ -648,13 +672,13 @@ function renderCompletedSession(s,celebrate=false){els.quiz.classList.add('state
   if(timeUp){
     els.finishedTitle.textContent="Time's up!";
     els.finishedTitle.style.color='var(--accent)';
-    els.finishedScore.textContent=`Score ${s.correct}/${s.answered} · ${accuracyPercent(s)}%`;
+    animateScore(els.finishedScore,s.correct,s.answered,accuracyPercent(s));
     els.finishedNote.textContent=`You answered ${s.answered} of ${s.order.length} questions before the clock ran out.`;
     els.finishedPep.textContent=pepTalkForScore(accuracyPercent(s));
   }else{
     els.finishedTitle.textContent='Finished!';
     els.finishedTitle.style.color='var(--accent)';
-    els.finishedScore.textContent=`Score ${s.correct}/${s.order.length} · ${accuracyPercent(s)}%`;
+    animateScore(els.finishedScore,s.correct,s.order.length,accuracyPercent(s));
     els.finishedNote.textContent='You completed every question in this session.';
     els.finishedPep.textContent=pepTalkForScore(sessionPercent(s));
     if(celebrate)launchConfetti();
@@ -679,7 +703,7 @@ function launchConfetti(){
     if(alive)requestAnimationFrame(tick);else canvas.remove()};
   requestAnimationFrame(tick);
 }
-function setPrompt(html){const s=currentSession();const idx=state.reviewIndex!==null?state.reviewIndex:(s?s.index:0);const progress=s&&s.order.length?`<span class="progress">${state.reviewIndex!==null?'Review ':''}${Math.min(idx+1,s.order.length)}/${s.order.length}</span>`:'';els.prompt.innerHTML=`<span>${html}</span>${progress}`}
+function setPrompt(html){const s=currentSession();const idx=state.reviewIndex!==null?state.reviewIndex:(s?s.index:0);const progress=s&&s.order.length?`<span class="progress">${state.reviewIndex!==null?'Review ':''}<span class="n">${Math.min(idx+1,s.order.length)}</span>/${s.order.length}</span>`:'';els.prompt.innerHTML=`<span>${html}</span>${progress}`}
 function renderFlag(){state.questionType='flag';setPrompt(`<span class="region-name">${state.region}</span>`);els.visual.innerHTML=`<div class="flag-wrap"><div class="flag">${flagEmoji(state.current.code)}</div></div>`;applyAnswerFields()}
 function renderCapital(session){state.questionType='capital';els.visual.innerHTML='';const direction=session.capitalDirection||'shuffle';let variant=direction==='shuffle'?session.capitalVariants[session.index]:direction;if(!variant){variant=Math.random()<.5?'country':'capital';session.capitalVariants[session.index]=variant;saveSessions()}setPrompt(`<span class="region-name">${state.region}</span>`);const shown=variant==='country'?(state.shownCapital=(state.current.capitals||[state.current.capital])[0]):state.current.name;els.questionText.textContent=variant==='country'?'Country':'Capital';els.visual.innerHTML=`<div class="name-wrap"><div class="name">${shown}</div></div>`;if(variant==='country'){els.capitalField.style.display='none';setTimeout(()=>els.countryInput.focus(),0)}else{els.countryField.style.display='none';setTimeout(()=>els.capitalInput.focus(),0)}}
 function renderMap(){state.questionType='map';setPrompt(`<span class="region-name">${state.region}</span>`);els.visual.innerHTML=buildMap(state.current.code);applyAnswerFields()}
@@ -867,16 +891,17 @@ function renderReview(index){
   state.current=getCountryByCode(s.order[index]);
   if(state.lastGameMode==='flag')renderFlag();else if(state.lastGameMode==='capital')renderCapital({...s,index});else renderMap();
   showReviewResults(s.reviews[index]);
+  animateQuestion(index<(s.index));
   state.answered=true;
   els.countryInput.disabled=true;els.capitalInput.disabled=true;els.countryHintBtn.disabled=true;els.capitalHintBtn.disabled=true;
   updateActionButtons();
 }
-function exitReview(){state.reviewIndex=null;const s=currentSession();showCurrentQuestion();restoreDraft(s);restoreAnswered(s)}
+function exitReview(){state.reviewIndex=null;const s=currentSession();showCurrentQuestion();animateQuestion(false);restoreDraft(s);restoreAnswered(s)}
 function flashScreen(kind){const el=els.screenFlash;el.className='screen-flash';void el.offsetWidth;el.classList.add(kind,'run')}
 function cancelAutoAdvance(){if(state.autoAdvanceHandle){clearTimeout(state.autoAdvanceHandle);state.autoAdvanceHandle=null}}
 function scheduleAutoAdvance(){cancelAutoAdvance();state.autoAdvanceHandle=setTimeout(()=>{state.autoAdvanceHandle=null;if(!state.answered||state.isPaused||state.activeTab==='settings'||els.quiz.classList.contains('state-screen'))return;advanceQuestion()},1000)}
 function setAutoMode(on){state.autoMode=on;localStorage.setItem('geoQuizAutoMode',on?'1':'0');els.autoModeToggles.forEach(t=>t.setAttribute('aria-pressed',on?'true':'false'));if(!on)cancelAutoAdvance();updateActionButtons()}
-function advanceQuestion(){cancelAutoAdvance();const s=getSession(state.lastGameMode,true);ensureSessionState(s);s.review=null;s.draft=null;s.index++;if(s.index>=s.order.length){s.completed=true;pauseTimer();saveSessions();renderCompletedSession(s,true);updateStats();updateSettingsViews();return}saveSessions();showCurrentQuestion();updateStats()}
+function advanceQuestion(){cancelAutoAdvance();const s=getSession(state.lastGameMode,true);ensureSessionState(s);s.review=null;s.draft=null;s.index++;if(s.index>=s.order.length){s.completed=true;pauseTimer();saveSessions();renderCompletedSession(s,true);updateStats();updateSettingsViews();return}saveSessions();showCurrentQuestion();animateQuestion(false);updateStats()}
 function renderSimilar(){if(state.questionType!=='flag'){els.similar.innerHTML='';return}const names=SIMILAR[state.current.name]||[];if(!names.length){els.similar.innerHTML='';return}const cards=names.map(n=>{const c=byName.get(n);return c?`<div class="sim-card"><span class="sim-flag">${flagEmoji(c.code)}</span><b>${c.name}</b><div class="note">${(c.capitals||[c.capital]).join(" / ")}</div></div>`:''}).join('');els.similar.innerHTML=`<b>Similar flags to compare</b><div class="similar-grid">${cards}</div>`}
 function showHint(kind){
   if(!state.current||state.answered||state.isPaused||els.quiz.classList.contains('state-screen'))return;
@@ -902,14 +927,17 @@ function showHint(kind){
   state.hintUsed=true;
   if(nextLen>=answer.length)btn.disabled=true;
   const s=currentSession();if(s){s.draft={country:els.countryInput.value||'',capital:els.capitalInput.value||''};saveSessions()}
+  input.classList.remove('hint-glow');btn.classList.remove('bump');void input.offsetWidth;input.classList.add('hint-glow');btn.classList.add('bump');
   input.focus();
 }
 forceEnglishInput(els.countryInput);forceEnglishInput(els.capitalInput);
 els.countryHintBtn.addEventListener('click',()=>showHint('country'));els.capitalHintBtn.addEventListener('click',()=>showHint('capital'));
 document.addEventListener('keydown',e=>{if(e.key!=='Escape'||state.activeTab==='settings')return;const s=currentSession();if(!s||!s.started||s.completed)return;if(state.isPaused){e.preventDefault();resumeSession()}else if(!els.quiz.classList.contains('state-screen')){e.preventDefault();pauseSession()}});
 document.addEventListener('keydown',e=>{if(e.key!==';'||state.answered||state.activeTab==='settings')return;const active=document.activeElement,countryVisible=els.countryField.style.display!=='none',capitalVisible=els.capitalField.style.display!=='none';let kind=null;if(active===els.countryInput&&countryVisible)kind='country';else if(active===els.capitalInput&&capitalVisible)kind='capital';else if(countryVisible&&!capitalVisible)kind='country';else if(capitalVisible&&!countryVisible)kind='capital';else if(countryVisible&&capitalVisible)kind='country';if(kind){e.preventDefault();showHint(kind)}});
-function openSettings(){pauseTimer();cancelAutoAdvance();els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);document.body.classList.add('settings-open');state.activeTab='settings';updatePageTitle();els.quiz.style.display='none';els.settingsPanel.style.display='block';els.timerControls.style.display='none';document.querySelectorAll('.mobile-nav').forEach(b=>b.classList.toggle('active',b.dataset.tab==='settings'));updateStats();updateSettingsViews();renderTimer()}
+function openSettings(){pauseTimer();cancelAutoAdvance();els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);document.body.classList.add('settings-open');state.activeTab='settings';updatePageTitle();els.quiz.style.display='none';els.settingsPanel.style.display='block';els.timerControls.style.display='none';document.querySelectorAll('.mobile-nav').forEach(b=>b.classList.toggle('active',b.dataset.tab==='settings'));moveNavIndicator();updateStats();updateSettingsViews();renderTimer()}
 function openRegionSettings(){autoPauseCurrentSession();openSettings();document.querySelectorAll('.settings-tab').forEach(x=>x.classList.toggle('active',x.dataset.settings==='region'));document.querySelectorAll('.settings-section').forEach(x=>x.classList.toggle('active',x.dataset.section==='region'));updateSettingsViews()}
+function moveNavIndicator(){const ind=document.getElementById('navIndicator'),nav=document.getElementById('bottomNav'),b=nav.querySelector('.mobile-nav.active');if(!ind||!b)return;const nr=nav.getBoundingClientRect(),br=b.getBoundingClientRect();ind.style.left=`${br.left-nr.left}px`;ind.style.width=`${br.width}px`;ind.classList.add('on')}
+window.addEventListener('resize',moveNavIndicator);
 document.querySelectorAll('.mobile-nav').forEach(b=>b.addEventListener('click',()=>{
   const tab=b.dataset.tab;
   if(tab===state.activeTab)return;
@@ -953,7 +981,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){const s=cu
 const scrollRoot=document.querySelector('.app');let touchStartY=0;
 scrollRoot.addEventListener('touchstart',e=>{if(e.touches&&e.touches[0])touchStartY=e.touches[0].clientY},{passive:true});
 scrollRoot.addEventListener('touchmove',e=>{if(!e.touches||!e.touches[0])return;const maxScroll=scrollRoot.scrollHeight-scrollRoot.clientHeight;if(maxScroll<=1){e.preventDefault();return}const y=e.touches[0].clientY,down=y>touchStartY;if((scrollRoot.scrollTop<=0&&down)||(scrollRoot.scrollTop>=maxScroll-1&&!down))e.preventDefault()},{passive:false});
-normalizeStats();els.region.value=state.region;renderRegionOptions();updateSettingsViews();loadMode('flag');
+normalizeStats();els.region.value=state.region;renderRegionOptions();updateSettingsViews();loadMode('flag');requestAnimationFrame(moveNavIndicator);
 </script>
 
 <script>
