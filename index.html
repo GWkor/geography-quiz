@@ -55,13 +55,14 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{max-height:520px;margin:0
 .session-pause{width:36px;height:36px;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--panel);color:var(--muted)}
 .session-pause svg{width:17px;height:17px;fill:currentColor;stroke:none}
 .start-panel{display:none;justify-content:center;align-items:center;min-height:0}
-.start-btn{min-width:140px;font-size:18px;padding:13px 24px}
+.state-btn{width:180px;min-width:180px;display:block;margin-left:auto;margin-right:auto}
+.state-region{display:inline-block;padding:4px 8px;border:1px solid var(--line);border-radius:999px;background:var(--panel2);color:var(--text);font-weight:700;line-height:1;margin-bottom:14px}
 .auto-toggle{display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:6px 12px 6px 6px;border-radius:999px;font-size:14px;background:var(--panel2);color:var(--muted)}.auto-toggle .switch{width:34px;height:20px;border-radius:999px;background:var(--line);position:relative;transition:background .18s ease;flex:0 0 auto}.auto-toggle .switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--text);transition:transform .18s ease}.auto-toggle[aria-pressed="true"]{color:var(--text);border-color:var(--accent)}.auto-toggle[aria-pressed="true"] .switch{background:var(--accent)}.auto-toggle[aria-pressed="true"] .switch::after{transform:translateX(14px);background:var(--bg)}
 .screen-flash{position:fixed;inset:0;z-index:2000;pointer-events:none;opacity:0;background:var(--flash,transparent)}.screen-flash.good{--flash:var(--good)}.screen-flash.warn{--flash:var(--warn)}.screen-flash.bad{--flash:var(--bad)}.screen-flash.run{animation:screenFlash .55s ease-out}@keyframes screenFlash{0%{opacity:0}15%{opacity:.38}100%{opacity:0}}
 .pause-panel{display:none;min-height:0;align-items:center;justify-content:center;text-align:center;padding-top:0}
 .pause-panel.show{display:flex}
 .pause-actions{display:flex;flex-direction:column;gap:10px;align-items:center}
-.pause-actions button{width:180px;min-width:180px}
+.pause-actions button{width:180px;min-width:180px}.pause-actions{gap:10px}
 .pause-title{font-size:28px;font-weight:700;margin:0 0 18px}
 .finished-panel{display:none;min-height:0;align-items:center;justify-content:center;text-align:center;padding-top:0}
 .finished-panel.show{display:flex}
@@ -226,26 +227,28 @@ button.primary{font-weight:500}
         <button class="ready-region-link" type="button" id="readyRegionLink">All</button>
         <div class="pause-title">Ready?</div>
         <div class="answer-mode" id="answerModeOptions" role="group" aria-label="Question type"></div>
-        <button id="startBtn" class="primary start-btn" type="button">Start</button>
+        <button id="startBtn" class="primary state-btn" type="button">Start</button>
         <div><button id="autoModeToggle" class="auto-toggle" type="button" aria-pressed="false"><span class="switch" aria-hidden="true"></span>Auto mode</button></div>
       </div>
     </div>
     <div class="pause-panel" id="pausePanel">
       <div>
+        <div><span class="state-region" id="pauseRegion">All</span></div>
         <div class="pause-title">Paused</div>
         <div class="pause-actions">
-          <button id="resumeBtn" class="primary" type="button">Resume</button>
-          <button id="quitBtn" class="secondary" type="button">Quit</button>
+          <button id="resumeBtn" class="primary state-btn" type="button">Resume</button>
+          <button id="quitBtn" class="secondary state-btn" type="button">Quit</button>
         </div>
       </div>
     </div>
     <div class="finished-panel" id="finishedPanel">
       <div>
+        <div><span class="state-region" id="finishedRegion">All</span></div>
         <div class="finished-title" id="finishedTitle">Finished!</div>
         <div class="finished-score" id="finishedScore"></div>
         <div class="finished-note" id="finishedNote"></div>
         <div class="finished-pep" id="finishedPep"></div>
-        <button id="restartSessionBtn" class="primary" type="button" style="display:none;margin:20px auto 0;min-width:180px">Back</button>
+        <button id="restartSessionBtn" class="primary state-btn" type="button" style="display:none;margin-top:20px">Back</button>
       </div>
     </div>
     <form id="answerForm">
@@ -462,6 +465,7 @@ function renderPausedView(){els.quiz.classList.add('state-screen');els.finishedP
   els.form.style.display='block';
   els.result.style.display='';
   setStateUnderlayBlur(true);
+  document.getElementById('pauseRegion').textContent=s.region||state.region;
   els.pausePanel.classList.add('show');
   fitPanel(els.pausePanel);
   saveSessions();
@@ -592,6 +596,7 @@ function renderQuitResult(s){els.quiz.classList.add('state-screen');setStateUnde
   els.form.style.display='block';
   els.result.style.display='';
 
+  document.getElementById('finishedRegion').textContent=s.region||state.region;
   els.finishedTitle.textContent='Session ended';
   els.finishedTitle.style.color='var(--text)';
   els.finishedScore.textContent=`Score ${s.correct}/${s.answered} · ${accuracyPercent(s)}%`;
@@ -620,6 +625,7 @@ function renderCompletedSession(s){els.quiz.classList.add('state-screen');setSta
   els.result.style.display='';
 
   const percent=sessionPercent(s);
+  document.getElementById('finishedRegion').textContent=s.region||state.region;
   els.finishedTitle.textContent='Finished!';
   els.finishedTitle.style.color='var(--good)';
   els.finishedScore.textContent=`Score ${s.correct}/${s.order.length} · ${accuracyPercent(s)}%`;
@@ -716,12 +722,13 @@ function checkAnswer(){
   s.answered++;
   state.stats.total++;
 
-  if(ok){
+  // A hinted answer is shown as correct (yellow) but counts as a mistake in the tallies.
+  if(ok&&state.hintUsed){
+    s.hinted++;
+    state.stats.hintedByCode[state.current.code]=(state.stats.hintedByCode[state.current.code]||0)+1;
+  }
+  if(ok&&!state.hintUsed){
     s.correct++;s.streak++;state.stats.correct++;state.stats.streak++;
-    if(state.hintUsed){
-      s.hinted++;
-      state.stats.hintedByCode[state.current.code]=(state.stats.hintedByCode[state.current.code]||0)+1;
-    }
   }else{
     s.streak=0;s.mistakes++;state.stats.streak=0;
     state.stats.wrongByCode[state.current.code]=(state.stats.wrongByCode[state.current.code]||0)+1;
