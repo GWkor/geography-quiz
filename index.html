@@ -733,7 +733,7 @@ function quitSession(){
   renderQuitResult(s);
 }
 
-els.form.addEventListener('submit',e=>{e.preventDefault();if(state.reviewIndex!==null)return;if(state.answered){advanceQuestion();return}const empty=[els.countryInput,els.capitalInput].find(i=>i.closest('.field').style.display!=='none'&&!i.value.trim());if(empty&&!state.emptySubmitArmed){state.emptySubmitArmed=true;empty.focus();flashScreen('bad');return}state.emptySubmitArmed=false;checkAnswer()});
+els.form.addEventListener('submit',e=>{e.preventDefault();if(state.reviewIndex!==null)return;if(state.answered){advanceQuestion();return}const empty=[els.countryInput,els.capitalInput].find(i=>i.closest('.field').style.display!=='none'&&!i.value.trim());const active=document.activeElement;if(empty&&active!==empty&&(active===els.countryInput||active===els.capitalInput)&&active.value.trim()){empty.focus();return}if(empty&&!state.emptySubmitArmed){state.emptySubmitArmed=true;empty.focus();flashScreen('bad');return}state.emptySubmitArmed=false;checkAnswer()});
 [els.countryInput,els.capitalInput].forEach(i=>i.addEventListener('input',()=>{state.emptySubmitArmed=false}));
 function checkAnswer(){
   if(state.answered)return;
