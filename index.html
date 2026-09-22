@@ -133,7 +133,7 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .region-options{position:absolute;left:50%;bottom:calc(100% + 8px);translate:-50% 0;width:max-content;max-width:min(320px,calc(100vw - 60px));display:flex;flex-wrap:wrap;justify-content:center;gap:6px;padding:8px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.35);z-index:5;animation:popIn .2s cubic-bezier(.34,1.56,.64,1) both;transform-origin:50% 100%}.region-options[hidden]{display:none}.region-options button{padding:6px 11px;border-radius:999px;font-size:13px;background:var(--panel2)}.region-options button.active{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:700}.region-options button span{display:block}.region-options button span::after{content:attr(data-label);display:block;height:0;overflow:hidden;visibility:hidden;font-weight:700}
 .answer-mode{display:none;gap:6px;justify-content:center;flex-wrap:wrap;margin:0 0 18px}.answer-mode.show{display:flex}
 .answer-mode button{padding:8px 14px;border-radius:999px;font-size:14px;background:var(--panel2)}.answer-mode button.active{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:700}
-.answer-mode button span{display:block;text-align:center}.answer-mode button span::after{content:attr(data-label);display:block;height:0;overflow:hidden;visibility:hidden;font-weight:700}
+.answer-mode.locked{opacity:.5;pointer-events:none}.answer-mode button span{display:block;text-align:center}.answer-mode button span::after{content:attr(data-label);display:block;height:0;overflow:hidden;visibility:hidden;font-weight:700}
   .quiz.state-screen .start-panel,
   .quiz.state-screen .pause-panel,
   .quiz.state-screen .finished-panel{
@@ -257,7 +257,7 @@ button.primary{font-weight:500}
       <div>
         <div class="region-picker"><button class="ready-region-link" type="button" id="readyRegionLink" aria-expanded="false">All</button>
         <div class="region-options" id="readyRegionOptions" hidden></div></div>
-        <div class="pause-title">Ready?</div>
+        <div class="pause-title" id="readyTitle">Ready?</div>
         <div class="answer-mode" id="answerModeOptions" role="group" aria-label="Question type"></div>
         <div><button class="auto-toggle" type="button" aria-pressed="false"><span class="switch" aria-hidden="true"></span>Auto mode</button></div>
         <div class="pause-actions">
@@ -420,7 +420,7 @@ function updatePageTitle(){
 }
 function updateSettingsViews(){const s=currentSession();els.profileSessionInfo.textContent=s?`${state.lastGameMode[0].toUpperCase()+state.lastGameMode.slice(1)} · ${state.region} · ${s.index}/${s.order.length} questions · ${formatTime(s.remainingMs)} remaining`:`No active ${state.lastGameMode} session.`;els.endSessionBtn.textContent=`End ${state.lastGameMode[0].toUpperCase()+state.lastGameMode.slice(1)} session`;const wrong=Object.entries(state.stats.wrongByCode||{}).filter(([,n])=>n>0).sort((a,b)=>b[1]-a[1]);els.mistakeList.innerHTML=wrong.length?wrong.slice(0,30).map(([code,n])=>{const c=getCountryByCode(code);return c?`<div class="mistake-row"><span>${flagEmoji(c.code)} ${c.name}</span><b>${n}</b></div>`:''}).join(''):'<p>No saved mistakes yet.</p>';els.statCorrect.textContent=state.stats.correct||0;els.statAnswered.textContent=state.stats.total||0;els.statMistakes.textContent=Object.values(state.stats.wrongByCode||{}).reduce((a,b)=>a+b,0);els.statHints.textContent=Object.values(state.stats.hintedByCode||{}).reduce((a,b)=>a+b,0)}
 function renderRegionOptions(){els.mobileRegionOptions.innerHTML=REGION_ORDER.map(r=>{const count=COUNTRIES.filter(c=>r==='All'||c.region===r).length;return `<label class="region-option"><input type="radio" name="mobileRegion" value="${r}" ${state.region===r?'checked':''}><span>${r}<br><small>${count} countries</small></span></label>`}).join('');els.mobileRegionOptions.querySelectorAll('input[name="mobileRegion"]').forEach(input=>input.addEventListener('change',()=>setRegion(input.value)))}
-function setRegion(region){pauseTimer();state.region=region;localStorage.setItem('geoQuizRegion',region);els.region.value=region;renderRegionOptions();if(state.activeTab!=='settings')loadMode(state.lastGameMode);updateStats();updateSettingsViews()}
+function setRegion(region){pauseTimer();state.region=region;localStorage.setItem('geoQuizRegion',region);els.region.value=region;renderRegionOptions();if(state.activeTab!=='settings')loadMode(state.lastGameMode,{preferReady:els.startPanel.style.display==='flex'});updateStats();updateSettingsViews()}
 function resetQuestionUI(){
 document.querySelectorAll('.answer-review').forEach(x=>x.remove());
 els.countryInput.style.display='block';els.capitalInput.style.display='block';
@@ -536,7 +536,10 @@ function renderReadySession(s){
   els.form.style.display='block';els.result.style.display='';
   els.startPanel.style.display='flex';
   renderReadyRegion(false);
+  document.getElementById('readyTitle').textContent=s.started?'Continue?':'Ready?';
+  els.startBtn.textContent=s.started?'Resume':'Start';
   renderAnswerModeOptions(s);
+  els.answerModeOptions.classList.toggle('locked',!!s.started);
   lockReadyPanelOffset();
   renderTimer();
 }
@@ -557,8 +560,8 @@ document.getElementById('readyRegionLink').addEventListener('click',()=>renderRe
 document.addEventListener('pointerdown',e=>{if(!e.target.closest('.region-picker')&&!document.getElementById('readyRegionOptions').hidden)renderReadyRegion(false)});
 document.getElementById('readyRegionOptions').addEventListener('click',e=>{const b=e.target.closest('[data-region]');if(!b)return;if(b.dataset.region===state.region){renderReadyRegion(false);return}setRegion(b.dataset.region)});
 els.answerModeOptions.addEventListener('click',e=>{const b=e.target.closest('[data-answer-mode]');if(!b)return;const s=getSession(state.lastGameMode,true);ensureSessionState(s);if(s.started)return;const v=b.dataset.answerMode,isCap=state.lastGameMode==='capital';const cur=isCap?(s.capitalDirection||'shuffle'):answerModeFor(s);let country=cur!=='capital',capital=cur!=='country';if(v==='country')country=!country;else capital=!capital;if(!country&&!capital)return;const next=country&&capital?(isCap?'shuffle':'both'):country?'country':'capital';if(isCap){s.capitalDirection=next;localStorage.setItem('geoQuizCapitalDirection',next)}else{s.answerMode=next;localStorage.setItem('geoQuizAnswerMode',next)}saveSessions();renderReadySession(s)});
-function beginSession(){els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);els.finishedPanel.classList.remove('show');setSessionControl('pause');const s=getSession(state.lastGameMode,true);if(!s||s.completed)return;ensureSessionState(s);state.isPaused=false;s.started=true;s.paused=false;saveSessions();els.startPanel.style.display='none';els.form.style.display='block';showCurrentQuestion();updateStats();updateSettingsViews();startTimer()}
-function loadMode(mode){
+function beginSession(){els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);els.finishedPanel.classList.remove('show');setSessionControl('pause');const s=getSession(state.lastGameMode,true);if(!s||s.completed)return;ensureSessionState(s);state.isPaused=false;s.started=true;s.paused=false;saveSessions();els.startPanel.style.display='none';els.form.style.display='block';showCurrentQuestion();restoreDraft(s);restoreAnswered(s);updateStats();updateSettingsViews();startTimer()}
+function loadMode(mode,opts={}){
   document.body.classList.remove('settings-open');
   pauseTimer();cancelAutoAdvance();
   state.mode=mode;
@@ -587,8 +590,15 @@ document.querySelectorAll('.mobile-nav').forEach(b=>b.classList.toggle('active',
   document.querySelectorAll('.mode').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
   moveNavIndicator();
 
-  const s=getSession(mode,true);
+  let s=getSession(mode,true);
   ensureSessionState(s);
+
+  // Picking a region on the Ready screen: an ended session for that region is cleared,
+  // an in-progress one is offered as Continue? instead of jumping to Paused.
+  if(opts.preferReady&&(s.quit||s.completed||s.index>=s.order.length||s.remainingMs<=0)){
+    delete state.sessions[sessionKey(mode)];saveSessions();
+    s=getSession(mode,true);ensureSessionState(s);
+  }
 
   if(s.quit){
     state.isPaused=false;
@@ -609,7 +619,7 @@ document.querySelectorAll('.mobile-nav').forEach(b=>b.classList.toggle('active',
     updateStats();renderTimer();return;
   }
 
-  if(!s.started){
+  if(!s.started||(opts.preferReady&&s.paused)){
     state.isPaused=false;
     renderReadySession(s);
     updateStats();updateSettingsViews();return;
