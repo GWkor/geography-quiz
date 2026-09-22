@@ -62,8 +62,8 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .state-btn.primary{display:flex;justify-content:center;align-items:center}
 #startBtn::after{content:"→";display:inline-block;width:0;margin-left:0;opacity:0;overflow:hidden;transform:translateX(-8px);transition:width .3s cubic-bezier(.2,.8,.2,1),margin-left .3s cubic-bezier(.2,.8,.2,1),opacity .25s ease,transform .45s cubic-bezier(.34,1.56,.64,1)}
 @media(hover:hover){#startBtn:hover:not(:disabled)::after{width:14px;margin-left:8px;opacity:1;transform:translateX(0)}}
-.state-btn.flow{background-image:linear-gradient(115deg,color-mix(in srgb,var(--accent) 86%,#000) 0%,var(--accent) 30%,color-mix(in srgb,var(--accent) 74%,#fff) 50%,var(--accent) 70%,color-mix(in srgb,var(--accent) 86%,#000) 100%);background-size:300% 100%;background-position:0% 50%}
-@media(hover:hover){.state-btn.flow:hover:not(:disabled){animation:gradientFlow 2.6s ease-in-out infinite alternate}}@keyframes gradientFlow{from{background-position:0% 50%}to{background-position:100% 50%}}
+.state-btn.flow{background-image:linear-gradient(90deg,color-mix(in srgb,var(--accent) 86%,#000) 0%,var(--accent) 25%,color-mix(in srgb,var(--accent) 74%,#fff) 50%,var(--accent) 75%,color-mix(in srgb,var(--accent) 86%,#000) 100%);background-size:200% 100%;background-repeat:repeat-x;background-position:0% 50%}
+@media(hover:hover){.state-btn.flow:hover:not(:disabled){animation:gradientFlow 2.4s linear infinite}}@keyframes gradientFlow{from{background-position:200% 50%}to{background-position:0% 50%}}
 .placeholder{visibility:hidden!important;pointer-events:none}
 .state-region{display:inline-block;padding:4px 8px;border:1px solid var(--line);border-radius:999px;background:var(--panel2);color:var(--text);font-weight:700;line-height:1;margin-bottom:14px}
 .auto-toggle{display:inline-flex;align-items:center;gap:8px;margin:0 0 16px;padding:6px 12px 6px 6px;border-radius:999px;font-size:14px;background:var(--panel2);color:var(--muted)}.auto-toggle .switch{width:34px;height:20px;border-radius:999px;background:var(--line);position:relative;transition:background .18s ease;flex:0 0 auto}.auto-toggle .switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--text);transition:transform .32s cubic-bezier(.34,1.56,.64,1),background-color .18s ease}.auto-toggle[aria-pressed="true"]{color:var(--text);border-color:var(--accent)}.auto-toggle[aria-pressed="true"] .switch{background:var(--accent)}.auto-toggle[aria-pressed="true"] .switch::after{transform:translateX(14px);background:var(--bg)}
@@ -548,7 +548,9 @@ function renderReadySession(s){
 function enterPanel(panel){panel.classList.remove('panel-exit','panel-enter');void panel.offsetWidth;panel.classList.add('panel-enter');panel.addEventListener('animationend',()=>panel.classList.remove('panel-enter'),{once:true})}
 function exitPanel(panel,done){if(state.transitioning)return;state.transitioning=true;setStateUnderlayBlur(false);panel.classList.remove('panel-enter');panel.classList.add('panel-exit');let finished=false;const finish=()=>{if(finished)return;finished=true;panel.classList.remove('panel-exit');state.transitioning=false;done()};panel.addEventListener('animationend',finish,{once:true});setTimeout(finish,350)}
 function fitPanel(panel){const inner=panel.firstElementChild;const cs=getComputedStyle(panel);const extra=parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom)+parseFloat(cs.borderTopWidth)+parseFloat(cs.borderBottomWidth);const need=Math.ceil(inner.offsetHeight+extra);if(need>els.quiz.offsetHeight)els.quiz.style.minHeight=`${need}px`}
-function lockReadyPanelOffset(panel=els.startPanel){const inner=panel.firstElementChild;const prev=els.capitalField.style.display;const bothShown=els.countryField.style.display!=='none'&&prev!=='none';if(bothShown)els.capitalField.style.display='none';const cs=getComputedStyle(panel);const avail=els.quiz.offsetHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom)-parseFloat(cs.borderTopWidth)-parseFloat(cs.borderBottomWidth);if(bothShown)els.capitalField.style.display=prev;const top=Math.max(0,(avail-inner.offsetHeight)/2);panel.style.alignItems='flex-start';inner.style.margin=`${Math.round(top)}px auto auto`;const need=Math.ceil(inner.offsetHeight+els.quiz.offsetHeight-avail);if(need>els.quiz.offsetHeight)els.quiz.style.minHeight=`${need}px`}
+// Height of the Ready panel content, measured even while that panel is hidden.
+function readyInnerHeight(){const panel=els.startPanel,inner=panel.firstElementChild;if(!els.answerModeOptions.children.length)renderAnswerModeOptions(currentSession());if(getComputedStyle(panel).display!=='none')return inner.offsetHeight;const d=panel.style.display,v=panel.style.visibility;panel.style.visibility='hidden';panel.style.display='flex';const h=inner.offsetHeight;panel.style.display=d;panel.style.visibility=v;return h}
+function lockReadyPanelOffset(panel=els.startPanel){const inner=panel.firstElementChild;const prev=els.capitalField.style.display;const bothShown=els.countryField.style.display!=='none'&&prev!=='none';if(bothShown)els.capitalField.style.display='none';const cs=getComputedStyle(panel);const avail=els.quiz.offsetHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom)-parseFloat(cs.borderTopWidth)-parseFloat(cs.borderBottomWidth);if(bothShown)els.capitalField.style.display=prev;const top=Math.max(0,(avail-readyInnerHeight())/2);panel.style.alignItems='flex-start';inner.style.margin=`${Math.round(top)}px auto auto`;const need=Math.ceil(inner.offsetHeight+els.quiz.offsetHeight-avail);if(need>els.quiz.offsetHeight)els.quiz.style.minHeight=`${need}px`}
 // Region picker on the Ready screen: the pill expands into the list of regions.
 function renderReadyRegion(open){const link=document.getElementById('readyRegionLink'),opts=document.getElementById('readyRegionOptions');link.textContent=state.region;link.setAttribute('aria-expanded',open?'true':'false');opts.hidden=!open;if(open)opts.innerHTML=REGION_ORDER.map(r=>`<button type="button" data-region="${r}" class="${r===state.region?'active':''}"><span data-label="${r}">${r}</span></button>`).join('')}
 document.getElementById('readyRegionLink').addEventListener('click',()=>renderReadyRegion(document.getElementById('readyRegionOptions').hidden));
@@ -667,6 +669,7 @@ function renderQuitResult(s){els.quiz.classList.add('state-screen');setStateUnde
   els.finishedPep.textContent='Reset, refocus, and give it another try.';
   els.restartSessionBtn.style.display='flex';
   fitPanel(els.finishedPanel);
+  lockReadyPanelOffset(els.finishedPanel);
   renderTimer();
 }
 
@@ -705,6 +708,7 @@ function renderCompletedSession(s,celebrate=false,animate=celebrate){els.quiz.cl
   }
   els.restartSessionBtn.style.display='flex';
   fitPanel(els.finishedPanel);
+  lockReadyPanelOffset(els.finishedPanel);
   if(animate)enterPanel(els.finishedPanel);
   renderTimer();
 }
@@ -1005,7 +1009,7 @@ scrollRoot.addEventListener('touchstart',e=>{if(e.touches&&e.touches[0])touchSta
 scrollRoot.addEventListener('touchmove',e=>{if(!e.touches||!e.touches[0])return;const maxScroll=scrollRoot.scrollHeight-scrollRoot.clientHeight;if(maxScroll<=1){e.preventDefault();return}const y=e.touches[0].clientY,down=y>touchStartY;if((scrollRoot.scrollTop<=0&&down)||(scrollRoot.scrollTop>=maxScroll-1&&!down))e.preventDefault()},{passive:false});
 normalizeStats();els.region.value=state.region;renderRegionOptions();updateSettingsViews();loadMode('flag');requestAnimationFrame(moveNavIndicator);
 // Re-anchor the Ready panel once the web font has swapped in (text metrics change).
-if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(els.startPanel.style.display==='flex')lockReadyPanelOffset()});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(els.startPanel.style.display==='flex')lockReadyPanelOffset();else if(els.pausePanel.classList.contains('show'))lockReadyPanelOffset(els.pausePanel);else if(els.finishedPanel.classList.contains('show'))lockReadyPanelOffset(els.finishedPanel)});
 </script>
 
 <script>
