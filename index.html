@@ -17,7 +17,7 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:Geist,-apple-sy
 .app{max-width:1100px;margin:0 auto;padding:24px}
 .top{display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
 h1{margin:0 0 4px;font-size:30px}.sub{color:var(--muted);font-size:14px}
-.stats{display:flex;gap:10px;flex-wrap:wrap}.stat{background:var(--panel);border:1px solid var(--line);padding:10px 14px;border-radius:12px;min-width:88px;text-align:center}.stat b{display:block;font-size:19px}
+
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}
 button,select,input{font:inherit}button{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:10px;padding:10px 14px;cursor:pointer}
 button{transition:transform .28s cubic-bezier(.34,1.56,.64,1),background-color .18s ease,border-color .18s ease,color .18s ease}button:active:not(:disabled){transform:scale(.96);transition-duration:.08s}
@@ -108,12 +108,21 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .answer-status.good{color:var(--good);background:color-mix(in srgb,var(--good) 12%,transparent)}
 .answer-status.warn{color:var(--warn);background:color-mix(in srgb,var(--warn) 12%,transparent)}
 .answer-status.bad{color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,transparent)}
-.settings-panel{display:none;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px}
-.settings-menu{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.pages{display:none;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px}.page{display:none}.page.active{display:block}.page-h{margin:0 0 8px;font-size:17px}
+.page-back{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;padding:0;border-radius:10px;background:var(--panel);margin-right:2px}.page-back svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.profile-hero{display:flex;align-items:center;gap:14px;margin-bottom:14px}.avatar{width:64px;height:64px;border-radius:50%;background:var(--accent);color:var(--bg);font-size:28px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:0 0 64px}.profile-name{font:inherit;font-size:24px;font-weight:700;background:none;border:0;padding:0;color:var(--text);text-align:left;cursor:pointer}.profile-name:hover{color:var(--accent)}
+.profile-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}.profile-strip div{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 8px;text-align:center}.profile-strip b{display:block;font-size:18px}.profile-strip span{font-size:11px;color:var(--muted)}
+.practice-cards{display:grid;gap:8px}.practice-card{display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 12px;padding:12px 14px;background:var(--bg);border:1px solid var(--line);border-radius:12px}.practice-card b{font-size:15px}.practice-card .count{grid-column:2;grid-row:1/3;font-size:24px;font-weight:700;color:var(--accent);min-width:44px;text-align:right}.practice-card .stat-sub{color:var(--muted);font-size:12px}.practice-card button{grid-column:1/-1;margin-top:6px}
+.pref-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}.pref-row:last-child{border-bottom:0;padding-bottom:0}.pref-row>span>.stat-sub{display:block;color:var(--muted);font-size:12px}.pref-row .auto-toggle{margin:0;padding:4px}
+.pref-actions{display:grid;gap:8px}.pref-actions button{width:100%}button.danger{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,transparent)}
+.sheet-backdrop{position:fixed;inset:0;bottom:calc(70px + env(safe-area-inset-bottom));z-index:900;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .18s ease-out}.sheet-backdrop[hidden]{display:none}
+.sheet{width:100%;max-width:560px;background:var(--panel);border:1px solid var(--line);border-bottom:0;border-radius:22px 22px 0 0;padding:10px 10px 8px;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1)}@keyframes sheetUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.sheet-item{display:flex;align-items:center;gap:14px;width:100%;padding:14px 12px;background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;font-size:17px;font-weight:600;color:var(--text);text-align:left}.sheet-item:last-child{border-bottom:0}.sheet-item:hover{background:var(--panel2)}
+.sheet-icon{width:34px;height:34px;border-radius:10px;background:color-mix(in srgb,var(--c) 18%,transparent);color:var(--c);display:inline-flex;align-items:center;justify-content:center;flex:0 0 34px}.sheet-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sheet-badge{margin-left:auto;background:var(--bad);color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px}.sheet-badge:empty{display:none}
+
 .answer-search{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:10px 0 4px;outline:none}.answer-search:focus{border-color:var(--accent)}
 .answer-list h4{margin:16px 0 6px;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.5px}.answer-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}.answer-row b{font-weight:600}.answer-row .alt{display:block;color:var(--muted);font-size:12px;margin-top:2px}.answer-row .cap{text-align:right;flex:0 0 auto;max-width:55%}.answer-row.multi .cap b{color:var(--warn)}
-.settings-menu button{padding:10px 6px;font-size:12px}
-.settings-menu button.active{background:var(--panel2);color:var(--accent);border-color:var(--accent)}
 .settings-section{display:none}.settings-section.active{display:block}
 .settings-card{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
 .settings-card h3{margin:0 0 8px;font-size:16px}.settings-card p{margin:5px 0;color:var(--muted);line-height:1.5}
@@ -134,7 +143,7 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .bottom-nav{display:none}
 .quiz.state-screen{position:relative}
 .start-panel{text-align:center}
-.start-panel .ready-region-link{margin-bottom:14px;animation:chipPulse 2.2s ease-in-out infinite}.start-panel .ready-region-link[aria-expanded="true"]{animation:none;border-color:var(--accent)}@keyframes chipPulse{0%,100%{border-color:var(--line);box-shadow:0 0 0 0 transparent}50%{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 22%,transparent)}}.ready-region-link .chev{font-size:11px;opacity:.7;margin-left:2px}
+.start-panel .ready-region-link{margin-bottom:14px;animation:chipPulse 2.2s ease-in-out infinite}.start-panel .ready-region-link[aria-expanded="true"]{animation:none;border-color:var(--accent)}.start-panel .ready-region-link.static{animation:none;cursor:default}@keyframes chipPulse{0%,100%{border-color:var(--line);box-shadow:0 0 0 0 transparent}50%{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 22%,transparent)}}.ready-region-link .chev{font-size:11px;opacity:.7;margin-left:2px}
 .region-picker{position:relative;display:block}
 .region-options{position:absolute;left:50%;bottom:calc(100% + 8px);translate:-50% 0;width:max-content;max-width:min(320px,calc(100vw - 60px));display:flex;flex-wrap:wrap;justify-content:center;gap:6px;padding:8px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.35);z-index:5;animation:popIn .2s cubic-bezier(.34,1.56,.64,1) both;transform-origin:50% 100%}.region-options[hidden]{display:none}.region-options button{padding:6px 11px;border-radius:999px;font-size:13px;background:var(--panel2)}.region-options button.active{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:700}.region-options button span{display:block}.region-options button span::after{content:attr(data-label);display:block;height:0;overflow:hidden;visibility:hidden;font-weight:700}
 
@@ -194,7 +203,6 @@ h1{display:flex;align-items:center;gap:10px;letter-spacing:-.5px}
 .field input::placeholder{color:var(--muted);opacity:1;font-weight:400}
 button.primary{font-weight:500}
 @media(max-width:680px){
-  body:not(.settings-open) .stats{display:none}
   .app{display:flex;flex-direction:column}
   .quiz{display:flex;flex-direction:column;flex-shrink:0}
 
@@ -204,9 +212,7 @@ button.primary{font-weight:500}
   .app{height:calc(100dvh - 70px - env(safe-area-inset-bottom));overflow-y:auto;overscroll-behavior-y:none;-webkit-overflow-scrolling:touch}
   .app{padding:14px 14px 18px}.top{display:block}.title-row{align-items:center}
   h1{font-size:26px;margin:0;display:flex;align-items:center;gap:10px}.sub{display:none}.timer-controls{display:flex}
-  .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:12px}
-  .stat{min-width:0;padding:9px 4px;border-radius:11px}.stat b{font-size:16px;white-space:nowrap}.stat span{font-size:10px;color:var(--muted)}
-  .toolbar{display:none}.fields{grid-template-columns:1fr}.big-question{font-size:27px}.flag{font-size:128px}.flag-wrap,.name-wrap,.map-wrap{min-height:min(300px,36vh)}.name-wrap .name{font-size:30px}.quiz{padding:16px;margin-top:12px;min-height:calc(367px + min(300px,36vh))}.settings-panel{margin-top:12px}
+  .toolbar{display:none}.fields{grid-template-columns:1fr}.big-question{font-size:27px}.flag{font-size:128px}.flag-wrap,.name-wrap,.map-wrap{min-height:min(300px,36vh)}.name-wrap .name{font-size:30px}.quiz{padding:16px;margin-top:12px;min-height:calc(367px + min(300px,36vh))}.pages{margin-top:12px}
   .bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:1000;display:grid;grid-template-columns:repeat(4,1fr);align-items:center;background:rgba(32,32,32,.96);border-top:1px solid var(--line);padding:9px 12px calc(9px + env(safe-area-inset-bottom));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
   .bottom-nav button{border:0;background:transparent;padding:0;height:52px;border-radius:18px;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:background .18s ease,color .18s ease,box-shadow .18s ease,transform .18s ease}
   .bottom-nav button.active{color:var(--accent)}
@@ -214,7 +220,7 @@ button.primary{font-weight:500}
   .nav-icon{display:flex;align-items:center;justify-content:center;width:30px;height:30px}
   .nav-icon svg{width:28px;height:28px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
   .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-  .settings-menu{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  
 }
 </style>
 
@@ -230,19 +236,13 @@ button.primary{font-weight:500}
 <div class="app">
   <div class="top">
     <div class="title-row">
-      <div><h1 id="pageTitle"><span class="header-icon" id="pageTitleIcon" aria-hidden="true"></span><span id="pageTitleText">Flag Quiz</span></h1><div class="sub">Flags · Capitals · Map locations · Local progress tracking</div></div>
+      <div><h1 id="pageTitle"><button class="page-back" id="pageBack" type="button" aria-label="Back" style="display:none"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button><span class="header-icon" id="pageTitleIcon" aria-hidden="true"></span><span id="pageTitleText">Flag Quiz</span></h1><div class="sub">Flags · Capitals · Map locations · Local progress tracking</div></div>
       <div class="timer-controls" id="timerControls">
         <div class="timer-pill" id="timer">15:00</div>
         <button class="session-pause" id="sessionPauseBtn" type="button" aria-label="Pause quiz" title="Pause">
           <svg id="sessionPauseIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
         </button>
       </div>
-    </div>
-    <div class="stats">
-      <div class="stat"><b id="score">0/0</b><span>Score</span></div>
-      <div class="stat"><b id="streak">0</b><span>Streak</span></div>
-      <div class="stat"><b id="mistakes">0</b><span>Mistakes</span></div>
-      <div class="stat"><b id="hintsUsed">0</b><span>Hinted</span></div>
     </div>
   </div>
   <div class="toolbar">
@@ -253,7 +253,6 @@ button.primary{font-weight:500}
       <option value="All">All regions</option><option value="Africa">Africa</option><option value="Asia">Asia</option>
       <option value="Europe">Europe</option><option value="Americas">Americas</option><option value="Oceania">Oceania</option>
     </select>
-    <button id="resetStats" class="secondary">Reset stats</button>
   </div>
 
   <div class="quiz">
@@ -311,17 +310,27 @@ button.primary{font-weight:500}
     
   </div>
 
-  <div class="settings-panel" id="settingsPanel">
-    <div class="settings-menu">
-      <button class="settings-tab active" data-settings="profile">Profile</button>
-      <button class="settings-tab" data-settings="mistakes">Mistakes</button>
-      <button class="settings-tab" data-settings="answers">Answers</button>
-      <button class="settings-tab" data-settings="statistics">Statistics</button>
-    </div>
-    <section class="settings-section active" data-section="profile"><div class="settings-card"><h3>Local Profile</h3><p>Quiz progress and active sessions are saved on this device.</p><p id="profileSessionInfo"></p><button id="endSessionBtn" class="secondary" type="button">End current session</button></div></section>
-    <section class="settings-section" data-section="mistakes"><div class="settings-card"><h3>Wrong Answers</h3><div id="mistakeList" class="mistake-list"></div></div></section>
-    <section class="settings-section" data-section="answers"><div class="settings-card"><h3>Answer Key</h3><p>Every country ↔ capital pair in the quiz, with the alternative spellings that are also accepted. Countries with more than one capital are marked in yellow.</p><input id="answerSearch" class="answer-search" type="search" placeholder="Search country or capital" autocomplete="off"><p id="answerSummary" class="note"></p><div id="answerList" class="answer-list"></div></div></section>
-    <section class="settings-section" data-section="statistics">
+  <div class="pages" id="pages">
+    <section class="page" data-page="profile">
+      <div class="profile-hero">
+        <div class="avatar" id="profileAvatar">G</div>
+        <div class="profile-id">
+          <button class="profile-name" id="profileName" type="button" title="Tap to rename">Guest</button>
+          <div class="note" id="profileSince"></div>
+        </div>
+      </div>
+      <div class="profile-strip" id="profileStrip"></div>
+      <button class="secondary state-btn" type="button" disabled style="width:100%;opacity:.55">Sign in with Google · coming soon</button>
+      <div class="settings-card" style="margin-top:14px"><h3>Current session</h3><p id="profileSessionInfo" class="note" style="margin:0 0 10px"></p><button id="endSessionBtn" class="secondary" type="button">End current session</button></div>
+    </section>
+    <section class="page" data-page="practice">
+      <h3 class="page-h">Mistakes</h3>
+      <p class="note" style="margin:0 0 10px">Countries you missed, per quiz mode. A correct answer during practice clears the country from the list.</p>
+      <div class="practice-cards" id="practiceCards"></div>
+      <div class="stat-head" style="margin-top:18px"><h3 class="page-h" style="margin:0">Missed countries</h3><div class="stat-filter" data-filter="missed"></div></div>
+      <div id="mistakeList" class="stat-table"></div>
+    </section>
+    <section class="page" data-page="statistics">
       <div class="settings-card"><h3>Overview</h3><div class="mini-stat-grid" id="statOverview"></div></div>
       <div class="settings-card"><h3>By mode</h3><div id="statModes" class="stat-table"></div></div>
       <div class="settings-card"><h3>Weak spots</h3><p class="note" style="margin:0 0 10px">Lowest accuracy among countries seen 3+ times (until then, most missed).</p><div id="statWeak" class="stat-table"></div></div>
@@ -329,9 +338,29 @@ button.primary{font-weight:500}
       <div class="settings-card"><div class="stat-head"><h3>Trend</h3><div class="stat-filter" data-filter="trend"></div></div><div id="statTrend"></div></div>
       <div class="settings-card"><div class="stat-head"><h3>Sessions</h3><div class="stat-filter" data-filter="history"></div></div><div id="historyList" class="history-list"></div><button id="historyMore" class="secondary" type="button" style="width:100%;margin-top:10px;display:none">Show more</button></div>
     </section>
+    <section class="page" data-page="answers"><div class="settings-card"><h3>Answer Key</h3><p>Every country ↔ capital pair in the quiz, with the alternative spellings that are also accepted. Countries with more than one capital are marked in yellow.</p><input id="answerSearch" class="answer-search" type="search" placeholder="Search country or capital" autocomplete="off"><p id="answerSummary" class="note"></p><div id="answerList" class="answer-list"></div></div></section>
+    <section class="page" data-page="settings">
+      <div class="settings-card"><h3>Quiz</h3>
+        <div class="pref-row"><span>Auto mode<span class="stat-sub">Advance automatically after a correct answer</span></span><button class="auto-toggle" type="button" aria-pressed="false"><span class="switch" aria-hidden="true"></span></button></div>
+        <div class="pref-row"><span>Flag &amp; Map default<span class="stat-sub">What new sessions ask for</span></span><div class="stat-filter" data-filter="answerMode"></div></div>
+        <div class="pref-row"><span>Capital Quiz default</span><div class="stat-filter" data-filter="capitalDirection"></div></div>
+      </div>
+      <div class="settings-card"><h3>Data</h3>
+        <div class="pref-actions"><button id="exportBtn" class="secondary" type="button">Export data (JSON)</button><button id="importBtn" class="secondary" type="button">Import data</button><input id="importFile" type="file" accept="application/json" style="display:none"><button id="resetStats" class="secondary danger" type="button">Reset statistics</button></div>
+        <p class="note" style="margin:10px 0 0">Everything is stored on this device only. Export before switching devices.</p>
+      </div>
+      <div class="settings-card"><h3>About</h3><p class="note" style="margin:0">Geography Quiz · 197 countries<br>Map data: Natural Earth (public domain) · Font: Geist (OFL)</p></div>
+    </section>
   </div>
 </div>
 
+<div class="sheet-backdrop" id="menuSheet" hidden><div class="sheet" role="menu">
+  <button class="sheet-item" data-page="profile"><span class="sheet-icon" style="--c:var(--settings)"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c.6-4 3.1-6 7.5-6s6.9 2 7.5 6"/></svg></span>Profile</button>
+  <button class="sheet-item" data-page="practice"><span class="sheet-icon" style="--c:var(--warn)"><svg viewBox="0 0 24 24"><path d="M6 8v8M18 8v8M3 10v4M21 10v4M6 12h12"/></svg></span>Practice<span class="sheet-badge" id="practiceBadge"></span></button>
+  <button class="sheet-item" data-page="statistics"><span class="sheet-icon" style="--c:var(--map)"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>Statistics</button>
+  <button class="sheet-item" data-page="answers"><span class="sheet-icon" style="--c:var(--capital)"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 10h16M9 5v14"/></svg></span>Answer key</button>
+  <button class="sheet-item" data-page="settings"><span class="sheet-icon" style="--c:var(--flag)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></span>Settings</button>
+</div></div>
 <div class="screen-flash" id="screenFlash" aria-hidden="true"></div>
 <nav class="bottom-nav" id="bottomNav" aria-label="Quiz navigation">
   <span class="nav-indicator" id="navIndicator" aria-hidden="true"></span>
@@ -368,7 +397,7 @@ const CAPITAL_ALIASES={
 };
 function capitalAnswers(c){return [...(c.capitals||[c.capital]),...(CAPITAL_ALIASES[c.name]||[])]}
 const SESSION_MS=15*60*1000,REGION_SESSION_MS=10*60*1000,REGION_ORDER=['All','Africa','Asia','Europe','Americas','Oceania'];
-const els={answerModeOptions:document.getElementById('answerModeOptions'),prevBtn:document.getElementById('prevBtn'),answerSearch:document.getElementById('answerSearch'),answerSummary:document.getElementById('answerSummary'),answerList:document.getElementById('answerList'),autoModeToggles:document.querySelectorAll('.auto-toggle'),screenFlash:document.getElementById('screenFlash'),pageTitle:document.getElementById('pageTitle'),pageTitleIcon:document.getElementById('pageTitleIcon'),pageTitleText:document.getElementById('pageTitleText'),timer:document.getElementById('timer'),timerControls:document.getElementById('timerControls'),sessionPauseBtn:document.getElementById('sessionPauseBtn'),sessionPauseIcon:document.getElementById('sessionPauseIcon'),startPanel:document.getElementById('startPanel'),startBtn:document.getElementById('startBtn'),pausePanel:document.getElementById('pausePanel'),resumeBtn:document.getElementById('resumeBtn'),quitBtn:document.getElementById('quitBtn'),finishedPanel:document.getElementById('finishedPanel'),finishedTitle:document.getElementById('finishedTitle'),finishedScore:document.getElementById('finishedScore'),finishedNote:document.getElementById('finishedNote'),finishedPep:document.getElementById('finishedPep'),restartSessionBtn:document.getElementById('restartSessionBtn'),score:document.getElementById('score'),streak:document.getElementById('streak'),mistakes:document.getElementById('mistakes'),hintsUsed:document.getElementById('hintsUsed'),prompt:document.getElementById('prompt'),questionText:document.getElementById('questionText'),visual:document.getElementById('visual'),form:document.getElementById('answerForm'),quiz:document.querySelector('.quiz'),settingsPanel:document.getElementById('settingsPanel'),countryField:document.getElementById('countryField'),capitalField:document.getElementById('capitalField'),countryInput:document.getElementById('countryInput'),capitalInput:document.getElementById('capitalInput'),countryHintBtn:document.getElementById('countryHintBtn'),capitalHintBtn:document.getElementById('capitalHintBtn'),checkBtn:document.getElementById('checkBtn'),nextBtn:document.getElementById('nextBtn'),result:document.getElementById('result'),answerline:document.getElementById('answerline'),detail:document.getElementById('detail'),wikiLink:document.getElementById('wikiLink'),similar:document.getElementById('similar'),region:document.getElementById('region'),resetStats:document.getElementById('resetStats'),profileSessionInfo:document.getElementById('profileSessionInfo'),endSessionBtn:document.getElementById('endSessionBtn'),mistakeList:document.getElementById('mistakeList'),statOverview:document.getElementById('statOverview'),statModes:document.getElementById('statModes'),statWeak:document.getElementById('statWeak'),statRegions:document.getElementById('statRegions'),statTrend:document.getElementById('statTrend'),historyList:document.getElementById('historyList'),historyMore:document.getElementById('historyMore')};
+const els={answerModeOptions:document.getElementById('answerModeOptions'),prevBtn:document.getElementById('prevBtn'),answerSearch:document.getElementById('answerSearch'),answerSummary:document.getElementById('answerSummary'),answerList:document.getElementById('answerList'),autoModeToggles:document.querySelectorAll('.auto-toggle'),screenFlash:document.getElementById('screenFlash'),pageTitle:document.getElementById('pageTitle'),pageTitleIcon:document.getElementById('pageTitleIcon'),pageTitleText:document.getElementById('pageTitleText'),timer:document.getElementById('timer'),timerControls:document.getElementById('timerControls'),sessionPauseBtn:document.getElementById('sessionPauseBtn'),sessionPauseIcon:document.getElementById('sessionPauseIcon'),startPanel:document.getElementById('startPanel'),startBtn:document.getElementById('startBtn'),pausePanel:document.getElementById('pausePanel'),resumeBtn:document.getElementById('resumeBtn'),quitBtn:document.getElementById('quitBtn'),finishedPanel:document.getElementById('finishedPanel'),finishedTitle:document.getElementById('finishedTitle'),finishedScore:document.getElementById('finishedScore'),finishedNote:document.getElementById('finishedNote'),finishedPep:document.getElementById('finishedPep'),restartSessionBtn:document.getElementById('restartSessionBtn'),prompt:document.getElementById('prompt'),questionText:document.getElementById('questionText'),visual:document.getElementById('visual'),form:document.getElementById('answerForm'),quiz:document.querySelector('.quiz'),pages:document.getElementById('pages'),menuSheet:document.getElementById('menuSheet'),pageBack:document.getElementById('pageBack'),countryField:document.getElementById('countryField'),capitalField:document.getElementById('capitalField'),countryInput:document.getElementById('countryInput'),capitalInput:document.getElementById('capitalInput'),countryHintBtn:document.getElementById('countryHintBtn'),capitalHintBtn:document.getElementById('capitalHintBtn'),checkBtn:document.getElementById('checkBtn'),nextBtn:document.getElementById('nextBtn'),result:document.getElementById('result'),answerline:document.getElementById('answerline'),detail:document.getElementById('detail'),wikiLink:document.getElementById('wikiLink'),similar:document.getElementById('similar'),region:document.getElementById('region'),resetStats:document.getElementById('resetStats'),profileSessionInfo:document.getElementById('profileSessionInfo'),endSessionBtn:document.getElementById('endSessionBtn'),mistakeList:document.getElementById('mistakeList'),statOverview:document.getElementById('statOverview'),statModes:document.getElementById('statModes'),statWeak:document.getElementById('statWeak'),statRegions:document.getElementById('statRegions'),statTrend:document.getElementById('statTrend'),historyList:document.getElementById('historyList'),historyMore:document.getElementById('historyMore')};
 // ---- Local storage layout (schema 2) ----
 //   geoQuizSchema      "2"
 //   geoQuizSettings    { regions:{flag,map,capital}, autoMode, answerMode, capitalDirection }
@@ -377,7 +406,7 @@ const els={answerModeOptions:document.getElementById('answerModeOptions'),prevBt
 //   geoQuizSessionsV2  in-progress sessions for this device only (never synced)
 // Settings, stats and history are the units a future account sync will upload.
 const SCHEMA_VERSION=2;
-const DEFAULT_SETTINGS={regions:{flag:'All',map:'All',capital:'All'},autoMode:false,answerMode:'both',capitalDirection:'shuffle'};
+const DEFAULT_SETTINGS={regions:{flag:'All',map:'All',capital:'All'},autoMode:false,answerMode:'both',capitalDirection:'shuffle',name:'',createdAt:''};
 function readJSON(key,fallback){try{const v=JSON.parse(localStorage.getItem(key));return v==null?fallback:v}catch(e){return fallback}}
 function migrateStorage(){
   const from=+(localStorage.getItem('geoQuizSchema')||1);
@@ -412,13 +441,13 @@ function recordSessionResult(s,outcome){
   saveHistory();saveSessions();
   console.debug('[geo] session recorded',state.history[state.history.length-1]);
 }
-let state={mode:'flag',lastGameMode:'flag',activeTab:'flag',current:null,questionType:null,answered:false,countryHintChars:0,capitalHintChars:0,hintUsed:false,shownCapital:null,stats:loadStats(),sessions:loadSessions(),settings:loadSettings(),history:loadHistory(),region:'All',timerHandle:null,lastTimerTick:null,autoAdvanceHandle:null,reviewIndex:null,emptySubmitArmed:false,transitioning:false,statFilter:{trend:'all',history:'all'},historyShown:20};
+let state={mode:'flag',lastGameMode:'flag',activeTab:'flag',current:null,questionType:null,answered:false,countryHintChars:0,capitalHintChars:0,hintUsed:false,shownCapital:null,stats:loadStats(),sessions:loadSessions(),settings:loadSettings(),history:loadHistory(),region:'All',timerHandle:null,lastTimerTick:null,autoAdvanceHandle:null,reviewIndex:null,emptySubmitArmed:false,transitioning:false,statFilter:{trend:'all',history:'all',missed:'all'},historyShown:20,page:'profile'};
 function loadStats(){try{return JSON.parse(localStorage.getItem('geoQuizStats'))||{correct:0,total:0,streak:0,wrongByCode:{},hintedByCode:{}}}catch(e){return {correct:0,total:0,streak:0,wrongByCode:{},hintedByCode:{}}}}
 function loadSessions(){try{return JSON.parse(localStorage.getItem('geoQuizSessionsV2'))||{}}catch(e){return {}}}
 function saveSessions(){localStorage.setItem('geoQuizSessionsV2',JSON.stringify(state.sessions))}
 const MODES=['flag','map','capital'],MODE_LABEL={flag:'Flag',map:'Map',capital:'Capital'};
 function emptyModeStats(){return {seenByCode:{},correctByCode:{}}}
-function normalizeStats(){const st=state.stats;st.wrongByCode=st.wrongByCode||{};st.hintedByCode=st.hintedByCode||{};st.correct=st.correct||0;st.total=st.total||0;st.streak=st.streak||0;st.byMode=st.byMode||{};for(const m of MODES){st.byMode[m]=st.byMode[m]||emptyModeStats();st.byMode[m].seenByCode=st.byMode[m].seenByCode||{};st.byMode[m].correctByCode=st.byMode[m].correctByCode||{}}}
+function normalizeStats(){const st=state.stats;st.wrongByCode=st.wrongByCode||{};st.hintedByCode=st.hintedByCode||{};st.correct=st.correct||0;st.total=st.total||0;st.streak=st.streak||0;st.byMode=st.byMode||{};for(const m of MODES){st.byMode[m]=st.byMode[m]||emptyModeStats();st.byMode[m].seenByCode=st.byMode[m].seenByCode||{};st.byMode[m].correctByCode=st.byMode[m].correctByCode||{}}if(!st.missedByMode){st.missedByMode={};for(const m of MODES){st.missedByMode[m]={};const ms=st.byMode[m];for(const k in ms.seenByCode){const n=ms.seenByCode[k]-(ms.correctByCode[k]||0);if(n>0)st.missedByMode[m][k]=n}}}for(const m of MODES)st.missedByMode[m]=st.missedByMode[m]||{}}
 function saveStats(){localStorage.setItem('geoQuizStats',JSON.stringify(state.stats));updateStats();updateSettingsViews()}
 // Korean 2-beolsik layout -> QWERTY keys, so answers typed with the Korean
 // keyboard still active become the English letters that were physically pressed.
@@ -435,18 +464,20 @@ function countryMatches(input,c){const n=norm(input);return !!n&&[c.name,...(c.a
 function capitalMatches(input,c){const n=norm(input);return !!n&&capitalAnswers(c).some(v=>norm(v)===n)}
 function capitalDisplayFor(c,typed,ok){const caps=c.capitals||[c.capital];const hit=ok&&caps.find(v=>norm(typed)===norm(v));return hit||caps.join(' / ')}
 function shuffled(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function poolFor(mode,region=state.region){let p=COUNTRIES.filter(c=>region==='All'||c.region===region);if(mode==='map')p=p.filter(c=>c.geometry);return p}
+function missedPool(mode){const missed=state.stats.missedByMode?state.stats.missedByMode[mode]||{}:{};let p=COUNTRIES.filter(c=>missed[c.code]>0);if(mode==='map')p=p.filter(c=>c.geometry);return p}
+function poolFor(mode,region=state.region){if(region==='Mistakes')return missedPool(mode);let p=COUNTRIES.filter(c=>region==='All'||c.region===region);if(mode==='map')p=p.filter(c=>c.geometry);return p}
 function sessionKey(mode,region=state.region){return `${mode}:${region}`}
 function sessionMsFor(region){return region==='All'?SESSION_MS:REGION_SESSION_MS}
-function createSession(mode,region=state.region){const pool=poolFor(mode,region);return {mode,region,order:shuffled(pool.map(c=>c.code)),index:0,correct:0,answered:0,streak:0,mistakes:0,hinted:0,remainingMs:sessionMsFor(region),capitalVariants:{},completed:false,started:false,paused:false,draft:null,review:null,answerMode:state.settings.answerMode||'both',capitalDirection:state.settings.capitalDirection||'shuffle'}}
+function createSession(mode,region=state.region){const pool=poolFor(mode,region);return {mode,region,order:shuffled(pool.map(c=>c.code)),index:0,correct:0,answered:0,streak:0,mistakes:0,hinted:0,remainingMs:sessionMsFor(region),practice:region==='Mistakes',capitalVariants:{},completed:false,started:false,paused:false,draft:null,review:null,answerMode:state.settings.answerMode||'both',capitalDirection:state.settings.capitalDirection||'shuffle'}}
 function getSession(mode=state.lastGameMode,create=true){const key=sessionKey(mode);if(!state.sessions[key]&&create){state.sessions[key]=createSession(mode);saveSessions()}return state.sessions[key]||null}
 function currentSession(){return getSession(state.lastGameMode,false)}
 function getCountryByCode(code){return COUNTRIES.find(c=>c.code===code)}
 function formatTime(ms){const sec=Math.max(0,Math.ceil(ms/1000));return `${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`}
 function pauseTimer(){if(state.timerHandle){clearInterval(state.timerHandle);state.timerHandle=null}if(state.lastTimerTick&&state.activeTab!=='settings'){const s=currentSession();if(s&&!s.completed){s.remainingMs=Math.max(0,s.remainingMs-(Date.now()-state.lastTimerTick));saveSessions()}}state.lastTimerTick=null;renderTimer()}
-function startTimer(){pauseTimer();if(state.activeTab==='settings'||document.hidden||state.isPaused)return;const s=currentSession();if(!s||!s.started||s.completed||s.remainingMs<=0){renderTimer();return}state.lastTimerTick=Date.now();state.timerHandle=setInterval(()=>{const now=Date.now(),delta=now-state.lastTimerTick;state.lastTimerTick=now;s.remainingMs=Math.max(0,s.remainingMs-delta);if(s.remainingMs<=0){saveSessions();clearInterval(state.timerHandle);state.timerHandle=null;finishByTime()}renderTimer()},250)}
+function startTimer(){pauseTimer();if(state.activeTab==='settings'||document.hidden||state.isPaused)return;const s=currentSession();if(!s||!s.started||s.completed||s.remainingMs<=0||s.practice){renderTimer();return}state.lastTimerTick=Date.now();state.timerHandle=setInterval(()=>{const now=Date.now(),delta=now-state.lastTimerTick;state.lastTimerTick=now;s.remainingMs=Math.max(0,s.remainingMs-delta);if(s.remainingMs<=0){saveSessions();clearInterval(state.timerHandle);state.timerHandle=null;finishByTime()}renderTimer()},250)}
 function renderTimer(){
   const s=currentSession();
+  if(state.region==='Mistakes'||(s&&s.practice)){els.timer.textContent='Practice';els.timer.classList.remove('warning','danger','critical');return}
   let ms=s?s.remainingMs:sessionMsFor(state.region);
   if(ms<0)ms=0;
   const total=Math.ceil(ms/1000),m=Math.floor(total/60),sec=total%60;
@@ -461,11 +492,11 @@ function renderTimer(){
   }
 }
 function finishByTime(){cancelAutoAdvance();const s=currentSession();if(!s)return;s.remainingMs=0;s.completed=true;saveSessions();state.answered=true;state.reviewIndex=null;renderCompletedSession(s,false,true);updateStats();updateSettingsViews()}
-function updateStats(){const s=currentSession(),total=s?s.order.length:poolFor(state.lastGameMode).length;els.score.textContent=`${s?s.correct:0}/${total}`;els.streak.textContent=s?s.streak:0;els.mistakes.textContent=s?s.mistakes:0;els.hintsUsed.textContent=s?s.hinted:0}
+function updateStats(){}
 function updatePageTitle(){
   const tab=state.activeTab;
   document.body.dataset.theme=tab;
-  const titles={flag:'Flag Quiz',capital:'Capital Quiz',map:'Map Quiz',settings:'Settings'};
+  const titles={flag:'Flag Quiz',capital:'Capital Quiz',map:'Map Quiz',settings:PAGE_TITLES[state.page]||'Profile'};
   const icons={
     flag:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4m0 0c4-2 7 2 12 0v9c-5 2-8-2-12 0"/></svg>',
     capital:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h18M5 9v9m4-9v9m6-9v9m4-9v9M2 21h20M12 3l9 5H3l9-5z"/></svg>',
@@ -475,7 +506,7 @@ function updatePageTitle(){
   els.pageTitleText.textContent=titles[tab]||'Flag Quiz';
   els.pageTitleIcon.innerHTML=icons[tab]||icons.flag;
 }
-function updateSettingsViews(){const s=currentSession();els.profileSessionInfo.textContent=s?`${state.lastGameMode[0].toUpperCase()+state.lastGameMode.slice(1)} · ${state.region} · ${s.index}/${s.order.length} questions · ${formatTime(s.remainingMs)} remaining`:`No active ${state.lastGameMode} session.`;els.endSessionBtn.textContent=`End ${state.lastGameMode[0].toUpperCase()+state.lastGameMode.slice(1)} session`;const wrong=Object.entries(state.stats.wrongByCode||{}).filter(([,n])=>n>0).sort((a,b)=>b[1]-a[1]);els.mistakeList.innerHTML=wrong.length?wrong.slice(0,30).map(([code,n])=>{const c=getCountryByCode(code);return c?`<div class="mistake-row"><span>${flagEmoji(c.code)} ${c.name}</span><b>${n}</b></div>`:''}).join(''):'<p>No saved mistakes yet.</p>';renderStatistics()}
+function updateSettingsViews(){const s=currentSession();els.profileSessionInfo.textContent=s?`${MODE_LABEL[state.lastGameMode]} · ${s.region} · ${s.index}/${s.order.length} questions${s.practice?'':` · ${formatTime(s.remainingMs)} remaining`}`:`No active ${MODE_LABEL[state.lastGameMode]} session.`;els.endSessionBtn.textContent=`End ${state.lastGameMode[0].toUpperCase()+state.lastGameMode.slice(1)} session`;renderStatistics()}
 // ---------- Statistics ----------
 const pct=(c,t)=>t?Math.round(c/t*100):0;
 function fmtDuration(ms){const m=Math.round(ms/60000);if(m<60)return `${m}m`;return `${Math.floor(m/60)}h ${m%60}m`}
@@ -501,7 +532,7 @@ function renderStatistics(){
   for(const r of regions){cells+=`<div class="r">${r}</div>`;for(const m of MODES){const ms=st.byMode[m];let sn=0,cr=0;for(const c of COUNTRIES){if(c.region!==r)continue;sn+=ms.seenByCode[c.code]||0;cr+=ms.correctByCode[c.code]||0}cells+=sn?`<div class="c" style="background:color-mix(in srgb,${pct(cr,sn)>=70?'var(--good)':pct(cr,sn)>=40?'var(--warn)':'var(--bad)'} ${18+Math.round(sn>30?30:sn)}%,var(--panel2))">${pct(cr,sn)}%<small>${cr}/${sn}</small></div>`:'<div class="c empty">–</div>'}}
   els.statRegions.innerHTML=`<div class="matrix">${cells}</div>`;
   renderTrend();renderHistory();
-  document.querySelectorAll('.stat-filter').forEach(f=>f.innerHTML=filterChips(f.dataset.filter));
+  document.querySelectorAll('.stat-filter[data-filter="trend"],.stat-filter[data-filter="history"]').forEach(f=>f.innerHTML=filterChips(f.dataset.filter));
 }
 function renderTrend(){
   const f=state.statFilter.trend;const rows=state.history.filter(h=>f==='all'||h.mode===f).slice(-20);
@@ -520,7 +551,7 @@ function renderHistory(){
   els.historyList.innerHTML=rows.length?rows.map(r=>`<div class="history-row"><span>${MODE_LABEL[r.mode]||r.mode} · ${r.region} · ${kind(r)}</span><span class="score">${r.correct}/${r.answered} · ${pct(r.correct,r.answered)}%</span><span class="meta">${when(r.endedAt)} · ${formatTime(r.durationMs)}</span><span class="outcome">${r.outcome}</span></div>`).join(''):'<p class="note">No finished sessions yet.</p>';
   els.historyMore.style.display=all.length>rows.length?'block':'none';
 }
-document.addEventListener('click',e=>{const b=e.target.closest('.stat-filter button');if(!b)return;state.statFilter[b.dataset.kind]=b.dataset.mode;if(b.dataset.kind==='history')state.historyShown=20;b.parentElement.innerHTML=filterChips(b.dataset.kind);if(b.dataset.kind==='trend')renderTrend();else renderHistory()});
+document.addEventListener('click',e=>{const b=e.target.closest('.stat-filter button[data-kind]');if(!b)return;state.statFilter[b.dataset.kind]=b.dataset.mode;if(b.dataset.kind==='history')state.historyShown=20;b.parentElement.innerHTML=filterChips(b.dataset.kind);if(b.dataset.kind==='trend')renderTrend();else if(b.dataset.kind==='missed')renderMissedList();else renderHistory()});
 document.getElementById('historyMore').addEventListener('click',()=>{state.historyShown+=20;renderHistory()});
 function setRegion(region){pauseTimer();state.region=region;state.settings.regions[state.lastGameMode]=region;saveSettings();els.region.value=region;const key=sessionKey(state.lastGameMode),old=state.sessions[key];if(old&&(old.quit||old.completed)){console.debug('[geo] setRegion: clearing ended session',key,{quit:!!old.quit,completed:!!old.completed});delete state.sessions[key];saveSessions()}if(state.activeTab!=='settings')loadMode(state.lastGameMode);updateStats();updateSettingsViews()}
 function resetQuestionUI(){
@@ -563,6 +594,7 @@ function ensureSessionState(s){
   if(!s.reviews)s.reviews={};
   // Sessions saved before the 10-minute regional limit keep their old 15:00 until started.
   if(!s.started&&!s.completed)s.remainingMs=sessionMsFor(s.region||state.region);
+  if(s.region==='Mistakes')s.practice=true;
 }
 const ANSWER_OPTIONS={flag:[['country','Country'],['capital','Capital']],map:[['country','Country'],['capital','Capital']],capital:[['country','Country'],['capital','Capital']]};
 function answerModeFor(s){return (s&&s.answerMode)||'both'}
@@ -654,23 +686,23 @@ function fitPanel(panel){const inner=panel.firstElementChild;const cs=getCompute
 function readyInnerHeight(){const panel=els.startPanel,inner=panel.firstElementChild;if(!els.answerModeOptions.children.length)renderAnswerModeOptions(currentSession());if(getComputedStyle(panel).display!=='none')return inner.offsetHeight;const d=panel.style.display,v=panel.style.visibility;panel.style.visibility='hidden';panel.style.display='flex';const h=inner.offsetHeight;panel.style.display=d;panel.style.visibility=v;return h}
 function lockReadyPanelOffset(panel=els.startPanel){const inner=panel.firstElementChild;const prev=els.capitalField.style.display;const bothShown=els.countryField.style.display!=='none'&&prev!=='none';if(bothShown)els.capitalField.style.display='none';const cs=getComputedStyle(panel);const avail=els.quiz.offsetHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom)-parseFloat(cs.borderTopWidth)-parseFloat(cs.borderBottomWidth);if(bothShown)els.capitalField.style.display=prev;const top=Math.max(0,(avail-readyInnerHeight())/2);panel.style.alignItems='flex-start';inner.style.margin=`${Math.round(top)}px auto auto`;const need=Math.ceil(inner.offsetHeight+els.quiz.offsetHeight-avail);if(need>els.quiz.offsetHeight)els.quiz.style.minHeight=`${need}px`}
 // Region picker on the Ready screen: the pill expands into the list of regions.
-function renderReadyRegion(open){const link=document.getElementById('readyRegionLink'),opts=document.getElementById('readyRegionOptions');link.textContent=state.region;link.setAttribute('aria-expanded',open?'true':'false');opts.hidden=!open;if(open)opts.innerHTML=REGION_ORDER.map(r=>`<button type="button" data-region="${r}" class="${r===state.region?'active':''}"><span data-label="${r}">${r}</span></button>`).join('')}
-document.getElementById('readyRegionLink').addEventListener('click',()=>renderReadyRegion(document.getElementById('readyRegionOptions').hidden));
+function renderReadyRegion(open){const link=document.getElementById('readyRegionLink'),opts=document.getElementById('readyRegionOptions');link.textContent=state.region;link.classList.toggle('static',state.region==='Mistakes');link.setAttribute('aria-expanded',open?'true':'false');opts.hidden=!open;if(open)opts.innerHTML=REGION_ORDER.map(r=>`<button type="button" data-region="${r}" class="${r===state.region?'active':''}"><span data-label="${r}">${r}</span></button>`).join('')}
+document.getElementById('readyRegionLink').addEventListener('click',()=>{if(state.region==='Mistakes')return;renderReadyRegion(document.getElementById('readyRegionOptions').hidden)});
 document.addEventListener('pointerdown',e=>{if(!e.target.closest('.region-picker')&&!document.getElementById('readyRegionOptions').hidden)renderReadyRegion(false)});
 document.getElementById('readyRegionOptions').addEventListener('click',e=>{const b=e.target.closest('[data-region]');if(!b)return;if(b.dataset.region===state.region){renderReadyRegion(false);return}setRegion(b.dataset.region)});
 els.answerModeOptions.addEventListener('click',e=>{const b=e.target.closest('[data-answer-mode]');if(!b)return;const s=getSession(state.lastGameMode,true);ensureSessionState(s);if(s.started)return;const v=b.dataset.answerMode,isCap=state.lastGameMode==='capital';const cur=isCap?(s.capitalDirection||'shuffle'):answerModeFor(s);let country=cur!=='capital',capital=cur!=='country';if(v==='country')country=!country;else capital=!capital;if(!country&&!capital)return;const next=country&&capital?(isCap?'shuffle':'both'):country?'country':'capital';if(isCap){s.capitalDirection=next;state.settings.capitalDirection=next}else{s.answerMode=next;state.settings.answerMode=next}saveSettings();saveSessions();renderReadySession(s)});
 function beginSession(){els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);els.finishedPanel.classList.remove('show');setSessionControl('pause');const s=getSession(state.lastGameMode,true);if(!s||s.completed)return;ensureSessionState(s);state.isPaused=false;s.started=true;s.paused=false;saveSessions();els.startPanel.style.display='none';els.form.style.display='block';showCurrentQuestion();updateStats();updateSettingsViews();startTimer()}
-function loadMode(mode){
+function loadMode(mode,region){
   document.body.classList.remove('settings-open');
   pauseTimer();cancelAutoAdvance();
   state.mode=mode;
   state.lastGameMode=mode;
   state.activeTab=mode;
-  state.region=state.settings.regions[mode]||'All';
-  els.region.value=state.region;
+  state.region=region||state.settings.regions[mode]||'All';
+  els.region.value=state.region==='Mistakes'?'All':state.region;
   updatePageTitle();
   els.quiz.style.display='';
-  els.settingsPanel.style.display='none';
+  els.pages.style.display='none';
   els.timerControls.style.display='flex';
   
 let quizSwipeStartX=0,quizSwipeStartY=0;
@@ -704,7 +736,7 @@ document.querySelectorAll('.mobile-nav').forEach(b=>b.classList.toggle('active',
     updateStats();renderTimer();return;
   }
 
-  if(s.completed||s.index>=s.order.length||s.remainingMs<=0){
+  if(s.completed||s.index>=s.order.length||(s.remainingMs<=0&&!s.practice)){
     state.isPaused=false;
     s.paused=false;
     els.startPanel.style.display='none';
@@ -938,7 +970,8 @@ function checkAnswer(){
     s.hinted++;
     state.stats.hintedByCode[state.current.code]=(state.stats.hintedByCode[state.current.code]||0)+1;
   }
-  const ms=state.stats.byMode[state.lastGameMode];ms.seenByCode[state.current.code]=(ms.seenByCode[state.current.code]||0)+1;
+  const ms=state.stats.byMode[state.lastGameMode],missed=state.stats.missedByMode[state.lastGameMode];ms.seenByCode[state.current.code]=(ms.seenByCode[state.current.code]||0)+1;
+  if(ok&&!state.hintUsed){if(s.practice)delete missed[state.current.code]}else missed[state.current.code]=(missed[state.current.code]||0)+1;
   if(ok&&!state.hintUsed){
     s.correct++;s.streak++;state.stats.correct++;state.stats.streak++;ms.correctByCode[state.current.code]=(ms.correctByCode[state.current.code]||0)+1;
   }else{
@@ -1076,15 +1109,64 @@ forceEnglishInput(els.countryInput);forceEnglishInput(els.capitalInput);
 els.countryHintBtn.addEventListener('click',()=>showHint('country'));els.capitalHintBtn.addEventListener('click',()=>showHint('capital'));
 document.addEventListener('keydown',e=>{if(e.key!=='Escape'||state.activeTab==='settings')return;const s=currentSession();if(!s||!s.started||s.completed)return;if(state.isPaused){e.preventDefault();resumeSession()}else if(!els.quiz.classList.contains('state-screen')){e.preventDefault();pauseSession()}});
 document.addEventListener('keydown',e=>{if(e.key!==';'||state.answered||state.activeTab==='settings')return;const active=document.activeElement,countryVisible=els.countryField.style.display!=='none',capitalVisible=els.capitalField.style.display!=='none';let kind=null;if(active===els.countryInput&&countryVisible)kind='country';else if(active===els.capitalInput&&capitalVisible)kind='capital';else if(countryVisible&&!capitalVisible)kind='country';else if(capitalVisible&&!countryVisible)kind='capital';else if(countryVisible&&capitalVisible)kind='country';if(kind){e.preventDefault();showHint(kind)}});
-function openSettings(){pauseTimer();cancelAutoAdvance();els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);document.body.classList.add('settings-open');state.activeTab='settings';updatePageTitle();els.quiz.style.display='none';els.settingsPanel.style.display='block';els.timerControls.style.display='none';document.querySelectorAll('.mobile-nav').forEach(b=>b.classList.toggle('active',b.dataset.tab==='settings'));moveNavIndicator();updateStats();updateSettingsViews();renderTimer()}
+const PAGE_TITLES={profile:'Profile',practice:'Practice',statistics:'Statistics',answers:'Answer key',settings:'Settings'};
+function openMenu(){els.menuSheet.hidden=false;document.getElementById('practiceBadge').textContent=(()=>{const n=MODES.reduce((a,m)=>a+missedPool(m).length,0);return n?String(n):''})()}
+function closeMenu(){els.menuSheet.hidden=true}
+function openPage(page){
+  closeMenu();pauseTimer();cancelAutoAdvance();
+  if(state.activeTab!=='settings'){autoPauseCurrentSession();els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);document.body.classList.add('settings-open');state.activeTab='settings';els.quiz.style.display='none';els.pages.style.display='block';els.timerControls.style.display='none';els.pageTitleIcon.style.display='none';els.pageBack.style.display='';document.querySelectorAll('.mobile-nav').forEach(b=>b.classList.toggle('active',b.dataset.tab==='settings'));moveNavIndicator()}
+  state.page=page;updatePageTitle();
+  document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.dataset.page===page));
+  if(page==='answers')renderAnswerList();
+  if(page==='profile')renderProfile();
+  if(page==='practice')renderPractice();
+  if(page==='settings')renderSettingsPage();
+  updateSettingsViews();renderTimer();
+  document.querySelector('.app').scrollTop=0;
+}
+function closePages(){if(state.activeTab!=='settings')return;els.pageTitleIcon.style.display='';els.pageBack.style.display='none';els.pages.style.display='none';loadMode(state.lastGameMode)}
+function renderProfile(){
+  const name=state.settings.name||'Guest';document.getElementById('profileName').textContent=name;document.getElementById('profileAvatar').textContent=name.trim()[0].toUpperCase();
+  if(!state.settings.createdAt){state.settings.createdAt=new Date().toISOString();saveSettings()}
+  const d=new Date(state.settings.createdAt);document.getElementById('profileSince').textContent=`Playing since ${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()} · local profile`;
+  const H=state.history,answered=H.reduce((a,h)=>a+h.answered,0),correct=H.reduce((a,h)=>a+h.correct,0);
+  document.getElementById('profileStrip').innerHTML=[[`${studyStreak()}`,'Day streak'],[H.length,'Sessions'],[`${pct(correct,answered)}%`,'Accuracy']].map(([v,l])=>`<div><b>${v}</b><span>${l}</span></div>`).join('');
+}
+function renderPractice(){
+  document.getElementById('practiceCards').innerHTML=MODES.map(m=>{const n=missedPool(m).length;const key=`${m}:Mistakes`,ex=state.sessions[key];const resume=ex&&ex.started&&!ex.completed&&!ex.quit;return `<div class="practice-card"><b>${MODE_LABEL[m]} Quiz</b><span class="count">${n}</span><span class="stat-sub">${n?`${n} countries to review`:'Nothing to review'}${resume?` · in progress ${ex.index}/${ex.order.length}`:''}</span><button class="primary" type="button" data-practice="${m}" ${n||resume?'':'disabled'}>${resume?'Resume practice':'Practice'}</button></div>`}).join('');
+  renderMissedList();
+}
+function renderMissedList(){
+  const f=state.statFilter.missed;const agg={};for(const m of MODES){if(f!=='all'&&f!==m)continue;for(const [k,n] of Object.entries(state.stats.missedByMode[m]||{}))agg[k]=(agg[k]||0)+n}
+  const rows=Object.entries(agg).sort((a,b)=>b[1]-a[1]).slice(0,40);
+  els.mistakeList.innerHTML=rows.length?rows.map(([code,n])=>{const c=getCountryByCode(code);return c?`<div class="stat-row"><span>${flagEmoji(c.code)} ${c.name}</span><span class="pct" style="color:var(--bad)">${n}✕</span><span class="stat-sub">${(c.capitals||[c.capital]).join(' / ')}</span></div>`:''}).join(''):'<p class="note">No missed countries.</p>';
+  document.querySelectorAll('.stat-filter[data-filter="missed"]').forEach(f=>f.innerHTML=filterChips('missed'));
+}
+function renderSettingsPage(){
+  const chips=(kind,opts,cur)=>opts.map(([v,l])=>`<button type="button" data-pref="${kind}" data-value="${v}" class="${cur===v?'active':''}">${l}</button>`).join('');
+  document.querySelector('.stat-filter[data-filter="answerMode"]').innerHTML=chips('answerMode',[['country','Country'],['capital','Capital'],['both','Both']],state.settings.answerMode);
+  document.querySelector('.stat-filter[data-filter="capitalDirection"]').innerHTML=chips('capitalDirection',[['country','Country'],['capital','Capital'],['shuffle','Mixed']],state.settings.capitalDirection);
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-pref]');if(!b)return;state.settings[b.dataset.pref]=b.dataset.value;saveSettings();renderSettingsPage()});
+document.getElementById('practiceCards').addEventListener('click',e=>{const b=e.target.closest('[data-practice]');if(b)startPractice(b.dataset.practice)});
+document.getElementById('profileName').addEventListener('click',()=>{const v=prompt('Display name',state.settings.name||'');if(v===null)return;state.settings.name=v.trim().slice(0,24);saveSettings();renderProfile()});
+els.menuSheet.addEventListener('click',e=>{const item=e.target.closest('.sheet-item');if(item){openPage(item.dataset.page);return}if(e.target===els.menuSheet)closeMenu()});
+els.pageBack.addEventListener('click',closePages);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!els.menuSheet.hidden)closeMenu()});
+// export / import
+document.getElementById('exportBtn').addEventListener('click',()=>{const data={schema:SCHEMA_VERSION,exportedAt:new Date().toISOString(),settings:state.settings,stats:state.stats,history:state.history};const blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`geography-quiz-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});
+document.getElementById('importBtn').addEventListener('click',()=>document.getElementById('importFile').click());
+document.getElementById('importFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{const d=JSON.parse(t);if(!d||!d.stats||!d.settings)throw new Error('bad file');if(!confirm('Replace the data on this device with the imported file?'))return;state.settings={...DEFAULT_SETTINGS,...d.settings,regions:{...DEFAULT_SETTINGS.regions,...(d.settings.regions||{})}};state.stats=d.stats;state.history=Array.isArray(d.history)?d.history:[];normalizeStats();saveSettings();saveStats();saveHistory();renderProfile();renderSettingsPage();alert('Imported.')}).catch(()=>alert('Could not read that file.'));e.target.value=''});
+function openSettings(){openPage(state.page||'profile')}
 function moveNavIndicator(){const ind=document.getElementById('navIndicator'),nav=document.getElementById('bottomNav'),b=nav.querySelector('.mobile-nav.active');if(!ind||!b)return;const nr=nav.getBoundingClientRect(),br=b.getBoundingClientRect();ind.style.left=`${br.left-nr.left}px`;ind.style.width=`${br.width}px`;ind.classList.add('on')}
 window.addEventListener('resize',moveNavIndicator);
 document.querySelectorAll('.mobile-nav').forEach(b=>b.addEventListener('click',()=>{
   const tab=b.dataset.tab;
+  if(tab==='settings'){openMenu();return}
   if(tab===state.activeTab)return;
   autoPauseCurrentSession();
-  if(tab==='settings')openSettings();
-  else loadMode(tab);
+  if(state.activeTab==='settings'){els.pageTitleIcon.style.display='';els.pageBack.style.display='none';els.pages.style.display='none'}
+  loadMode(tab);
 }));
 function renderAnswerList(){
   const q=norm(els.answerSearch.value);
@@ -1101,7 +1183,6 @@ function renderAnswerList(){
   els.answerSummary.textContent=`${shown} countries · ${multi} with multiple capitals`;
 }
 els.answerSearch.addEventListener('input',renderAnswerList);
-document.querySelectorAll('.settings-tab').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.settings==='answers')renderAnswerList();document.querySelectorAll('.settings-tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.settings-section').forEach(x=>x.classList.toggle('active',x.dataset.section===b.dataset.settings));updateSettingsViews()}));
 els.endSessionBtn.addEventListener('click',()=>{const key=sessionKey(state.lastGameMode);if(confirm(`End this ${state.lastGameMode} session and start over?`)){delete state.sessions[key];saveSessions();updateSettingsViews();updateStats()}});
 
 function restartSession(){setSessionControl('hidden');
@@ -1113,16 +1194,17 @@ function restartSession(){setSessionControl('hidden');
   els.finishedPanel.classList.remove('show');
   loadMode(state.lastGameMode);
 }
+function startPractice(mode){const key=`${mode}:Mistakes`;const existing=state.sessions[key];if(existing&&(existing.completed||existing.quit)){delete state.sessions[key];saveSessions()}if(!state.sessions[key]&&!missedPool(mode).length)return;closePages();loadMode(mode,'Mistakes')}
 
 els.startBtn.addEventListener('click',()=>exitPanel(els.startPanel,beginSession));els.autoModeToggles.forEach(t=>t.addEventListener('click',()=>setAutoMode(!state.settings.autoMode)));setAutoMode(state.settings.autoMode);els.restartSessionBtn.addEventListener('click',restartSession);
 els.sessionPauseBtn.addEventListener('click',()=>{if(state.isPaused)resumeSession();else pauseSession()});els.resumeBtn.addEventListener('click',resumeSession);els.quitBtn.addEventListener('click',quitSession);
 els.nextBtn.addEventListener('click',()=>{if(state.reviewIndex!==null){const s=currentSession();if(state.reviewIndex+1>=s.index)exitReview();else renderReview(state.reviewIndex+1)}else advanceQuestion()});els.prevBtn.addEventListener('click',()=>{const s=currentSession();if(!s)return;const cur=state.reviewIndex!==null?state.reviewIndex:s.index;if(cur>0&&s.reviews&&s.reviews[cur-1])renderReview(cur-1)});els.region.addEventListener('change',()=>setRegion(els.region.value));document.querySelectorAll('.mode').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.mode!==state.activeTab){autoPauseCurrentSession();loadMode(b.dataset.mode)}}));
-els.resetStats.addEventListener('click',()=>{if(confirm('Reset all quiz statistics and mistake history?')){state.stats={correct:0,total:0,streak:0,wrongByCode:{},hintedByCode:{},byMode:{}};normalizeStats();state.history=[];saveHistory();saveStats()}});
+els.resetStats.addEventListener('click',()=>{if(confirm('Reset all quiz statistics and mistake history?')){state.stats={correct:0,total:0,streak:0,wrongByCode:{},hintedByCode:{},byMode:{},missedByMode:{}};normalizeStats();state.history=[];saveHistory();saveStats()}});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){const s=currentSession();if(s)saveCurrentDraft(s);pauseTimer()}else if(state.activeTab!=='settings'&&!state.isPaused)startTimer()});window.addEventListener('beforeunload',pauseTimer);
 const scrollRoot=document.querySelector('.app');let touchStartY=0;
 scrollRoot.addEventListener('touchstart',e=>{if(e.touches&&e.touches[0])touchStartY=e.touches[0].clientY},{passive:true});
 scrollRoot.addEventListener('touchmove',e=>{if(!e.touches||!e.touches[0])return;const maxScroll=scrollRoot.scrollHeight-scrollRoot.clientHeight;if(maxScroll<=1){e.preventDefault();return}const y=e.touches[0].clientY,down=y>touchStartY;if((scrollRoot.scrollTop<=0&&down)||(scrollRoot.scrollTop>=maxScroll-1&&!down))e.preventDefault()},{passive:false});
-normalizeStats();updateSettingsViews();loadMode('flag');requestAnimationFrame(moveNavIndicator);
+normalizeStats();loadMode('flag');requestAnimationFrame(moveNavIndicator);
 // Re-anchor the Ready panel once the web font has swapped in (text metrics change).
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(els.startPanel.style.display==='flex')lockReadyPanelOffset();else if(els.pausePanel.classList.contains('show'))lockReadyPanelOffset(els.pausePanel);else if(els.finishedPanel.classList.contains('show'))lockReadyPanelOffset(els.finishedPanel)});
 </script>
