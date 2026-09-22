@@ -421,7 +421,7 @@ function updatePageTitle(){
   els.pageTitleIcon.innerHTML=icons[tab]||icons.flag;
 }
 function updateSettingsViews(){const s=currentSession();els.profileSessionInfo.textContent=s?`${state.lastGameMode[0].toUpperCase()+state.lastGameMode.slice(1)} · ${state.region} · ${s.index}/${s.order.length} questions · ${formatTime(s.remainingMs)} remaining`:`No active ${state.lastGameMode} session.`;els.endSessionBtn.textContent=`End ${state.lastGameMode[0].toUpperCase()+state.lastGameMode.slice(1)} session`;const wrong=Object.entries(state.stats.wrongByCode||{}).filter(([,n])=>n>0).sort((a,b)=>b[1]-a[1]);els.mistakeList.innerHTML=wrong.length?wrong.slice(0,30).map(([code,n])=>{const c=getCountryByCode(code);return c?`<div class="mistake-row"><span>${flagEmoji(c.code)} ${c.name}</span><b>${n}</b></div>`:''}).join(''):'<p>No saved mistakes yet.</p>';els.statCorrect.textContent=state.stats.correct||0;els.statAnswered.textContent=state.stats.total||0;els.statMistakes.textContent=Object.values(state.stats.wrongByCode||{}).reduce((a,b)=>a+b,0);els.statHints.textContent=Object.values(state.stats.hintedByCode||{}).reduce((a,b)=>a+b,0)}
-function setRegion(region){pauseTimer();state.region=region;state.regions[state.lastGameMode]=region;saveRegions();els.region.value=region;if(state.activeTab!=='settings')loadMode(state.lastGameMode);updateStats();updateSettingsViews()}
+function setRegion(region){pauseTimer();state.region=region;state.regions[state.lastGameMode]=region;saveRegions();els.region.value=region;const key=sessionKey(state.lastGameMode),old=state.sessions[key];if(old&&(old.quit||old.completed)){console.debug('[geo] setRegion: clearing ended session',key,{quit:!!old.quit,completed:!!old.completed});delete state.sessions[key];saveSessions()}if(state.activeTab!=='settings')loadMode(state.lastGameMode);updateStats();updateSettingsViews()}
 function resetQuestionUI(){
 document.querySelectorAll('.answer-review').forEach(x=>x.remove());
 els.countryInput.style.display='block';els.capitalInput.style.display='block';
@@ -592,6 +592,7 @@ document.querySelectorAll('.mobile-nav').forEach(b=>b.classList.toggle('active',
 
   const s=getSession(mode,true);
   ensureSessionState(s);
+  console.debug('[geo] loadMode',sessionKey(mode),{started:s.started,paused:s.paused,quit:!!s.quit,completed:s.completed,index:s.index,of:s.order.length,remainingMs:s.remainingMs});
 
   if(s.quit){
     state.isPaused=false;
