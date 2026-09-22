@@ -83,12 +83,8 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .answer-status svg path{stroke-dasharray:1;stroke-dashoffset:1;animation:drawStroke .3s ease-out .08s forwards}.answer-status svg path+path{animation-delay:.22s}
 @keyframes popIn{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}@keyframes drawStroke{to{stroke-dashoffset:0}}
 .field.shake{animation:shake .4s cubic-bezier(.36,.07,.19,.97) both}@keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-6px)}40%,60%{transform:translateX(6px)}}
-/* 4) question transition */
-.quiz.q-in :is(#prompt,#questionText,#visual,#answerForm){animation:questionIn .34s cubic-bezier(.2,.8,.2,1) both}.quiz.q-in #questionText{animation-delay:.03s}.quiz.q-in #visual{animation-delay:.06s}.quiz.q-in #answerForm{animation-delay:.09s}
-.quiz.q-in.q-back :is(#prompt,#questionText,#visual,#answerForm){animation-name:questionInBack}
-@keyframes questionIn{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}@keyframes questionInBack{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
 /* 5) state panels */
-.quiz.state-screen .start-panel,.pause-panel.show,.finished-panel.show{animation:panelIn .26s cubic-bezier(.2,.8,.2,1) both}@keyframes panelIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.panel-enter{animation:panelIn .26s cubic-bezier(.2,.8,.2,1) both}.panel-exit{animation:panelOut .22s ease-in both;pointer-events:none}@keyframes panelIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}@keyframes panelOut{from{opacity:1;transform:none}to{opacity:0;transform:scale(.96)}}
 .quiz .state-underlay{transition:filter .3s ease}
 /* 6) counters */
 .progress .n{display:inline-block;animation:numIn .28s cubic-bezier(.2,.8,.2,1) both}@keyframes numIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
@@ -351,7 +347,7 @@ const CAPITAL_ALIASES={
 function capitalAnswers(c){return [...(c.capitals||[c.capital]),...(CAPITAL_ALIASES[c.name]||[])]}
 const SESSION_MS=15*60*1000,REGION_SESSION_MS=10*60*1000,REGION_ORDER=['All','Africa','Asia','Europe','Americas','Oceania'];
 const els={answerModeOptions:document.getElementById('answerModeOptions'),prevBtn:document.getElementById('prevBtn'),answerSearch:document.getElementById('answerSearch'),answerSummary:document.getElementById('answerSummary'),answerList:document.getElementById('answerList'),autoModeToggles:document.querySelectorAll('.auto-toggle'),screenFlash:document.getElementById('screenFlash'),pageTitle:document.getElementById('pageTitle'),pageTitleIcon:document.getElementById('pageTitleIcon'),pageTitleText:document.getElementById('pageTitleText'),timer:document.getElementById('timer'),timerControls:document.getElementById('timerControls'),sessionPauseBtn:document.getElementById('sessionPauseBtn'),sessionPauseIcon:document.getElementById('sessionPauseIcon'),startPanel:document.getElementById('startPanel'),startBtn:document.getElementById('startBtn'),pausePanel:document.getElementById('pausePanel'),resumeBtn:document.getElementById('resumeBtn'),quitBtn:document.getElementById('quitBtn'),finishedPanel:document.getElementById('finishedPanel'),finishedTitle:document.getElementById('finishedTitle'),finishedScore:document.getElementById('finishedScore'),finishedNote:document.getElementById('finishedNote'),finishedPep:document.getElementById('finishedPep'),restartSessionBtn:document.getElementById('restartSessionBtn'),score:document.getElementById('score'),streak:document.getElementById('streak'),mistakes:document.getElementById('mistakes'),hintsUsed:document.getElementById('hintsUsed'),prompt:document.getElementById('prompt'),questionText:document.getElementById('questionText'),visual:document.getElementById('visual'),form:document.getElementById('answerForm'),quiz:document.querySelector('.quiz'),settingsPanel:document.getElementById('settingsPanel'),countryField:document.getElementById('countryField'),capitalField:document.getElementById('capitalField'),countryInput:document.getElementById('countryInput'),capitalInput:document.getElementById('capitalInput'),countryHintBtn:document.getElementById('countryHintBtn'),capitalHintBtn:document.getElementById('capitalHintBtn'),checkBtn:document.getElementById('checkBtn'),nextBtn:document.getElementById('nextBtn'),result:document.getElementById('result'),answerline:document.getElementById('answerline'),detail:document.getElementById('detail'),wikiLink:document.getElementById('wikiLink'),similar:document.getElementById('similar'),region:document.getElementById('region'),resetStats:document.getElementById('resetStats'),profileSessionInfo:document.getElementById('profileSessionInfo'),endSessionBtn:document.getElementById('endSessionBtn'),mistakeList:document.getElementById('mistakeList'),mobileRegionOptions:document.getElementById('mobileRegionOptions'),statCorrect:document.getElementById('statCorrect'),statAnswered:document.getElementById('statAnswered'),statMistakes:document.getElementById('statMistakes'),statHints:document.getElementById('statHints')};
-let state={mode:'flag',lastGameMode:'flag',activeTab:'flag',current:null,questionType:null,answered:false,countryHintChars:0,capitalHintChars:0,hintUsed:false,shownCapital:null,stats:loadStats(),sessions:loadSessions(),region:localStorage.getItem('geoQuizRegion')||'All',timerHandle:null,lastTimerTick:null,autoMode:localStorage.getItem('geoQuizAutoMode')==='1',autoAdvanceHandle:null,reviewIndex:null,emptySubmitArmed:false};
+let state={mode:'flag',lastGameMode:'flag',activeTab:'flag',current:null,questionType:null,answered:false,countryHintChars:0,capitalHintChars:0,hintUsed:false,shownCapital:null,stats:loadStats(),sessions:loadSessions(),region:localStorage.getItem('geoQuizRegion')||'All',timerHandle:null,lastTimerTick:null,autoMode:localStorage.getItem('geoQuizAutoMode')==='1',autoAdvanceHandle:null,reviewIndex:null,emptySubmitArmed:false,transitioning:false};
 function loadStats(){try{return JSON.parse(localStorage.getItem('geoQuizStats'))||{correct:0,total:0,streak:0,wrongByCode:{},hintedByCode:{}}}catch(e){return {correct:0,total:0,streak:0,wrongByCode:{},hintedByCode:{}}}}
 function loadSessions(){try{return JSON.parse(localStorage.getItem('geoQuizSessionsV2'))||{}}catch(e){return {}}}
 function saveSessions(){localStorage.setItem('geoQuizSessionsV2',JSON.stringify(state.sessions))}
@@ -397,7 +393,7 @@ function renderTimer(){
     els.timer.classList.add('warning');
   }
 }
-function finishByTime(){cancelAutoAdvance();const s=currentSession();if(!s)return;s.remainingMs=0;s.completed=true;saveSessions();state.answered=true;state.reviewIndex=null;renderCompletedSession(s);updateStats();updateSettingsViews()}
+function finishByTime(){cancelAutoAdvance();const s=currentSession();if(!s)return;s.remainingMs=0;s.completed=true;saveSessions();state.answered=true;state.reviewIndex=null;renderCompletedSession(s,false,true);updateStats();updateSettingsViews()}
 function updateStats(){const s=currentSession(),total=s?s.order.length:poolFor(state.lastGameMode).length;els.score.textContent=`${s?s.correct:0}/${total}`;els.streak.textContent=s?s.streak:0;els.mistakes.textContent=s?s.mistakes:0;els.hintsUsed.textContent=s?s.hinted:0}
 function updatePageTitle(){
   const tab=state.activeTab;
@@ -536,6 +532,10 @@ function renderReadySession(s){
 // Centre the Ready content against the single-field layout, then keep that
 // offset so adding the second field only grows the card downward.
 // Make sure a state panel's content never overflows the card (Capital Quiz card is short).
+// Glass panel transitions are used only between the question screen and a glass screen;
+// glass -> glass (pause -> quit, ended -> ready) switches instantly.
+function enterPanel(panel){panel.classList.remove('panel-exit','panel-enter');void panel.offsetWidth;panel.classList.add('panel-enter');panel.addEventListener('animationend',()=>panel.classList.remove('panel-enter'),{once:true})}
+function exitPanel(panel,done){if(state.transitioning)return;state.transitioning=true;setStateUnderlayBlur(false);panel.classList.remove('panel-enter');panel.classList.add('panel-exit');let finished=false;const finish=()=>{if(finished)return;finished=true;panel.classList.remove('panel-exit');state.transitioning=false;done()};panel.addEventListener('animationend',finish,{once:true});setTimeout(finish,350)}
 function fitPanel(panel){const inner=panel.firstElementChild;const cs=getComputedStyle(panel);const extra=parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom)+parseFloat(cs.borderTopWidth)+parseFloat(cs.borderBottomWidth);const need=Math.ceil(inner.offsetHeight+extra);if(need>els.quiz.offsetHeight)els.quiz.style.minHeight=`${need}px`}
 function lockReadyPanelOffset(){const panel=els.startPanel,inner=panel.firstElementChild;const prev=els.capitalField.style.display;const bothShown=els.countryField.style.display!=='none'&&prev!=='none';if(bothShown)els.capitalField.style.display='none';const cs=getComputedStyle(panel);const avail=els.quiz.offsetHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom)-parseFloat(cs.borderTopWidth)-parseFloat(cs.borderBottomWidth);if(bothShown)els.capitalField.style.display=prev;const top=Math.max(0,(avail-inner.offsetHeight)/2);panel.style.alignItems='flex-start';inner.style.margin=`${Math.round(top)}px auto auto`;const need=Math.ceil(inner.offsetHeight+els.quiz.offsetHeight-avail);if(need>els.quiz.offsetHeight)els.quiz.style.minHeight=`${need}px`}
 // Region picker on the Ready screen: the pill expands into the list of regions.
@@ -607,7 +607,6 @@ document.querySelectorAll('.mobile-nav').forEach(b=>b.classList.toggle('active',
     startTimer();
   }
 }
-function animateQuestion(back){const q=els.quiz;q.classList.remove('q-in','q-back');void q.offsetWidth;q.classList.add('q-in');if(back)q.classList.add('q-back');clearTimeout(state.qAnimHandle);state.qAnimHandle=setTimeout(()=>q.classList.remove('q-in','q-back'),450)}
 function showCurrentQuestion(){state.reviewIndex=null;els.quiz.style.minHeight='';els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);els.finishedPanel.classList.remove('show');setSessionControl('pause');resetQuestionUI();els.pausePanel.classList.remove('show');els.prompt.style.display='';els.questionText.style.display='';els.visual.style.display='';els.form.style.display='block';const s=getSession(state.lastGameMode,true);if(!s.order.length){els.prompt.textContent='No questions available';els.questionText.textContent='Try another region.';els.visual.innerHTML='';els.checkBtn.disabled=true;return}if(s.index>=s.order.length){s.completed=true;saveSessions();renderCompletedSession(s);return}state.current=getCountryByCode(s.order[s.index]);if(state.lastGameMode==='flag')renderFlag();else if(state.lastGameMode==='capital')renderCapital(s);else renderMap();updateActionButtons()}
 
 // Count the finished score up from 0 over ~700ms.
@@ -650,7 +649,7 @@ function renderQuitResult(s){els.quiz.classList.add('state-screen');setStateUnde
   renderTimer();
 }
 
-function renderCompletedSession(s,celebrate=false){els.quiz.classList.add('state-screen');setStateUnderlayBlur(true);setSessionControl('hidden');
+function renderCompletedSession(s,celebrate=false,animate=celebrate){els.quiz.classList.add('state-screen');setStateUnderlayBlur(true);setSessionControl('hidden');
   pauseTimer();
   state.isPaused=false;
   s.completed=true;
@@ -685,6 +684,7 @@ function renderCompletedSession(s,celebrate=false){els.quiz.classList.add('state
   }
   els.restartSessionBtn.style.display='block';
   fitPanel(els.finishedPanel);
+  if(animate)enterPanel(els.finishedPanel);
   renderTimer();
 }
 // Two bursts from the left and right edges, drawn on a throwaway canvas.
@@ -750,8 +750,10 @@ function pauseSession(){
   s.paused=true;
   saveSessions();
   renderPausedView();
+  enterPanel(els.pausePanel);
 }
-function resumeSession(){els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);els.finishedPanel.classList.remove('show');setSessionControl('pause');
+function resumeSession(){if(state.transitioning)return;if(els.pausePanel.classList.contains('show')){exitPanel(els.pausePanel,resumeSessionNow);return}resumeSessionNow()}
+function resumeSessionNow(){els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);els.finishedPanel.classList.remove('show');setSessionControl('pause');
   const s=currentSession();
   if(!s)return;
   ensureSessionState(s);
@@ -891,17 +893,16 @@ function renderReview(index){
   state.current=getCountryByCode(s.order[index]);
   if(state.lastGameMode==='flag')renderFlag();else if(state.lastGameMode==='capital')renderCapital({...s,index});else renderMap();
   showReviewResults(s.reviews[index]);
-  animateQuestion(index<(s.index));
   state.answered=true;
   els.countryInput.disabled=true;els.capitalInput.disabled=true;els.countryHintBtn.disabled=true;els.capitalHintBtn.disabled=true;
   updateActionButtons();
 }
-function exitReview(){state.reviewIndex=null;const s=currentSession();showCurrentQuestion();animateQuestion(false);restoreDraft(s);restoreAnswered(s)}
+function exitReview(){state.reviewIndex=null;const s=currentSession();showCurrentQuestion();restoreDraft(s);restoreAnswered(s)}
 function flashScreen(kind){const el=els.screenFlash;el.className='screen-flash';void el.offsetWidth;el.classList.add(kind,'run')}
 function cancelAutoAdvance(){if(state.autoAdvanceHandle){clearTimeout(state.autoAdvanceHandle);state.autoAdvanceHandle=null}}
 function scheduleAutoAdvance(){cancelAutoAdvance();state.autoAdvanceHandle=setTimeout(()=>{state.autoAdvanceHandle=null;if(!state.answered||state.isPaused||state.activeTab==='settings'||els.quiz.classList.contains('state-screen'))return;advanceQuestion()},1000)}
 function setAutoMode(on){state.autoMode=on;localStorage.setItem('geoQuizAutoMode',on?'1':'0');els.autoModeToggles.forEach(t=>t.setAttribute('aria-pressed',on?'true':'false'));if(!on)cancelAutoAdvance();updateActionButtons()}
-function advanceQuestion(){cancelAutoAdvance();const s=getSession(state.lastGameMode,true);ensureSessionState(s);s.review=null;s.draft=null;s.index++;if(s.index>=s.order.length){s.completed=true;pauseTimer();saveSessions();renderCompletedSession(s,true);updateStats();updateSettingsViews();return}saveSessions();showCurrentQuestion();animateQuestion(false);updateStats()}
+function advanceQuestion(){cancelAutoAdvance();const s=getSession(state.lastGameMode,true);ensureSessionState(s);s.review=null;s.draft=null;s.index++;if(s.index>=s.order.length){s.completed=true;pauseTimer();saveSessions();renderCompletedSession(s,true);updateStats();updateSettingsViews();return}saveSessions();showCurrentQuestion();updateStats()}
 function renderSimilar(){if(state.questionType!=='flag'){els.similar.innerHTML='';return}const names=SIMILAR[state.current.name]||[];if(!names.length){els.similar.innerHTML='';return}const cards=names.map(n=>{const c=byName.get(n);return c?`<div class="sim-card"><span class="sim-flag">${flagEmoji(c.code)}</span><b>${c.name}</b><div class="note">${(c.capitals||[c.capital]).join(" / ")}</div></div>`:''}).join('');els.similar.innerHTML=`<b>Similar flags to compare</b><div class="similar-grid">${cards}</div>`}
 function showHint(kind){
   if(!state.current||state.answered||state.isPaused||els.quiz.classList.contains('state-screen'))return;
@@ -973,7 +974,7 @@ function restartSession(){setSessionControl('hidden');
   loadMode(state.lastGameMode);
 }
 
-els.startBtn.addEventListener('click',beginSession);els.autoModeToggles.forEach(t=>t.addEventListener('click',()=>setAutoMode(!state.autoMode)));setAutoMode(state.autoMode);els.restartSessionBtn.addEventListener('click',restartSession);
+els.startBtn.addEventListener('click',()=>exitPanel(els.startPanel,beginSession));els.autoModeToggles.forEach(t=>t.addEventListener('click',()=>setAutoMode(!state.autoMode)));setAutoMode(state.autoMode);els.restartSessionBtn.addEventListener('click',restartSession);
 els.sessionPauseBtn.addEventListener('click',()=>{if(state.isPaused)resumeSession();else pauseSession()});els.resumeBtn.addEventListener('click',resumeSession);els.quitBtn.addEventListener('click',quitSession);
 els.nextBtn.addEventListener('click',()=>{if(state.reviewIndex!==null){const s=currentSession();if(state.reviewIndex+1>=s.index)exitReview();else renderReview(state.reviewIndex+1)}else advanceQuestion()});els.prevBtn.addEventListener('click',()=>{const s=currentSession();if(!s)return;const cur=state.reviewIndex!==null?state.reviewIndex:s.index;if(cur>0&&s.reviews&&s.reviews[cur-1])renderReview(cur-1)});els.region.addEventListener('change',()=>setRegion(els.region.value));document.querySelectorAll('.mode').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.mode!==state.activeTab){autoPauseCurrentSession();loadMode(b.dataset.mode)}}));
 els.resetStats.addEventListener('click',()=>{if(confirm('Reset all quiz statistics and mistake history?')){state.stats={correct:0,total:0,streak:0,wrongByCode:{},hintedByCode:{}};saveStats()}});
