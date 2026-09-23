@@ -151,7 +151,8 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .stat-filter{display:flex;gap:4px}.stat-filter.wrap{flex-wrap:wrap;margin:6px 0 10px}.stat-filter button{padding:4px 9px;font-size:12px;border-radius:999px;background:var(--panel2)}.stat-filter button.active{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:700}
 .stat-table{display:grid;gap:6px}.stat-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 12px;padding:9px 12px;background:var(--bg);border:1px solid var(--line);border-radius:10px;font-size:14px}.stat-row .stat-sub{grid-column:1/-1;color:var(--muted);font-size:12px}.stat-row .pct{font-weight:700;font-variant-numeric:tabular-nums}
 .bar{grid-column:1/-1;height:5px;border-radius:999px;background:var(--panel2);overflow:hidden;margin-top:4px}.bar i{display:block;height:100%;border-radius:999px;background:var(--accent)}
-.matrix{display:grid;grid-template-columns:auto repeat(3,1fr);gap:4px;font-size:13px}.matrix .h{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px;text-align:center;padding:4px 0}.matrix .r{color:var(--muted);font-size:12px;padding:0 8px 0 0;display:flex;align-items:center}.matrix .c{text-align:center;padding:9px 4px;border-radius:8px;background:var(--panel2);font-weight:600;font-variant-numeric:tabular-nums}.matrix .c small{display:block;font-weight:400;color:var(--muted);font-size:10px}.matrix .c.empty{color:var(--muted);font-weight:400}
+.matrix{display:grid;grid-template-columns:auto repeat(3,1fr);gap:4px;font-size:13px}.matrix .h{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px;text-align:center;padding:2px 0 6px}
+.matrix .h svg{width:19px;height:19px;display:block;margin:0 auto;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}.matrix .r{color:var(--muted);font-size:12px;padding:0 10px 0 0;display:flex;align-items:center;justify-content:flex-end;text-align:right}.matrix .c{text-align:center;padding:9px 4px;border-radius:8px;background:var(--panel2);font-weight:600;font-variant-numeric:tabular-nums}.matrix .c small{display:block;font-weight:400;color:var(--muted);font-size:10px}.matrix .c.empty{color:var(--muted);font-weight:400}
 .trend{display:block;width:100%;height:auto}.trend .grid{stroke:var(--line);stroke-width:1}.trend .lbl{fill:var(--muted);font-size:9px}.trend .area{fill:color-mix(in srgb,var(--accent) 18%,transparent)}.trend .line{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}.trend .pt{fill:var(--accent)}
 .history-list{display:grid;gap:6px}.history-row{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:9px 12px;background:var(--bg);border:1px solid var(--line);border-radius:10px;font-size:14px}.history-row .meta{color:var(--muted);font-size:12px}.history-row .score{font-weight:700;text-align:right}.history-row .outcome{font-size:11px;color:var(--muted);text-align:right;text-transform:uppercase;letter-spacing:.4px}
 .mini-stat{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px}.mini-stat.wide{grid-column:1/-1}
@@ -483,6 +484,11 @@ function updateNavPausedMarks(){
   document.querySelectorAll('.mobile-nav').forEach(b=>b.classList.toggle('paused',paused.has(b.dataset.tab)));
 }
 const MODES=['flag','map','capital'],MODE_LABEL={flag:'Flag',map:'Map',capital:'Capital'};
+const MODE_ICON={
+  flag:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4m0 0c4-2 7 2 12 0v9c-5 2-8-2-12 0"/></svg>',
+  map:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 6 5-2 8 2 5-2v14l-5 2-8-2-5 2V6zm5-2v14m8-12v14"/></svg>',
+  capital:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h18M5 9v9m4-9v9m6-9v9m4-9v9M2 21h20M12 3l9 5H3l9-5z"/></svg>'
+};
 function emptyModeStats(){return {seenByCode:{},correctByCode:{}}}
 function normalizeStats(){const st=state.stats;st.wrongByCode=st.wrongByCode||{};st.hintedByCode=st.hintedByCode||{};st.correct=st.correct||0;st.total=st.total||0;st.streak=st.streak||0;st.byMode=st.byMode||{};for(const m of MODES){st.byMode[m]=st.byMode[m]||emptyModeStats();st.byMode[m].seenByCode=st.byMode[m].seenByCode||{};st.byMode[m].correctByCode=st.byMode[m].correctByCode||{}}if(!st.missedByMode){st.missedByMode={};for(const m of MODES){st.missedByMode[m]={};const ms=st.byMode[m];for(const k in ms.seenByCode){const n=ms.seenByCode[k]-(ms.correctByCode[k]||0);if(n>0)st.missedByMode[m][k]=n}}}for(const m of MODES)st.missedByMode[m]=st.missedByMode[m]||{}}
 function saveStats(){localStorage.setItem('geoQuizStats',JSON.stringify(state.stats));updateStats();updateSettingsViews()}
@@ -538,10 +544,7 @@ function updatePageTitle(){
   const tab=state.activeTab;
   document.body.dataset.theme=tab;
   const titles={flag:'Flag Quiz',capital:'Capital Quiz',map:'Map Quiz',settings:PAGE_TITLES[state.page]||'Profile'};
-  const icons={
-    flag:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4m0 0c4-2 7 2 12 0v9c-5 2-8-2-12 0"/></svg>',
-    capital:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h18M5 9v9m4-9v9m6-9v9m4-9v9M2 21h20M12 3l9 5H3l9-5z"/></svg>',
-    map:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 6 5-2 8 2 5-2v14l-5 2-8-2-5 2V6zm5-2v14m8-12v14"/></svg>',
+  const icons={...MODE_ICON,
     settings:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3"/><path d="M5 21c.8-4 3.1-6 7-6s6.2 2 7 6"/></svg>'
   };
   els.pageTitleText.textContent=titles[tab]||'Flag Quiz';
@@ -571,7 +574,7 @@ function renderStatistics(){
     const sub=(w.seen?`${w.correct}/${w.seen} correct`:`missed ${w.wrong} times`)+(hintedN?` · ${hintedN} hinted`:'');return `<div class="stat-row"><span>${flagEmoji(c.code)} ${c.name}</span><span class="pct" style="color:var(--bad)">${right}</span><span class="stat-sub">${caps} · ${sub}</span></div>`}).join(''):'<p class="note">Answer a few questions first.</p>';
   // region x mode matrix from per-country tallies
   const regions=REGION_ORDER.slice(1);
-  let cells=`<div class="h"></div>${MODES.map(m=>`<div class="h">${MODE_LABEL[m]}</div>`).join('')}`;
+  let cells=`<div class="h"></div>${MODES.map(m=>`<div class="h" title="${MODE_LABEL[m]}" aria-label="${MODE_LABEL[m]}" style="color:var(--${m})">${MODE_ICON[m]}</div>`).join('')}`;
   for(const r of regions){cells+=`<div class="r">${r}</div>`;for(const m of MODES){const ms=st.byMode[m];let sn=0,cr=0;for(const c of COUNTRIES){if(c.region!==r)continue;sn+=ms.seenByCode[c.code]||0;cr+=ms.correctByCode[c.code]||0}cells+=sn?`<div class="c" style="background:color-mix(in srgb,${pct(cr,sn)>=70?'var(--good)':pct(cr,sn)>=40?'var(--warn)':'var(--bad)'} ${18+Math.round(sn>30?30:sn)}%,var(--panel2))">${pct(cr,sn)}%<small>${cr}/${sn}</small></div>`:'<div class="c empty">–</div>'}}
   els.statRegions.innerHTML=`<div class="matrix">${cells}</div>`;
   renderTrend();renderHistory();
