@@ -410,7 +410,7 @@ const byName = new Map(COUNTRIES.map(c => [c.name, c]));
 // Alternative capital spellings accepted as correct (displayed answer stays the canonical one).
 const CAPITAL_ALIASES={
 "Mongolia":["Ulan Bator"],"Ukraine":["Kiev"],"Kazakhstan":["Nur-Sultan"],"United States":["Washington","Washington DC"],
-"Sri Lanka":["Kotte","Sri Jayawardenepura"],"Moldova":["Chisinau","Kishinev"],"Antigua and Barbuda":["St. John's"],"Grenada":["Saint George's"],
+"Sri Lanka":["Kotte"],"Moldova":["Chisinau","Kishinev"],"Antigua and Barbuda":["St. John's"],"Grenada":["Saint George's"],
 "Mexico":["Ciudad de Mexico"],
 "Luxembourg":["Luxembourg City"],"Djibouti":["Djibouti City"],"Switzerland":["Berne"],"Italy":["Roma"],"Portugal":["Lisboa"],"Austria":["Wien"],
 "Czechia":["Praha"],"Poland":["Warszawa"],"Denmark":["Kobenhavn"],"Greece":["Athina"],"Russia":["Moskva"],"Romania":["Bucuresti"],
@@ -418,7 +418,7 @@ const CAPITAL_ALIASES={
 "China":["Peking"],"Japan":["Tokio"],"Vietnam":["Ha Noi"],"Laos":["Viangchan"],"Uzbekistan":["Toshkent"],"Turkmenistan":["Ashkhabad"],
 "Armenia":["Erevan"],"Oman":["Masqat"],"Syria":["Dimashq"],"Egypt":["Al Qahirah"],"Libya":["Tarabulus"],"Algeria":["Alger"],
 "Somalia":["Muqdisho"],"South Africa":["Tshwane"],"Bangladesh":["Dacca"],"India":["Delhi"],"Thailand":["Krung Thep"],
-"Kiribati":["Tarawa"],"Myanmar":["Nay Pyi Taw","Naypyitaw"],"Kosovo":["Prishtina"],"Vatican City":[],"Palestine":["Jerusalem"]
+"Kiribati":["Tarawa"],"Myanmar":["Nay Pyi Taw","Naypyitaw"],"Kosovo":["Prishtina"]
 };
 function capitalAnswers(c){return [...(c.capitals||[c.capital]),...(CAPITAL_ALIASES[c.name]||[])]}
 const SESSION_MS=20*60*1000,REGION_SESSION_MS=10*60*1000,REGION_ORDER=['All','Africa','Asia','Europe','Americas','Oceania'];
