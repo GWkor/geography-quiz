@@ -1282,11 +1282,12 @@ document.getElementById('installBtn').addEventListener('click',runInstall);
 document.getElementById('installClose').addEventListener('click',snoozeInstall);
 // Give the quiz the first 15 seconds before asking.
 setTimeout(()=>{if(state.activeTab!=='settings')showInstallBanner(false)},15000);
-function openMenu(){clearTimeout(state.sheetCloseHandle);els.menuSheet.classList.remove('closing');els.menuSheet.hidden=false;document.getElementById('practiceBadge').textContent=(()=>{const n=MODES.reduce((a,m)=>a+missedPool(m).length,0);return n?String(n):''})()}
-function closeMenu(){if(els.menuSheet.hidden)return;sheetPress(null);els.menuSheet.classList.add('closing');clearTimeout(state.sheetCloseHandle);state.sheetCloseHandle=setTimeout(()=>{els.menuSheet.hidden=true;els.menuSheet.classList.remove('closing')},200)}
+function syncNavActive(tab){document.querySelectorAll('.mobile-nav').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));moveNavIndicator()}
+function openMenu(){clearTimeout(state.sheetCloseHandle);els.menuSheet.classList.remove('closing');els.menuSheet.hidden=false;syncNavActive('settings');document.getElementById('practiceBadge').textContent=(()=>{const n=MODES.reduce((a,m)=>a+missedPool(m).length,0);return n?String(n):''})()}
+function closeMenu(){if(els.menuSheet.hidden)return;sheetPress(null);syncNavActive(state.activeTab);els.menuSheet.classList.add('closing');clearTimeout(state.sheetCloseHandle);state.sheetCloseHandle=setTimeout(()=>{els.menuSheet.hidden=true;els.menuSheet.classList.remove('closing')},200)}
 function openPage(page){
   closeMenu();hideInstallBanner();pauseTimer();cancelAutoAdvance();
-  if(state.activeTab!=='settings'){autoPauseCurrentSession();els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);document.body.classList.add('settings-open');state.activeTab='settings';els.quiz.style.display='none';els.pages.style.display='block';els.timerControls.style.display='none';els.pageTitleIcon.style.display='none';els.pageBack.style.display='';document.querySelectorAll('.mobile-nav').forEach(b=>b.classList.toggle('active',b.dataset.tab==='settings'));moveNavIndicator()}
+  if(state.activeTab!=='settings'){autoPauseCurrentSession();els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);document.body.classList.add('settings-open');state.activeTab='settings';els.quiz.style.display='none';els.pages.style.display='block';els.timerControls.style.display='none';els.pageTitleIcon.style.display='none';els.pageBack.style.display='';syncNavActive('settings')}
   state.page=page;updatePageTitle();
   document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.dataset.page===page));
   if(page==='answers')renderAnswerList();
@@ -1347,6 +1348,7 @@ window.addEventListener('resize',moveNavIndicator);
 document.querySelectorAll('.mobile-nav').forEach(b=>b.addEventListener('click',()=>{
   const tab=b.dataset.tab;
   if(tab==='settings'){els.menuSheet.hidden?openMenu():closeMenu();return}
+  closeMenu();
   if(tab===state.activeTab)return;
   autoPauseCurrentSession();
   if(state.activeTab==='settings'){els.pageTitleIcon.style.display='';els.pageBack.style.display='none';els.pages.style.display='none'}
