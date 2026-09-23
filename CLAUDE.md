@@ -62,6 +62,7 @@ const p=await b.newPage({viewport:{width:390,height:844},deviceScaleFactor:2})
 - **힌트로 맞힌 답은 오답 집계**(노란 체크는 그대로).
 - **글래스 화면**(Ready / Paused / Finished / Session ended)은 모두 Ready 패널 기준 높이로 상단 정렬된다(`lockReadyPanelOffset`). 전환 애니메이션은 **문제 화면 ↔ 글래스 화면**에만 넣고 글래스 → 글래스는 즉시 전환한다.
 - 애니메이션은 `prefers-reduced-motion`에서 꺼져야 한다.
+- 시트 메뉴는 **press-drag-release**(누른 채 끌면 하이라이트가 손가락을 따라가고, 항목 밖에서 떼면 취소)로 동작한다. 포인터 이벤트 + `setPointerCapture`를 쓰고 `touch-action:none`이 필요하다.
 - 지도 데이터는 Natural Earth(110m 기본, 작은 섬나라는 10m). 새 국가를 추가하면 같은 소스에서 외곽선을 가져오고 좌표는 소수점 4자리로 줄인다.
 - 정답 판정은 `norm()`으로 악센트·기호를 제거해 비교한다. 수도 표기 변형은 `CAPITAL_ALIASES`에 추가한다.
 - 입력은 한글 자판으로 쳐도 QWERTY 문자로 변환된다(`hangulToQwerty`).

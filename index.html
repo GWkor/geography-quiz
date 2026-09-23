@@ -115,9 +115,10 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .practice-cards{display:grid;gap:8px}.practice-card{display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 12px;padding:12px 14px;background:var(--bg);border:1px solid var(--line);border-radius:12px}.practice-card b{font-size:15px}.practice-card .count{grid-column:2;grid-row:1/3;font-size:24px;font-weight:700;color:var(--accent);min-width:44px;text-align:right}.practice-card .stat-sub{color:var(--muted);font-size:12px}.practice-card button{grid-column:1/-1;margin-top:6px}
 .pref-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}.pref-row:last-child{border-bottom:0;padding-bottom:0}.pref-row>span>.stat-sub{display:block;color:var(--muted);font-size:12px}.pref-row .auto-toggle{margin:0;padding:4px}
 .pref-actions{display:grid;gap:8px}.pref-actions button{width:100%}button.danger{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,transparent)}
-.sheet-backdrop{position:fixed;inset:0;bottom:calc(70px + env(safe-area-inset-bottom));z-index:900;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .18s ease-out}.sheet-backdrop[hidden]{display:none}
+.sheet-backdrop{position:fixed;inset:0;bottom:calc(70px + env(safe-area-inset-bottom));z-index:900;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .18s ease-out;touch-action:none}.sheet-backdrop[hidden]{display:none}
+.sheet-backdrop.closing{animation:fadeOut .2s ease-in forwards}.sheet-backdrop.closing .sheet{animation:sheetDown .2s cubic-bezier(.4,0,1,1) forwards}@keyframes fadeOut{to{opacity:0}}@keyframes sheetDown{to{transform:translateY(40px);opacity:0}}
 .sheet{width:100%;max-width:560px;background:var(--panel);border:1px solid var(--line);border-bottom:0;border-radius:22px 22px 0 0;padding:10px 10px 8px;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1)}@keyframes sheetUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
-.sheet-item{display:flex;align-items:center;gap:14px;width:100%;padding:14px 12px;background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;font-size:17px;font-weight:600;color:var(--text);text-align:left}.sheet-item:last-child{border-bottom:0}.sheet-item:hover{background:var(--panel2)}
+.sheet-item{display:flex;align-items:center;gap:14px;width:100%;padding:14px 12px;background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;font-size:17px;font-weight:600;color:var(--text);text-align:left}.sheet-item:last-child{border-bottom:0}.sheet-item:active:not(:disabled){transform:none}.sheet-item.pressed{background:var(--panel2)}@media(hover:hover){.sheet-item:hover{background:var(--panel2)}}
 .sheet-icon{width:34px;height:34px;border-radius:10px;background:color-mix(in srgb,var(--c) 18%,transparent);color:var(--c);display:inline-flex;align-items:center;justify-content:center;flex:0 0 34px}.sheet-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .sheet-badge{margin-left:auto;background:var(--bad);color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px}.sheet-badge:empty{display:none}
 
@@ -441,7 +442,7 @@ function recordSessionResult(s,outcome){
   saveHistory();saveSessions();
   console.debug('[geo] session recorded',state.history[state.history.length-1]);
 }
-let state={mode:'flag',lastGameMode:'flag',activeTab:'flag',current:null,questionType:null,answered:false,countryHintChars:0,capitalHintChars:0,hintUsed:false,shownCapital:null,stats:loadStats(),sessions:loadSessions(),settings:loadSettings(),history:loadHistory(),region:'All',timerHandle:null,lastTimerTick:null,autoAdvanceHandle:null,reviewIndex:null,emptySubmitArmed:false,transitioning:false,statFilter:{trend:'all',history:'all',missed:'all'},answerRegion:'All',historyShown:20,page:'profile'};
+let state={mode:'flag',lastGameMode:'flag',activeTab:'flag',current:null,questionType:null,answered:false,countryHintChars:0,capitalHintChars:0,hintUsed:false,shownCapital:null,stats:loadStats(),sessions:loadSessions(),settings:loadSettings(),history:loadHistory(),region:'All',timerHandle:null,lastTimerTick:null,autoAdvanceHandle:null,reviewIndex:null,emptySubmitArmed:false,transitioning:false,statFilter:{trend:'all',history:'all',missed:'all'},answerRegion:'All',historyShown:20,page:'profile',sheetCloseHandle:null};
 function loadStats(){try{return JSON.parse(localStorage.getItem('geoQuizStats'))||{correct:0,total:0,streak:0,wrongByCode:{},hintedByCode:{}}}catch(e){return {correct:0,total:0,streak:0,wrongByCode:{},hintedByCode:{}}}}
 function loadSessions(){try{return JSON.parse(localStorage.getItem('geoQuizSessionsV2'))||{}}catch(e){return {}}}
 function saveSessions(){localStorage.setItem('geoQuizSessionsV2',JSON.stringify(state.sessions))}
@@ -598,6 +599,8 @@ function ensureSessionState(s){
 }
 const ANSWER_OPTIONS={flag:[['country','Country'],['capital','Capital']],map:[['country','Country'],['capital','Capital']],capital:[['country','Country'],['capital','Capital']]};
 function answerModeFor(s){return (s&&s.answerMode)||'both'}
+// Put the caret back in the first field still waiting for an answer.
+function focusAnswerField(){if(state.answered||state.reviewIndex!==null)return;const i=[els.countryInput,els.capitalInput].find(x=>x.closest('.field').style.display!=='none'&&!x.disabled);if(i)setTimeout(()=>i.focus(),0)}
 function applyAnswerFields(){const mode=state.lastGameMode==='capital'?'both':answerModeFor(currentSession());const showCountry=mode!=='capital',showCapital=mode!=='country';els.countryField.style.display=showCountry?'block':'none';els.capitalField.style.display=showCapital?'block':'none';els.questionText.textContent=mode==='country'?'Country':mode==='capital'?'Capital':'Country & Capital';setTimeout(()=>(showCountry?els.countryInput:els.capitalInput).focus(),0)}
 function renderAnswerModeOptions(s){const mode=state.lastGameMode;const opts=ANSWER_OPTIONS[mode]||[];const current=mode==='capital'?((s&&s.capitalDirection)||'shuffle'):answerModeFor(s);els.answerModeOptions.classList.toggle('show',opts.length>0);const isOn=v=>current==='both'||current==='shuffle'||current===v;els.answerModeOptions.innerHTML=opts.map(([v,label])=>`<button type="button" data-answer-mode="${v}" aria-pressed="${isOn(v)}" class="${isOn(v)?'active':''}"><span data-label="${label}">${label}</span></button>`).join('')}
 function saveCurrentDraft(s){
@@ -937,6 +940,7 @@ function resumeSessionNow(){els.quiz.classList.remove('state-screen');setStateUn
   els.form.style.display='block';
   els.result.style.display='';
   restoreDraft(s);
+  focusAnswerField();
   startTimer();
 }
 function quitSession(){
@@ -1112,8 +1116,8 @@ document.addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;i
 document.addEventListener('keydown',e=>{if(e.key!=='Escape'||state.activeTab==='settings')return;const s=currentSession();if(!s||!s.started||s.completed)return;if(state.isPaused){e.preventDefault();resumeSession()}else if(!els.quiz.classList.contains('state-screen')){e.preventDefault();pauseSession()}});
 document.addEventListener('keydown',e=>{if(e.key!==';'||state.answered||state.activeTab==='settings')return;const active=document.activeElement,countryVisible=els.countryField.style.display!=='none',capitalVisible=els.capitalField.style.display!=='none';let kind=null;if(active===els.countryInput&&countryVisible)kind='country';else if(active===els.capitalInput&&capitalVisible)kind='capital';else if(countryVisible&&!capitalVisible)kind='country';else if(capitalVisible&&!countryVisible)kind='capital';else if(countryVisible&&capitalVisible)kind='country';if(kind){e.preventDefault();showHint(kind)}});
 const PAGE_TITLES={profile:'Profile',practice:'Practice',statistics:'Statistics',answers:'Answer key',settings:'Settings'};
-function openMenu(){els.menuSheet.hidden=false;document.getElementById('practiceBadge').textContent=(()=>{const n=MODES.reduce((a,m)=>a+missedPool(m).length,0);return n?String(n):''})()}
-function closeMenu(){els.menuSheet.hidden=true}
+function openMenu(){clearTimeout(state.sheetCloseHandle);els.menuSheet.classList.remove('closing');els.menuSheet.hidden=false;document.getElementById('practiceBadge').textContent=(()=>{const n=MODES.reduce((a,m)=>a+missedPool(m).length,0);return n?String(n):''})()}
+function closeMenu(){if(els.menuSheet.hidden)return;sheetPress(null);els.menuSheet.classList.add('closing');clearTimeout(state.sheetCloseHandle);state.sheetCloseHandle=setTimeout(()=>{els.menuSheet.hidden=true;els.menuSheet.classList.remove('closing')},200)}
 function openPage(page){
   closeMenu();pauseTimer();cancelAutoAdvance();
   if(state.activeTab!=='settings'){autoPauseCurrentSession();els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);document.body.classList.add('settings-open');state.activeTab='settings';els.quiz.style.display='none';els.pages.style.display='block';els.timerControls.style.display='none';els.pageTitleIcon.style.display='none';els.pageBack.style.display='';document.querySelectorAll('.mobile-nav').forEach(b=>b.classList.toggle('active',b.dataset.tab==='settings'));moveNavIndicator()}
@@ -1152,7 +1156,17 @@ function renderSettingsPage(){
 document.addEventListener('click',e=>{const b=e.target.closest('[data-pref]');if(!b)return;state.settings[b.dataset.pref]=b.dataset.value;saveSettings();renderSettingsPage()});
 document.getElementById('practiceCards').addEventListener('click',e=>{const b=e.target.closest('[data-practice]');if(b)startPractice(b.dataset.practice)});
 document.getElementById('profileName').addEventListener('click',()=>{const v=prompt('Display name',state.settings.name||'');if(v===null)return;state.settings.name=v.trim().slice(0,24);saveSettings();renderProfile()});
-els.menuSheet.addEventListener('click',e=>{const item=e.target.closest('.sheet-item');if(item){openPage(item.dataset.page);return}if(e.target===els.menuSheet)closeMenu()});
+// Press-drag-release: the pressed highlight tracks the finger, releasing over an item
+// picks it, releasing outside cancels. Pointer capture keeps the events coming to the sheet.
+let sheetPressed=null,sheetFromItem=false;
+function sheetPress(el){if(sheetPressed===el)return;if(sheetPressed)sheetPressed.classList.remove('pressed');sheetPressed=el;if(el)el.classList.add('pressed')}
+function sheetItemAt(x,y){const el=document.elementFromPoint(x,y);return el&&el.closest?el.closest('.sheet-item'):null}
+els.menuSheet.addEventListener('pointerdown',e=>{const item=e.target.closest('.sheet-item');sheetFromItem=!!item;sheetPress(item);try{els.menuSheet.setPointerCapture(e.pointerId)}catch(err){}});
+els.menuSheet.addEventListener('pointermove',e=>{if(!sheetPressed&&!sheetFromItem)return;sheetPress(sheetItemAt(e.clientX,e.clientY))});
+els.menuSheet.addEventListener('pointerup',e=>{const item=sheetPressed,started=sheetFromItem;sheetPress(null);sheetFromItem=false;if(item)openPage(item.dataset.page);else if(!started&&!sheetItemAt(e.clientX,e.clientY))closeMenu()});
+els.menuSheet.addEventListener('pointercancel',()=>{sheetPress(null);sheetFromItem=false});
+// Keyboard activation still arrives as a click (detail 0); pointer clicks are already handled above.
+els.menuSheet.addEventListener('click',e=>{if(e.detail!==0)return;const item=e.target.closest('.sheet-item');if(item)openPage(item.dataset.page)});
 els.pageBack.addEventListener('click',closePages);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!els.menuSheet.hidden)closeMenu()});
 // export / import
@@ -1164,7 +1178,7 @@ function moveNavIndicator(){const ind=document.getElementById('navIndicator'),na
 window.addEventListener('resize',moveNavIndicator);
 document.querySelectorAll('.mobile-nav').forEach(b=>b.addEventListener('click',()=>{
   const tab=b.dataset.tab;
-  if(tab==='settings'){openMenu();return}
+  if(tab==='settings'){els.menuSheet.hidden?openMenu():closeMenu();return}
   if(tab===state.activeTab)return;
   autoPauseCurrentSession();
   if(state.activeTab==='settings'){els.pageTitleIcon.style.display='';els.pageBack.style.display='none';els.pages.style.display='none'}
