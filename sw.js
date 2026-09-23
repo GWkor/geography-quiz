@@ -1,5 +1,5 @@
-const STATIC_CACHE = 'geography-quiz-static-v7';
-const PAGE_CACHE = 'geography-quiz-pages-v7';
+const STATIC_CACHE = 'geography-quiz-static-v8';
+const PAGE_CACHE = 'geography-quiz-pages-v8';
 
 const STATIC_ASSETS = [
   './manifest.webmanifest',
