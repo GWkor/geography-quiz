@@ -52,8 +52,9 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .timer-pill{min-width:76px;text-align:center;padding:8px 10px;border:1px solid var(--line);border-radius:999px;background:var(--panel);font-variant-numeric:tabular-nums;font-weight:700}
 .timer-pill.warning{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 55%,transparent)}
 .timer-pill.danger{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 60%,transparent)}
-.timer-pill.critical{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 75%,transparent);animation:timerPulse 1s steps(2,end) infinite}
-@keyframes timerPulse{50%{opacity:.35}}
+.timer-pill.critical{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 75%,transparent);animation:timerPulse 1.6s cubic-bezier(.4,0,.6,1) infinite}
+.timer-pill.still{animation:none}
+@keyframes timerPulse{0%,100%{opacity:1;box-shadow:0 0 0 0 color-mix(in srgb,var(--bad) 30%,transparent)}50%{opacity:.62;box-shadow:0 0 0 5px transparent}}
 
 .session-pause{width:36px;height:36px;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--panel);color:var(--muted)}
 .session-pause svg{width:17px;height:17px;fill:currentColor;stroke:none}
@@ -515,12 +516,14 @@ function pauseTimer(){if(state.timerHandle){clearInterval(state.timerHandle);sta
 function startTimer(){pauseTimer();if(state.activeTab==='settings'||document.hidden||state.isPaused)return;const s=currentSession();if(!s||!s.started||s.completed||s.remainingMs<=0||s.practice){renderTimer();return}state.lastTimerTick=Date.now();state.timerHandle=setInterval(()=>{const now=Date.now(),delta=now-state.lastTimerTick;state.lastTimerTick=now;s.remainingMs=Math.max(0,s.remainingMs-delta);if(s.remainingMs<=0){saveSessions();clearInterval(state.timerHandle);state.timerHandle=null;finishByTime()}renderTimer()},250)}
 function renderTimer(){
   const s=currentSession();
-  if(state.region==='Mistakes'||(s&&s.practice)){els.timer.textContent='Practice';els.timer.classList.remove('warning','danger','critical');return}
+  if(state.region==='Mistakes'||(s&&s.practice)){els.timer.textContent='Practice';els.timer.classList.remove('warning','danger','critical','still');return}
   let ms=s?s.remainingMs:sessionMsFor(state.region,state.lastGameMode,state.settings.answerMode);
   if(ms<0)ms=0;
   const total=Math.ceil(ms/1000),m=Math.floor(total/60),sec=total%60;
   els.timer.textContent=`${m}:${String(sec).padStart(2,'0')}`;
   els.timer.classList.remove('warning','danger','critical');
+  // The pulse means "time is running out" — hold it still whenever the clock is not ticking.
+  els.timer.classList.toggle('still',!state.timerHandle);
   if(ms<60000){
     els.timer.classList.add('critical');
   }else if(ms<120000){
