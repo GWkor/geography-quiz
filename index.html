@@ -102,7 +102,8 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .map-inset,.map-inset-frame{animation:fadeIn .35s ease-out .15s both}@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 /* 9) bottom nav */
 .bottom-nav{position:relative}.nav-indicator{position:absolute;top:9px;height:52px;border-radius:18px;background:color-mix(in srgb,var(--accent) 14%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 42%,transparent);transition:left .38s cubic-bezier(.34,1.3,.64,1),width .38s cubic-bezier(.34,1.3,.64,1),background-color .2s ease,box-shadow .2s ease;pointer-events:none;opacity:0}.nav-indicator.on{opacity:1}
-.bottom-nav button{position:relative;z-index:1}.bottom-nav button.active .nav-icon{animation:iconBounce .45s cubic-bezier(.34,1.56,.64,1)}@keyframes iconBounce{35%{transform:translateY(-3px) scale(1.18)}}
+.bottom-nav button{position:relative;z-index:1}.bottom-nav button.active .nav-icon{animation:iconBounce .45s cubic-bezier(.34,1.56,.64,1)}
+.bottom-nav button.paused:not(.active){color:var(--accent)}.bottom-nav button.paused:not(.active) .nav-icon{animation:navPulse 1.8s ease-in-out infinite}@keyframes navPulse{0%,100%{opacity:1}50%{opacity:.3}}@keyframes iconBounce{35%{transform:translateY(-3px) scale(1.18)}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 .answer-status svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 .answer-status.good{color:var(--good);background:color-mix(in srgb,var(--good) 12%,transparent)}
@@ -461,7 +462,14 @@ function recordSessionResult(s,outcome){
 let state={mode:'flag',lastGameMode:'flag',activeTab:'flag',current:null,questionType:null,answered:false,countryHintChars:0,capitalHintChars:0,hintUsed:false,shownCapital:null,stats:loadStats(),sessions:loadSessions(),settings:loadSettings(),history:loadHistory(),region:'All',timerHandle:null,lastTimerTick:null,autoAdvanceHandle:null,reviewIndex:null,emptySubmitArmed:false,transitioning:false,statFilter:{trend:'all',history:'all',missed:'all'},answerRegion:'All',historyShown:20,page:'profile',sheetCloseHandle:null};
 function loadStats(){try{return JSON.parse(localStorage.getItem('geoQuizStats'))||{correct:0,total:0,streak:0,wrongByCode:{},hintedByCode:{}}}catch(e){return {correct:0,total:0,streak:0,wrongByCode:{},hintedByCode:{}}}}
 function loadSessions(){try{return JSON.parse(localStorage.getItem('geoQuizSessionsV2'))||{}}catch(e){return {}}}
-function saveSessions(){localStorage.setItem('geoQuizSessionsV2',JSON.stringify(state.sessions))}
+function saveSessions(){localStorage.setItem('geoQuizSessionsV2',JSON.stringify(state.sessions));updateNavPausedMarks()}
+// Mark the tabs whose mode has a session waiting on the pause screen.
+function updateNavPausedMarks(){
+  const paused=new Set();
+  for(const [key,s] of Object.entries(state.sessions||{}))
+    if(s&&s.started&&s.paused&&!s.completed&&!s.quit)paused.add(key.split(':')[0]);
+  document.querySelectorAll('.mobile-nav').forEach(b=>b.classList.toggle('paused',paused.has(b.dataset.tab)));
+}
 const MODES=['flag','map','capital'],MODE_LABEL={flag:'Flag',map:'Map',capital:'Capital'};
 function emptyModeStats(){return {seenByCode:{},correctByCode:{}}}
 function normalizeStats(){const st=state.stats;st.wrongByCode=st.wrongByCode||{};st.hintedByCode=st.hintedByCode||{};st.correct=st.correct||0;st.total=st.total||0;st.streak=st.streak||0;st.byMode=st.byMode||{};for(const m of MODES){st.byMode[m]=st.byMode[m]||emptyModeStats();st.byMode[m].seenByCode=st.byMode[m].seenByCode||{};st.byMode[m].correctByCode=st.byMode[m].correctByCode||{}}if(!st.missedByMode){st.missedByMode={};for(const m of MODES){st.missedByMode[m]={};const ms=st.byMode[m];for(const k in ms.seenByCode){const n=ms.seenByCode[k]-(ms.correctByCode[k]||0);if(n>0)st.missedByMode[m][k]=n}}}for(const m of MODES)st.missedByMode[m]=st.missedByMode[m]||{}}
@@ -954,7 +962,13 @@ function pauseSession(){
   renderPausedView();
   enterPanel(els.pausePanel);
 }
-function resumeSession(){if(state.transitioning)return;if(els.pausePanel.classList.contains('show')){exitPanel(els.pausePanel,resumeSessionNow);return}resumeSessionNow()}
+function resumeSession(){if(state.transitioning)return;
+  // A different question is coming, so drop the old answer now — otherwise the stale
+  // text stays visible for the whole panel fade-out.
+  const s=currentSession();
+  if(s&&s.reshuffleOnResume){els.countryInput.value='';els.capitalInput.value='';state.emptySubmitArmed=false}
+  if(els.pausePanel.classList.contains('show')){exitPanel(els.pausePanel,resumeSessionNow);return}
+  resumeSessionNow()}
 function resumeSessionNow(){els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);els.finishedPanel.classList.remove('show');setSessionControl('pause');
   const s=currentSession();
   if(!s)return;
@@ -1300,7 +1314,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){const s=cu
 const scrollRoot=document.querySelector('.app');let touchStartY=0;
 scrollRoot.addEventListener('touchstart',e=>{if(e.touches&&e.touches[0])touchStartY=e.touches[0].clientY},{passive:true});
 scrollRoot.addEventListener('touchmove',e=>{if(!e.touches||!e.touches[0])return;const maxScroll=scrollRoot.scrollHeight-scrollRoot.clientHeight;if(maxScroll<=1){e.preventDefault();return}const y=e.touches[0].clientY,down=y>touchStartY;if((scrollRoot.scrollTop<=0&&down)||(scrollRoot.scrollTop>=maxScroll-1&&!down))e.preventDefault()},{passive:false});
-normalizeStats();loadMode('flag');requestAnimationFrame(moveNavIndicator);
+normalizeStats();loadMode('flag');updateNavPausedMarks();requestAnimationFrame(moveNavIndicator);
 // Re-anchor the Ready panel once the web font has swapped in (text metrics change).
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(els.startPanel.style.display==='flex')lockReadyPanelOffset();else if(els.pausePanel.classList.contains('show'))lockReadyPanelOffset(els.pausePanel);else if(els.finishedPanel.classList.contains('show'))lockReadyPanelOffset(els.finishedPanel)});
 </script>
