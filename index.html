@@ -153,7 +153,7 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .matrix{display:grid;grid-template-columns:auto repeat(3,1fr);gap:4px;font-size:13px}.matrix .h{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px;text-align:center;padding:4px 0}.matrix .r{color:var(--muted);font-size:12px;padding:0 8px 0 0;display:flex;align-items:center}.matrix .c{text-align:center;padding:9px 4px;border-radius:8px;background:var(--panel2);font-weight:600;font-variant-numeric:tabular-nums}.matrix .c small{display:block;font-weight:400;color:var(--muted);font-size:10px}.matrix .c.empty{color:var(--muted);font-weight:400}
 .trend{display:block;width:100%;height:auto}.trend .grid{stroke:var(--line);stroke-width:1}.trend .lbl{fill:var(--muted);font-size:9px}.trend .area{fill:color-mix(in srgb,var(--accent) 18%,transparent)}.trend .line{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}.trend .pt{fill:var(--accent)}
 .history-list{display:grid;gap:6px}.history-row{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:9px 12px;background:var(--bg);border:1px solid var(--line);border-radius:10px;font-size:14px}.history-row .meta{color:var(--muted);font-size:12px}.history-row .score{font-weight:700;text-align:right}.history-row .outcome{font-size:11px;color:var(--muted);text-align:right;text-transform:uppercase;letter-spacing:.4px}
-.mini-stat{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px}
+.mini-stat{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px}.mini-stat.wide{grid-column:1/-1}
 .mini-stat b{display:block;font-size:22px}.mini-stat span{color:var(--muted);font-size:12px}
 .mistake-list{display:grid;gap:8px}.mistake-row{display:flex;justify-content:space-between;gap:12px;padding:10px 12px;background:var(--bg);border:1px solid var(--line);border-radius:10px}
 .bottom-nav{display:none}
@@ -470,7 +470,7 @@ function recordSessionResult(s,outcome){
   saveHistory();saveSessions();
   console.debug('[geo] session recorded',state.history[state.history.length-1]);
 }
-let state={mode:'flag',lastGameMode:'flag',activeTab:'flag',current:null,questionType:null,answered:false,countryHintChars:0,capitalHintChars:0,hintUsed:false,answerRevealed:false,shownCapital:null,stats:loadStats(),sessions:loadSessions(),settings:loadSettings(),history:loadHistory(),region:'All',timerHandle:null,lastTimerTick:null,autoAdvanceHandle:null,autoCheckHandle:null,reviewIndex:null,transitioning:false,statFilter:{trend:'all',history:'all',missed:'all'},answerRegion:'All',historyShown:20,page:'profile',sheetCloseHandle:null};
+let state={mode:'flag',lastGameMode:'flag',activeTab:'flag',current:null,questionType:null,answered:false,countryHintChars:0,capitalHintChars:0,hintUsed:false,countryRevealed:false,capitalRevealed:false,shownCapital:null,stats:loadStats(),sessions:loadSessions(),settings:loadSettings(),history:loadHistory(),region:'All',timerHandle:null,lastTimerTick:null,autoAdvanceHandle:null,autoCheckHandle:null,reviewIndex:null,transitioning:false,statFilter:{trend:'all',history:'all',missed:'all'},answerRegion:'All',historyShown:20,page:'profile',sheetCloseHandle:null};
 function loadStats(){try{return JSON.parse(localStorage.getItem('geoQuizStats'))||{correct:0,total:0,streak:0,wrongByCode:{},hintedByCode:{}}}catch(e){return {correct:0,total:0,streak:0,wrongByCode:{},hintedByCode:{}}}}
 function loadSessions(){try{return JSON.parse(localStorage.getItem('geoQuizSessionsV2'))||{}}catch(e){return {}}}
 function saveSessions(){localStorage.setItem('geoQuizSessionsV2',JSON.stringify(state.sessions));updateNavPausedMarks()}
@@ -556,14 +556,16 @@ function renderStatistics(){
   const H=state.history,st=state.stats;
   const answered=H.reduce((a,h)=>a+h.answered,0),correct=H.reduce((a,h)=>a+h.correct,0),play=H.reduce((a,h)=>a+(h.durationMs||0),0);
   const weekAgo=Date.now()-7*864e5,week=H.filter(h=>new Date(h.endedAt).getTime()>=weekAgo).length;
-  els.statOverview.innerHTML=[[H.length,'Sessions'],[`${pct(correct,answered)}%`,`Accuracy · ${correct}/${answered}`],[fmtDuration(play),'Play time'],[`${studyStreak()}d`,`Day streak · ${week} this week`]].map(([v,l])=>`<div class="mini-stat"><b>${v}</b><span>${l}</span></div>`).join('');
+  const hinted=H.reduce((a,h)=>a+(h.hinted||0),0);
+  els.statOverview.innerHTML=[[H.length,'Sessions'],[`${pct(correct,answered)}%`,`Accuracy · ${correct}/${answered}`],[hinted,`Hinted · ${pct(hinted,answered)}% of answers`],[fmtDuration(play),'Play time'],[`${studyStreak()}d`,`Day streak · ${week} this week`,'wide']].map(([v,l,w])=>`<div class="mini-stat${w?' wide':''}"><b>${v}</b><span>${l}</span></div>`).join('');
   // by mode
   els.statModes.innerHTML=MODES.map(m=>{const rows=H.filter(h=>h.mode===m);if(!rows.length)return `<div class="stat-row"><span>${MODE_LABEL[m]}</span><span class="pct" style="color:var(--muted)">—</span><span class="stat-sub">No sessions yet</span></div>`;const a=rows.reduce((x,h)=>x+h.answered,0),c=rows.reduce((x,h)=>x+h.correct,0);const best=rows.reduce((b,h)=>h.correct>b.correct?h:b,rows[0]);const avg=rows.reduce((x,h)=>x+(h.durationMs||0),0)/rows.length;return `<div class="stat-row"><span>${MODE_LABEL[m]}</span><span class="pct">${pct(c,a)}%</span><span class="stat-sub">${rows.length} sessions · best ${best.correct}/${best.total} · avg ${formatTime(avg)}</span><span class="bar"><i style="width:${pct(c,a)}%"></i></span></div>`}).join('');
   // weak spots (all modes combined)
   const seen={},corr={};for(const m of MODES){const ms=st.byMode[m];for(const k in ms.seenByCode){seen[k]=(seen[k]||0)+ms.seenByCode[k];corr[k]=(corr[k]||0)+(ms.correctByCode[k]||0)}}
   let weak=Object.keys(seen).filter(k=>seen[k]>=3).map(k=>({code:k,seen:seen[k],correct:corr[k]||0,acc:(corr[k]||0)/seen[k]})).sort((a,b)=>a.acc-b.acc||b.seen-a.seen).slice(0,10);
   if(weak.length<10){const have=new Set(weak.map(w=>w.code));const fill=Object.entries(st.wrongByCode||{}).filter(([k,n])=>n>0&&!have.has(k)).sort((a,b)=>b[1]-a[1]).slice(0,10-weak.length).map(([k,n])=>({code:k,wrong:n,seen:seen[k]||0,correct:corr[k]||0}));weak=weak.concat(fill)}
-  els.statWeak.innerHTML=weak.length?weak.map(w=>{const c=getCountryByCode(w.code);if(!c)return '';const caps=(c.capitals||[c.capital]).join(' / ');const right=w.seen>=3?`${pct(w.correct,w.seen)}%`:`${w.wrong||0}✕`;const sub=w.seen?`${w.correct}/${w.seen} correct`:`missed ${w.wrong} times`;return `<div class="stat-row"><span>${flagEmoji(c.code)} ${c.name}</span><span class="pct" style="color:var(--bad)">${right}</span><span class="stat-sub">${caps} · ${sub}</span></div>`}).join(''):'<p class="note">Answer a few questions first.</p>';
+  els.statWeak.innerHTML=weak.length?weak.map(w=>{const c=getCountryByCode(w.code);if(!c)return '';const caps=(c.capitals||[c.capital]).join(' / ');const right=w.seen>=3?`${pct(w.correct,w.seen)}%`:`${w.wrong||0}✕`;const hintedN=(st.hintedByCode||{})[w.code]||0;
+    const sub=(w.seen?`${w.correct}/${w.seen} correct`:`missed ${w.wrong} times`)+(hintedN?` · ${hintedN} hinted`:'');return `<div class="stat-row"><span>${flagEmoji(c.code)} ${c.name}</span><span class="pct" style="color:var(--bad)">${right}</span><span class="stat-sub">${caps} · ${sub}</span></div>`}).join(''):'<p class="note">Answer a few questions first.</p>';
   // region x mode matrix from per-country tallies
   const regions=REGION_ORDER.slice(1);
   let cells=`<div class="h"></div>${MODES.map(m=>`<div class="h">${MODE_LABEL[m]}</div>`).join('')}`;
@@ -596,7 +598,7 @@ function resetQuestionUI(){
 cancelAutoCheck();
 document.querySelectorAll('.answer-review').forEach(x=>x.remove());
 els.countryInput.style.display='block';els.capitalInput.style.display='block';
-state.answered=false;state.answerRevealed=false;state.countryHintChars=0;state.capitalHintChars=0;state.hintUsed=false;state.shownCapital=null;els.result.classList.remove('show');els.nextBtn.disabled=true;els.checkBtn.disabled=false;els.checkBtn.textContent='Show answer';els.checkBtn.style.display='';els.countryInput.value='';els.capitalInput.value='';els.countryInput.disabled=false;els.capitalInput.disabled=false;els.countryInput.placeholder='Type country name in English';els.capitalInput.placeholder='Type capital name in English';els.countryHintBtn.disabled=false;els.capitalHintBtn.disabled=false;els.countryField.style.display='block';els.capitalField.style.display='block'}
+state.answered=false;state.countryRevealed=false;state.capitalRevealed=false;state.countryHintChars=0;state.capitalHintChars=0;state.hintUsed=false;state.shownCapital=null;els.result.classList.remove('show');els.nextBtn.disabled=true;els.checkBtn.disabled=false;els.checkBtn.textContent='Show answer';els.checkBtn.style.display='';els.countryInput.value='';els.capitalInput.value='';els.countryInput.disabled=false;els.capitalInput.disabled=false;els.countryInput.placeholder='Type country name in English';els.capitalInput.placeholder='Type capital name in English';els.countryHintBtn.disabled=false;els.capitalHintBtn.disabled=false;els.countryField.style.display='block';els.capitalField.style.display='block'}
 
 
 function setSessionControl(mode){
@@ -835,6 +837,7 @@ function showCurrentQuestion(){state.reviewIndex=null;els.quiz.classList.remove(
 
 // Count the finished score up from 0 over ~700ms.
 function animateScore(el,correct,total,percent){const t0=performance.now(),dur=700;const ease=x=>1-Math.pow(1-x,3);const step=now=>{const k=Math.min(1,(now-t0)/dur),e=ease(k);el.textContent=`Score ${Math.round(correct*e)}/${total} · ${Math.round(percent*e)}%`;if(k<1)requestAnimationFrame(step)};requestAnimationFrame(step)}
+function hintNote(s){return s.hinted?` ${s.hinted} answer${s.hinted>1?'s':''} needed a hint.`:''}
 function accuracyPercent(s){return s.answered?Math.round((s.correct/s.answered)*100):0}
 function sessionPercent(s){
   const denom=s.order.length||1;
@@ -869,7 +872,7 @@ function renderQuitResult(s){els.quiz.classList.add('state-screen');setStateUnde
   els.finishedTitle.textContent='Session ended';
   els.finishedTitle.style.color='var(--text)';
   animateScore(els.finishedScore,s.correct,s.answered,accuracyPercent(s));
-  els.finishedNote.textContent=`You answered ${s.answered} of ${s.order.length} questions.`;
+  els.finishedNote.textContent=`You answered ${s.answered} of ${s.order.length} questions.`+hintNote(s);
   els.finishedPep.textContent='Reset, refocus, and give it another try.';
   els.restartSessionBtn.style.display='flex';
   fitPanel(els.finishedPanel);
@@ -908,13 +911,13 @@ function renderCompletedSession(s,celebrate=false,animate=celebrate){els.quiz.cl
     els.finishedTitle.textContent="Time's up!";
     els.finishedTitle.style.color='var(--accent)';
     animateScore(els.finishedScore,s.correct,s.answered,accuracyPercent(s));
-    els.finishedNote.textContent=`You answered ${s.answered} of ${s.order.length} questions before the clock ran out.`;
+    els.finishedNote.textContent=`You answered ${s.answered} of ${s.order.length} questions before the clock ran out.`+hintNote(s);
     els.finishedPep.textContent=pepTalkForScore(accuracyPercent(s));
   }else{
     els.finishedTitle.textContent='Finished!';
     els.finishedTitle.style.color='var(--accent)';
     animateScore(els.finishedScore,s.correct,s.order.length,accuracyPercent(s));
-    els.finishedNote.textContent='You completed every question in this session.';
+    els.finishedNote.textContent='You completed every question in this session.'+hintNote(s);
     els.finishedPep.textContent=pepTalkForScore(sessionPercent(s));
     if(celebrate)launchConfetti();
   }
@@ -1059,8 +1062,9 @@ function checkAnswer(){
   const countryVisible=els.countryField.style.display!=='none';
   const capitalVisible=els.capitalField.style.display!=='none';
 
-  if(countryVisible)countryOK=countryMatches(els.countryInput.value,state.current);
-  if(capitalVisible)capitalOK=capitalMatches(els.capitalInput.value,state.current);
+  // A field the hint spelled out completely earns nothing, even if it is cleared and retyped.
+  if(countryVisible)countryOK=countryMatches(els.countryInput.value,state.current)&&!state.countryRevealed;
+  if(capitalVisible)capitalOK=capitalMatches(els.capitalInput.value,state.current)&&!state.capitalRevealed;
 
   const ok=countryOK&&capitalOK;
   state.answered=true;
@@ -1068,7 +1072,8 @@ function checkAnswer(){
   s.answered++;
   state.stats.total++;
 
-  // A hinted answer is shown as correct (yellow) but counts as a mistake in the tallies.
+  // Reaching the answer with a partial hint is tracked separately from a plain miss; it still
+  // earns no point, and a fully revealed answer is just a miss.
   if(ok&&state.hintUsed){
     s.hinted++;
     state.stats.hintedByCode[state.current.code]=(state.stats.hintedByCode[state.current.code]||0)+1;
@@ -1095,8 +1100,7 @@ function checkAnswer(){
     countryTyped:els.countryInput.value||'',
     capitalTyped:els.capitalInput.value||'',
     countryHinted:state.countryHintChars>0,
-    capitalHinted:state.capitalHintChars>0,
-    revealed:!!state.answerRevealed
+    capitalHinted:state.capitalHintChars>0
   };
   s.reviews=s.reviews||{};s.reviews[s.index]=s.review;
   s.draft=null;
@@ -1127,12 +1131,12 @@ function checkAnswer(){
   if(capitalVisible&&!capitalOK)shakeField(els.capitalField);
   finishAnswerUI(ok);
   flashScreen(ok?(state.hintUsed?'warn':'good'):'bad');
-  if(state.settings.autoMode&&ok&&!state.answerRevealed)scheduleAutoAdvance();
+  if(state.settings.autoMode&&ok)scheduleAutoAdvance();
 }
 // Shared end state after an answer is graded: in auto mode a wrong answer waits for "Got it".
 function finishAnswerUI(ok){
   els.answerline.innerHTML='';els.detail.textContent='';els.wikiLink.innerHTML='';els.similar.innerHTML='';els.result.classList.remove('show');
-  const gotIt=state.settings.autoMode&&(!ok||state.answerRevealed);
+  const gotIt=state.settings.autoMode&&!ok;
   els.nextBtn.disabled=false;els.checkBtn.disabled=!gotIt;els.checkBtn.textContent=gotIt?'Got it':'Show answer';
   els.countryInput.disabled=true;els.capitalInput.disabled=true;els.countryHintBtn.disabled=true;els.capitalHintBtn.disabled=true;
   updateActionButtons();
@@ -1147,10 +1151,9 @@ function showReviewResults(r){
 }
 function restoreAnswered(s){
   const r=s&&s.reviews&&s.reviews[s.index];if(!r||state.reviewIndex!==null)return;
-  state.answerRevealed=!!r.revealed;
   state.hintUsed=!!(r.countryHinted||r.capitalHinted);state.countryHintChars=r.countryHinted?1:0;state.capitalHintChars=r.capitalHinted?1:0;
   showReviewResults(r);state.answered=true;const ok=r.countryOK&&r.capitalOK;
-  finishAnswerUI(ok);if(state.settings.autoMode&&ok&&!state.answerRevealed&&!state.isPaused)scheduleAutoAdvance();
+  finishAnswerUI(ok);if(state.settings.autoMode&&ok&&!state.isPaused)scheduleAutoAdvance();
 }
 // Auto mode: ← walks back through answered questions (read-only), → returns to the live question.
 function updateActionButtons(){
@@ -1207,7 +1210,7 @@ function showHint(kind){
   state[key]=Math.max(state[key],nextLen);
   state.hintUsed=true;
   const revealed=nextLen>=answer.length;
-  if(revealed){btn.disabled=true;state.answerRevealed=true}
+  if(revealed){btn.disabled=true;state[isCountry?'countryRevealed':'capitalRevealed']=true}
   const s=currentSession();if(s){s.draft={country:els.countryInput.value||'',capital:els.capitalInput.value||''};saveSessions()}
   input.classList.remove('hint-glow');btn.classList.remove('bump');void input.offsetWidth;input.classList.add('hint-glow');btn.classList.add('bump');
   input.focus();
