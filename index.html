@@ -422,7 +422,7 @@ const CAPITAL_ALIASES={
 "Kiribati":["Tarawa"],"Myanmar":["Nay Pyi Taw","Naypyitaw"],"Kosovo":["Prishtina"],"Equatorial Guinea":["Oyala","Djibloho"]
 };
 function capitalAnswers(c){return [...(c.capitals||[c.capital]),...(CAPITAL_ALIASES[c.name]||[])]}
-const SESSION_MS=20*60*1000,REGION_SESSION_MS=10*60*1000,REGION_ORDER=['All','Africa','Asia','Europe','Americas','Oceania'];
+const SESSION_MS=20*60*1000,BOTH_SESSION_MS=25*60*1000,REGION_SESSION_MS=10*60*1000,REGION_ORDER=['All','Africa','Asia','Europe','Americas','Oceania'];
 const els={answerModeOptions:document.getElementById('answerModeOptions'),prevBtn:document.getElementById('prevBtn'),answerSearch:document.getElementById('answerSearch'),answerSummary:document.getElementById('answerSummary'),answerList:document.getElementById('answerList'),autoModeToggles:document.querySelectorAll('.auto-toggle'),screenFlash:document.getElementById('screenFlash'),pageTitle:document.getElementById('pageTitle'),pageTitleIcon:document.getElementById('pageTitleIcon'),pageTitleText:document.getElementById('pageTitleText'),timer:document.getElementById('timer'),timerControls:document.getElementById('timerControls'),sessionPauseBtn:document.getElementById('sessionPauseBtn'),sessionPauseIcon:document.getElementById('sessionPauseIcon'),startPanel:document.getElementById('startPanel'),startBtn:document.getElementById('startBtn'),pausePanel:document.getElementById('pausePanel'),resumeBtn:document.getElementById('resumeBtn'),quitBtn:document.getElementById('quitBtn'),finishedPanel:document.getElementById('finishedPanel'),finishedTitle:document.getElementById('finishedTitle'),finishedScore:document.getElementById('finishedScore'),finishedNote:document.getElementById('finishedNote'),finishedPep:document.getElementById('finishedPep'),restartSessionBtn:document.getElementById('restartSessionBtn'),prompt:document.getElementById('prompt'),questionText:document.getElementById('questionText'),visual:document.getElementById('visual'),form:document.getElementById('answerForm'),quiz:document.querySelector('.quiz'),pages:document.getElementById('pages'),menuSheet:document.getElementById('menuSheet'),pageBack:document.getElementById('pageBack'),countryField:document.getElementById('countryField'),capitalField:document.getElementById('capitalField'),countryInput:document.getElementById('countryInput'),capitalInput:document.getElementById('capitalInput'),countryHintBtn:document.getElementById('countryHintBtn'),capitalHintBtn:document.getElementById('capitalHintBtn'),checkBtn:document.getElementById('checkBtn'),nextBtn:document.getElementById('nextBtn'),result:document.getElementById('result'),answerline:document.getElementById('answerline'),detail:document.getElementById('detail'),wikiLink:document.getElementById('wikiLink'),similar:document.getElementById('similar'),region:document.getElementById('region'),resetStats:document.getElementById('resetStats'),profileSessionInfo:document.getElementById('profileSessionInfo'),endSessionBtn:document.getElementById('endSessionBtn'),mistakeList:document.getElementById('mistakeList'),statOverview:document.getElementById('statOverview'),statModes:document.getElementById('statModes'),statWeak:document.getElementById('statWeak'),statRegions:document.getElementById('statRegions'),statTrend:document.getElementById('statTrend'),historyList:document.getElementById('historyList'),historyMore:document.getElementById('historyMore')};
 // ---- Local storage layout (schema 2) ----
 //   geoQuizSchema      "2"
@@ -463,7 +463,7 @@ function recordSessionResult(s,outcome){
   const prev=bestFor(s.mode,s.region,sessionAnswerMode(s));
   state.history.push({id:`${Date.now().toString(36)}${Math.random().toString(36).slice(2,6)}`,endedAt:new Date().toISOString(),mode:s.mode,region:s.region,outcome,
     answerMode:sessionAnswerMode(s),correct:s.correct,answered:s.answered,total:s.order.length,mistakes:s.mistakes,hinted:s.hinted,
-    durationMs:Math.max(0,sessionMsFor(s.region)-(s.remainingMs||0))});
+    durationMs:Math.max(0,sessionMsFor(s.region,s.mode,sessionAnswerMode(s))-(s.remainingMs||0))});
   const rec=state.history[state.history.length-1];
   s.record=!prev?'first':(rec.correct>prev.correct?'score':(beatsRecord(rec,prev)?'time':null));
   if(state.history.length>500)state.history=state.history.slice(-500);
@@ -505,8 +505,8 @@ function shuffled(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Ma
 function missedPool(mode){const missed=state.stats.missedByMode?state.stats.missedByMode[mode]||{}:{};let p=COUNTRIES.filter(c=>missed[c.code]>0);if(mode==='map')p=p.filter(c=>c.geometry);return p}
 function poolFor(mode,region=state.region){if(region==='Mistakes')return missedPool(mode);let p=COUNTRIES.filter(c=>region==='All'||c.region===region);if(mode==='map')p=p.filter(c=>c.geometry);return p}
 function sessionKey(mode,region=state.region){return `${mode}:${region}`}
-function sessionMsFor(region){return region==='All'?SESSION_MS:REGION_SESSION_MS}
-function createSession(mode,region=state.region){const pool=poolFor(mode,region);return {mode,region,order:shuffled(pool.map(c=>c.code)),index:0,correct:0,answered:0,streak:0,mistakes:0,hinted:0,remainingMs:sessionMsFor(region),practice:region==='Mistakes',capitalVariants:{},completed:false,started:false,paused:false,draft:null,review:null,answerMode:state.settings.answerMode||'both',capitalDirection:state.settings.capitalDirection||'shuffle'}}
+function sessionMsFor(region,mode,answerMode){if(region!=='All')return REGION_SESSION_MS;return mode!=='capital'&&answerMode==='both'?BOTH_SESSION_MS:SESSION_MS}
+function createSession(mode,region=state.region){const pool=poolFor(mode,region);const am=mode==='capital'?(state.settings.capitalDirection||'shuffle'):(state.settings.answerMode||'both');return {mode,region,order:shuffled(pool.map(c=>c.code)),index:0,correct:0,answered:0,streak:0,mistakes:0,hinted:0,remainingMs:sessionMsFor(region,mode,am),practice:region==='Mistakes',capitalVariants:{},completed:false,started:false,paused:false,draft:null,review:null,answerMode:state.settings.answerMode||'both',capitalDirection:state.settings.capitalDirection||'shuffle'}}
 function getSession(mode=state.lastGameMode,create=true){const key=sessionKey(mode);if(!state.sessions[key]&&create){state.sessions[key]=createSession(mode);saveSessions()}return state.sessions[key]||null}
 function currentSession(){return getSession(state.lastGameMode,false)}
 function getCountryByCode(code){return COUNTRIES.find(c=>c.code===code)}
@@ -516,7 +516,7 @@ function startTimer(){pauseTimer();if(state.activeTab==='settings'||document.hid
 function renderTimer(){
   const s=currentSession();
   if(state.region==='Mistakes'||(s&&s.practice)){els.timer.textContent='Practice';els.timer.classList.remove('warning','danger','critical');return}
-  let ms=s?s.remainingMs:sessionMsFor(state.region);
+  let ms=s?s.remainingMs:sessionMsFor(state.region,state.lastGameMode,state.settings.answerMode);
   if(ms<0)ms=0;
   const total=Math.ceil(ms/1000),m=Math.floor(total/60),sec=total%60;
   els.timer.textContent=`${m}:${String(sec).padStart(2,'0')}`;
@@ -632,7 +632,7 @@ function ensureSessionState(s){
   if(!s.capitalDirection)s.capitalDirection='shuffle';
   if(!s.reviews)s.reviews={};
   // Sessions saved before the 10-minute regional limit keep their old 15:00 until started.
-  if(!s.started&&!s.completed)s.remainingMs=sessionMsFor(s.region||state.region);
+  if(!s.started&&!s.completed)s.remainingMs=sessionMsFor(s.region||state.region,s.mode,sessionAnswerMode(s));
   if(s.region==='Mistakes')s.practice=true;
 }
 const ANSWER_OPTIONS={flag:[['country','Country'],['capital','Capital']],map:[['country','Country'],['capital','Capital']],capital:[['country','Country'],['capital','Capital']]};
@@ -755,7 +755,7 @@ function renderReadyRegion(open){const link=document.getElementById('readyRegion
 document.getElementById('readyRegionLink').addEventListener('click',()=>{if(state.region==='Mistakes')return;renderReadyRegion(document.getElementById('readyRegionOptions').hidden)});
 document.addEventListener('pointerdown',e=>{if(!e.target.closest('.region-picker')&&!document.getElementById('readyRegionOptions').hidden)renderReadyRegion(false)});
 document.getElementById('readyRegionOptions').addEventListener('click',e=>{const b=e.target.closest('[data-region]');if(!b)return;if(b.dataset.region===state.region){renderReadyRegion(false);return}setRegion(b.dataset.region)});
-els.answerModeOptions.addEventListener('click',e=>{const b=e.target.closest('[data-answer-mode]');if(!b)return;const s=getSession(state.lastGameMode,true);ensureSessionState(s);if(s.started)return;const v=b.dataset.answerMode,isCap=state.lastGameMode==='capital';const cur=isCap?(s.capitalDirection||'shuffle'):answerModeFor(s);let country=cur!=='capital',capital=cur!=='country';if(v==='country')country=!country;else capital=!capital;if(!country&&!capital)return;const next=country&&capital?(isCap?'shuffle':'both'):country?'country':'capital';if(isCap){s.capitalDirection=next;state.settings.capitalDirection=next}else{s.answerMode=next;state.settings.answerMode=next}saveSettings();saveSessions();renderReadySession(s)});
+els.answerModeOptions.addEventListener('click',e=>{const b=e.target.closest('[data-answer-mode]');if(!b)return;const s=getSession(state.lastGameMode,true);ensureSessionState(s);if(s.started)return;const v=b.dataset.answerMode,isCap=state.lastGameMode==='capital';const cur=isCap?(s.capitalDirection||'shuffle'):answerModeFor(s);let country=cur!=='capital',capital=cur!=='country';if(v==='country')country=!country;else capital=!capital;if(!country&&!capital)return;const next=country&&capital?(isCap?'shuffle':'both'):country?'country':'capital';if(isCap){s.capitalDirection=next;state.settings.capitalDirection=next}else{s.answerMode=next;state.settings.answerMode=next}s.remainingMs=sessionMsFor(s.region,s.mode,sessionAnswerMode(s));saveSettings();saveSessions();renderReadySession(s)});
 function beginSession(){els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);els.finishedPanel.classList.remove('show');setSessionControl('pause');const s=getSession(state.lastGameMode,true);if(!s||s.completed)return;ensureSessionState(s);state.isPaused=false;s.started=true;s.paused=false;saveSessions();els.startPanel.style.display='none';els.form.style.display='block';showCurrentQuestion();updateStats();updateSettingsViews();startTimer()}
 function loadMode(mode,region){
   document.body.classList.remove('settings-open');
