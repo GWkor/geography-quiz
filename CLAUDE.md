@@ -67,7 +67,9 @@ const p=await b.newPage({viewport:{width:390,height:844},deviceScaleFactor:2})
 - 애니메이션은 `prefers-reduced-motion`에서 꺼져야 한다.
 - 시트 메뉴는 **press-drag-release**(누른 채 끌면 하이라이트가 손가락을 따라가고, 항목 밖에서 떼면 취소)로 동작한다. 포인터 이벤트 + `setPointerCapture`를 쓰고 `touch-action:none`이 필요하다.
 - 지도 데이터는 Natural Earth(110m 기본, 작은 섬나라는 10m). 새 국가를 추가하면 같은 소스에서 외곽선을 가져오고 좌표는 소수점 4자리로 줄인다.
-- 정답 판정은 `norm()`으로 악센트·기호를 제거해 비교한다. 수도 표기 변형은 `CAPITAL_ALIASES`에 추가한다.
+- 정답 판정은 `normLoose()`로 비교한다: 악센트·기호 제거에 더해 **`the`/`of` 생략 가능, `St.`=`Saint`**. 그 외 철자는 정확해야 한다 — 오타 허용(편집거리)은 의도적으로 넣지 않았다. `Iran`/`Iraq`, `Niger`/`Nigeria`, `Gambia`/`Zambia`처럼 1글자 차이인 다른 나라가 8쌍 있어서 퀴즈의 목적 자체가 무너진다. 끝 `s` 생략과 `City` 생략도 오답이다.
+- **자동 채점**: 보이는 모든 필드가 정답이 되는 순간 채점한다(`autoCheck`). 정확 일치일 때만 발동하고, 입력한 값이 더 긴 정답의 앞부분이면(`Mexico`→`Mexico City` 등 11건) 즉시 채점하지 않고 300ms 입력 멈춤을 기다린다. 한 필드가 맞고 다른 필드가 비어 있으면 포커스를 옮긴다.
+- 수도 표기 변형은 `CAPITAL_ALIASES`에 추가한다. 국가 약칭(USA/UK/UAE/DRC/CAR)은 `aliases`에 둔다.
 - 입력은 한글 자판으로 쳐도 QWERTY 문자로 변환된다(`hangulToQwerty`).
 
 ## 하지 말 것
