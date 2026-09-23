@@ -30,7 +30,7 @@ svg.shot{display:block;overflow:hidden}
 </head>
 <body>
 <h1>Geo Quiz — 아이콘 후보</h1>
-<div class="sub">각 줄은 왼쪽부터 150px · 76px(홈 화면 크기) · 56px · 원형 크롭(안드로이드)입니다.<br>A가 현재 적용된 아이콘입니다. 바꾸고 싶은 걸 알파벳으로 알려주세요.</div>
+<div class="sub">각 줄은 왼쪽부터 150px · 76px(홈 화면 크기) · 56px · 원형 크롭(안드로이드)입니다.<br>E가 현재 적용된 아이콘입니다. 바꾸고 싶은 걸 알파벳으로 알려주세요.</div>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
@@ -112,12 +112,12 @@ svg.shot{display:block;overflow:hidden}
 
 <script>
 const CANDS=[
-  ['A','라벤더 + 지구본 + GEO QUIZ','현재 적용됨. 이름이 들어가 있고 대비가 가장 강하다.'],
+  ['A','라벤더 + 지구본 + GEO QUIZ','이름이 들어가 있고 대비가 가장 강하다.'],
   ['F','라벤더 + 큰 지구본','A에서 글자를 빼고 지구본을 키운 것. 작은 크기에서 가장 또렷하다.'],
   ['B','그래파이트 + 라벤더 지구본','앱 화면과 가장 비슷한 톤. 미니멀하다.'],
   ['C','지구본 선을 세 모드 색으로','국기·지도·수도 세 모드를 은근히 반영.'],
   ['D','라벤더 + 지구본 + ? 배지','퀴즈라는 게 바로 드러난다. 원형 크롭에서 배지가 잘린다.'],
-  ['E','GQ 모노그램','기존 아이콘의 현대적 버전.'],
+  ['E','GQ 모노그램','현재 적용됨. 기존 아이콘의 현대적 버전.'],
 ];
 document.getElementById('list').innerHTML=CANDS.map(([id,name,note])=>`
   <div class="card">
