@@ -470,7 +470,7 @@ function recordSessionResult(s,outcome){
   saveHistory();saveSessions();
   console.debug('[geo] session recorded',state.history[state.history.length-1]);
 }
-let state={mode:'flag',lastGameMode:'flag',activeTab:'flag',current:null,questionType:null,answered:false,countryHintChars:0,capitalHintChars:0,hintUsed:false,shownCapital:null,stats:loadStats(),sessions:loadSessions(),settings:loadSettings(),history:loadHistory(),region:'All',timerHandle:null,lastTimerTick:null,autoAdvanceHandle:null,autoCheckHandle:null,reviewIndex:null,transitioning:false,statFilter:{trend:'all',history:'all',missed:'all'},answerRegion:'All',historyShown:20,page:'profile',sheetCloseHandle:null};
+let state={mode:'flag',lastGameMode:'flag',activeTab:'flag',current:null,questionType:null,answered:false,countryHintChars:0,capitalHintChars:0,hintUsed:false,answerRevealed:false,shownCapital:null,stats:loadStats(),sessions:loadSessions(),settings:loadSettings(),history:loadHistory(),region:'All',timerHandle:null,lastTimerTick:null,autoAdvanceHandle:null,autoCheckHandle:null,reviewIndex:null,transitioning:false,statFilter:{trend:'all',history:'all',missed:'all'},answerRegion:'All',historyShown:20,page:'profile',sheetCloseHandle:null};
 function loadStats(){try{return JSON.parse(localStorage.getItem('geoQuizStats'))||{correct:0,total:0,streak:0,wrongByCode:{},hintedByCode:{}}}catch(e){return {correct:0,total:0,streak:0,wrongByCode:{},hintedByCode:{}}}}
 function loadSessions(){try{return JSON.parse(localStorage.getItem('geoQuizSessionsV2'))||{}}catch(e){return {}}}
 function saveSessions(){localStorage.setItem('geoQuizSessionsV2',JSON.stringify(state.sessions));updateNavPausedMarks()}
@@ -596,7 +596,7 @@ function resetQuestionUI(){
 cancelAutoCheck();
 document.querySelectorAll('.answer-review').forEach(x=>x.remove());
 els.countryInput.style.display='block';els.capitalInput.style.display='block';
-state.answered=false;state.countryHintChars=0;state.capitalHintChars=0;state.hintUsed=false;state.shownCapital=null;els.result.classList.remove('show');els.nextBtn.disabled=true;els.checkBtn.disabled=false;els.checkBtn.textContent='Show answer';els.checkBtn.style.display='';els.countryInput.value='';els.capitalInput.value='';els.countryInput.disabled=false;els.capitalInput.disabled=false;els.countryInput.placeholder='Type country name in English';els.capitalInput.placeholder='Type capital name in English';els.countryHintBtn.disabled=false;els.capitalHintBtn.disabled=false;els.countryField.style.display='block';els.capitalField.style.display='block'}
+state.answered=false;state.answerRevealed=false;state.countryHintChars=0;state.capitalHintChars=0;state.hintUsed=false;state.shownCapital=null;els.result.classList.remove('show');els.nextBtn.disabled=true;els.checkBtn.disabled=false;els.checkBtn.textContent='Show answer';els.checkBtn.style.display='';els.countryInput.value='';els.capitalInput.value='';els.countryInput.disabled=false;els.capitalInput.disabled=false;els.countryInput.placeholder='Type country name in English';els.capitalInput.placeholder='Type capital name in English';els.countryHintBtn.disabled=false;els.capitalHintBtn.disabled=false;els.countryField.style.display='block';els.capitalField.style.display='block'}
 
 
 function setSessionControl(mode){
@@ -1095,7 +1095,8 @@ function checkAnswer(){
     countryTyped:els.countryInput.value||'',
     capitalTyped:els.capitalInput.value||'',
     countryHinted:state.countryHintChars>0,
-    capitalHinted:state.capitalHintChars>0
+    capitalHinted:state.capitalHintChars>0,
+    revealed:!!state.answerRevealed
   };
   s.reviews=s.reviews||{};s.reviews[s.index]=s.review;
   s.draft=null;
@@ -1126,12 +1127,12 @@ function checkAnswer(){
   if(capitalVisible&&!capitalOK)shakeField(els.capitalField);
   finishAnswerUI(ok);
   flashScreen(ok?(state.hintUsed?'warn':'good'):'bad');
-  if(state.settings.autoMode&&ok)scheduleAutoAdvance();
+  if(state.settings.autoMode&&ok&&!state.answerRevealed)scheduleAutoAdvance();
 }
 // Shared end state after an answer is graded: in auto mode a wrong answer waits for "Got it".
 function finishAnswerUI(ok){
   els.answerline.innerHTML='';els.detail.textContent='';els.wikiLink.innerHTML='';els.similar.innerHTML='';els.result.classList.remove('show');
-  const gotIt=state.settings.autoMode&&!ok;
+  const gotIt=state.settings.autoMode&&(!ok||state.answerRevealed);
   els.nextBtn.disabled=false;els.checkBtn.disabled=!gotIt;els.checkBtn.textContent=gotIt?'Got it':'Show answer';
   els.countryInput.disabled=true;els.capitalInput.disabled=true;els.countryHintBtn.disabled=true;els.capitalHintBtn.disabled=true;
   updateActionButtons();
@@ -1146,9 +1147,10 @@ function showReviewResults(r){
 }
 function restoreAnswered(s){
   const r=s&&s.reviews&&s.reviews[s.index];if(!r||state.reviewIndex!==null)return;
+  state.answerRevealed=!!r.revealed;
   state.hintUsed=!!(r.countryHinted||r.capitalHinted);state.countryHintChars=r.countryHinted?1:0;state.capitalHintChars=r.capitalHinted?1:0;
   showReviewResults(r);state.answered=true;const ok=r.countryOK&&r.capitalOK;
-  finishAnswerUI(ok);if(state.settings.autoMode&&ok&&!state.isPaused)scheduleAutoAdvance();
+  finishAnswerUI(ok);if(state.settings.autoMode&&ok&&!state.answerRevealed&&!state.isPaused)scheduleAutoAdvance();
 }
 // Auto mode: ← walks back through answered questions (read-only), → returns to the live question.
 function updateActionButtons(){
@@ -1204,10 +1206,12 @@ function showHint(kind){
   input.setSelectionRange(nextLen,nextLen);
   state[key]=Math.max(state[key],nextLen);
   state.hintUsed=true;
-  if(nextLen>=answer.length)btn.disabled=true;
+  const revealed=nextLen>=answer.length;
+  if(revealed){btn.disabled=true;state.answerRevealed=true}
   const s=currentSession();if(s){s.draft={country:els.countryInput.value||'',capital:els.capitalInput.value||''};saveSessions()}
   input.classList.remove('hint-glow');btn.classList.remove('bump');void input.offsetWidth;input.classList.add('hint-glow');btn.classList.add('bump');
   input.focus();
+  if(revealed)autoCheck(true);
 }
 // Auto-grading. Only an exact accepted answer fires it — never a typo tolerance, which would
 // go off mid-word. If what is typed is the start of a longer accepted answer ("Mexico" before
