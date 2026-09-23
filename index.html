@@ -64,6 +64,11 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 @media(hover:hover){#startBtn:hover:not(:disabled)::after{width:14px;margin-left:8px;opacity:1;transform:translateX(0)}}
 
 .placeholder{visibility:hidden!important;pointer-events:none}
+.best-box{height:43px;width:210px;display:flex;flex-direction:column;justify-content:center;gap:3px}
+.best-row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:baseline;font-size:11px;color:var(--muted);line-height:1.2}
+.best-row b{font-size:12px;font-weight:700;color:var(--text);text-align:right;font-variant-numeric:tabular-nums}
+.best-row i{font-style:normal;font-size:10px;min-width:32px;text-align:right;opacity:.8}
+.best-box .none{font-size:11px;color:var(--muted);text-align:center;opacity:.75}
 .state-region{display:inline-block;padding:4px 8px;border:1px solid var(--line);border-radius:999px;background:var(--panel2);color:var(--text);font-weight:700;line-height:1;margin-bottom:14px}
 .auto-toggle{display:inline-flex;align-items:center;gap:8px;margin:0 0 16px;padding:6px 12px 6px 6px;border-radius:999px;font-size:14px;background:var(--panel2);color:var(--muted)}.auto-toggle .switch{width:34px;height:20px;border-radius:999px;background:var(--line);position:relative;transition:background .18s ease;flex:0 0 auto}.auto-toggle .switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--text);transition:transform .32s cubic-bezier(.34,1.56,.64,1),background-color .18s ease}.auto-toggle[aria-pressed="true"]{color:var(--text);border-color:var(--accent)}.auto-toggle[aria-pressed="true"] .switch{background:var(--accent)}.auto-toggle[aria-pressed="true"] .switch::after{transform:translateX(14px);background:var(--bg)}
 .screen-flash{position:fixed;inset:0;z-index:2000;pointer-events:none;opacity:0;background:var(--flash,transparent)}.screen-flash.good{--flash:var(--good)}.screen-flash.warn{--flash:var(--warn)}.screen-flash.bad{--flash:var(--bad)}.screen-flash.run{animation:screenFlash .55s ease-out}@keyframes screenFlash{0%{opacity:0}15%{opacity:.38}100%{opacity:0}}
@@ -279,7 +284,7 @@ button.primary{font-weight:500}
         <div><button class="auto-toggle" type="button" aria-pressed="false"><span class="switch" aria-hidden="true"></span>Auto mode</button></div>
         <div class="pause-actions">
           <button id="startBtn" class="primary state-btn" type="button">Start</button>
-          <button class="secondary state-btn placeholder" type="button" aria-hidden="true" tabindex="-1" disabled>Quit</button>
+          <div class="best-box" id="readyBest"></div>
         </div>
       </div>
     </div>
@@ -687,6 +692,26 @@ function renderQuestionUnderlay(s){
   else renderMap();
   restoreDraft(s);
 }
+// Records for the mode+region about to be played: highest score (ties go to the faster
+// run) and the fastest completed run, each with its date.
+function bestFor(mode,region){
+  const rows=state.history.filter(h=>h.mode===mode&&h.region===region&&h.answered>0);
+  if(!rows.length)return null;
+  const score=rows.reduce((b,h)=>(h.correct>b.correct||(h.correct===b.correct&&(h.durationMs||0)<(b.durationMs||0)))?h:b,rows[0]);
+  const done=rows.filter(h=>h.outcome==='finished');
+  const time=done.length?done.reduce((b,h)=>(h.durationMs||0)<(b.durationMs||0)?h:b,done[0]):null;
+  return {score,time};
+}
+function renderReadyBest(){
+  const el=document.getElementById('readyBest');if(!el)return;
+  const b=bestFor(state.lastGameMode,state.region);
+  if(!b){el.innerHTML='<span class="none">No records yet</span>';return}
+  const day=iso=>{const d=new Date(iso);return (d.getMonth()+1)+'/'+d.getDate()};
+  const row=(label,value,iso)=>'<div class="best-row"><span>'+label+'</span><b>'+value+'</b><i>'+day(iso)+'</i></div>';
+  let html=row('Best score',b.score.correct+'/'+b.score.total,b.score.endedAt);
+  if(b.time)html+=row('Best time',formatTime(b.time.durationMs),b.time.endedAt);
+  el.innerHTML=html;
+}
 function renderReadySession(s){
   renderQuestionUnderlay(s);
   els.quiz.classList.add('state-screen');
@@ -699,6 +724,7 @@ function renderReadySession(s){
   els.form.style.display='block';els.result.style.display='';
   els.startPanel.style.display='flex';
   renderReadyRegion(false);
+  renderReadyBest();
   renderAnswerModeOptions(s);
   lockReadyPanelOffset();
   renderTimer();
