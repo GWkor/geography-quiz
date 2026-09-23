@@ -51,6 +51,7 @@ const p=await b.newPage({viewport:{width:390,height:844},deviceScaleFactor:2})
 | `geoQuizStats` | 누적 집계 + `byMode[모드].seenByCode/correctByCode` + `missedByMode[모드]` |
 | `geoQuizHistory` | 종료된 세션 기록(최대 500건) |
 | `geoQuizSessionsV2` | 진행 중 세션. **기기 로컬 전용, 동기화 대상 아님** |
+| `geoQuizInstall` | 홈 화면 추가 배너 상태 `{dismissedAt, installed}` |
 
 향후 계정 동기화 시 올릴 단위는 settings + stats + history. 세션 키는 `모드:지역`(예: `flag:Asia`), 연습은 `flag:Mistakes`.
 

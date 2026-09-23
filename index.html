@@ -115,6 +115,13 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .practice-cards{display:grid;gap:8px}.practice-card{display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 12px;padding:12px 14px;background:var(--bg);border:1px solid var(--line);border-radius:12px}.practice-card b{font-size:15px}.practice-card .count{grid-column:2;grid-row:1/3;font-size:24px;font-weight:700;color:var(--accent);min-width:44px;text-align:right}.practice-card .stat-sub{color:var(--muted);font-size:12px}.practice-card button{grid-column:1/-1;margin-top:6px}
 .pref-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}.pref-row:last-child{border-bottom:0;padding-bottom:0}.pref-row>span>.stat-sub{display:block;color:var(--muted);font-size:12px}.pref-row .auto-toggle{margin:0;padding:4px}
 .pref-actions{display:grid;gap:8px}.pref-actions button{width:100%}button.danger{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,transparent)}
+.install-banner{position:fixed;left:10px;right:10px;bottom:calc(80px + env(safe-area-inset-bottom));z-index:800;display:flex;align-items:center;gap:12px;max-width:540px;margin:0 auto;padding:12px 14px;background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 14px 34px rgba(0,0,0,.4);animation:bannerUp .32s cubic-bezier(.2,.8,.2,1)}
+.install-banner[hidden]{display:none}@keyframes bannerUp{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+.ib-icon{width:36px;height:36px;flex:0 0 36px;border-radius:11px;background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent);display:flex;align-items:center;justify-content:center}.ib-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.ib-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.ib-text b{font-size:14px}.ib-text span{font-size:12px;color:var(--muted)}
+#installBtn{padding:8px 16px;font-size:14px;flex:0 0 auto}.ib-close{width:30px;height:30px;flex:0 0 30px;padding:0;border:0;background:transparent;color:var(--muted);font-size:20px;line-height:1;border-radius:8px}.ib-close:hover{color:var(--text)}
+.ios-share{display:inline-flex;vertical-align:-3px;width:14px;height:14px;margin:0 1px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.install-banner.guide{align-items:flex-start}.install-banner.guide .ib-text span{color:var(--text);line-height:1.5}
 .sheet-backdrop{position:fixed;inset:0;bottom:calc(70px + env(safe-area-inset-bottom));z-index:900;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .18s ease-out;touch-action:none}.sheet-backdrop[hidden]{display:none}
 .sheet-backdrop.closing{animation:fadeOut .2s ease-in forwards}.sheet-backdrop.closing .sheet{animation:sheetDown .2s cubic-bezier(.4,0,1,1) forwards}@keyframes fadeOut{to{opacity:0}}@keyframes sheetDown{to{transform:translateY(40px);opacity:0}}
 .sheet{width:100%;max-width:560px;background:var(--panel);border:1px solid var(--line);border-bottom:0;border-radius:22px 22px 0 0;padding:10px 10px 8px;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1)}@keyframes sheetUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
@@ -227,6 +234,7 @@ button.primary{font-weight:500}
 
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#202020">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Geo Quiz">
@@ -321,6 +329,7 @@ button.primary{font-weight:500}
         </div>
       </div>
       <div class="profile-strip" id="profileStrip"></div>
+      <div class="settings-card" id="installCard" hidden style="margin-bottom:14px"><h3>Add to Home Screen</h3><p class="note" style="margin:0 0 10px">Launch it full screen from your home screen. It keeps working without a connection.</p><button id="installFromProfile" class="primary" type="button">Add to Home Screen</button></div>
       <button class="secondary state-btn" type="button" disabled style="width:100%;opacity:.55">Sign in with Google · coming soon</button>
       <div class="settings-card" style="margin-top:14px"><h3>Current session</h3><p id="profileSessionInfo" class="note" style="margin:0 0 10px"></p><button id="endSessionBtn" class="secondary" type="button">End current session</button></div>
     </section>
@@ -355,6 +364,12 @@ button.primary{font-weight:500}
   </div>
 </div>
 
+<div class="install-banner" id="installBanner" hidden>
+  <span class="ib-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/><path d="M12 12v5M9.5 14.5 12 12l2.5 2.5"/></svg></span>
+  <div class="ib-text"><b>Add to Home Screen</b><span id="installHint">Full screen, and it works offline.</span></div>
+  <button id="installBtn" class="primary" type="button">Add</button>
+  <button id="installClose" class="ib-close" type="button" aria-label="Not now">&times;</button>
+</div>
 <div class="sheet-backdrop" id="menuSheet" hidden><div class="sheet" role="menu">
   <button class="sheet-item" data-page="profile"><span class="sheet-icon" style="--c:var(--settings)"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c.6-4 3.1-6 7.5-6s6.9 2 7.5 6"/></svg></span>Profile</button>
   <button class="sheet-item" data-page="practice"><span class="sheet-icon" style="--c:var(--warn)"><svg viewBox="0 0 24 24"><path d="M6 8v8M18 8v8M3 10v4M21 10v4M6 12h12"/></svg></span>Practice<span class="sheet-badge" id="practiceBadge"></span></button>
@@ -1116,10 +1131,50 @@ document.addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;i
 document.addEventListener('keydown',e=>{if(e.key!=='Escape'||state.activeTab==='settings')return;const s=currentSession();if(!s||!s.started||s.completed)return;if(state.isPaused){e.preventDefault();resumeSession()}else if(!els.quiz.classList.contains('state-screen')){e.preventDefault();pauseSession()}});
 document.addEventListener('keydown',e=>{if(e.key!==';'||state.answered||state.activeTab==='settings')return;const active=document.activeElement,countryVisible=els.countryField.style.display!=='none',capitalVisible=els.capitalField.style.display!=='none';let kind=null;if(active===els.countryInput&&countryVisible)kind='country';else if(active===els.capitalInput&&capitalVisible)kind='capital';else if(countryVisible&&!capitalVisible)kind='country';else if(capitalVisible&&!countryVisible)kind='capital';else if(countryVisible&&capitalVisible)kind='country';if(kind){e.preventDefault();showHint(kind)}});
 const PAGE_TITLES={profile:'Profile',practice:'Practice',statistics:'Statistics',answers:'Answer key',settings:'Settings'};
+// ---------- Add to Home Screen ----------
+// Three signals: the display-mode media query (Android/desktop), navigator.standalone (iOS)
+// and beforeinstallprompt (Chromium only). iOS has no install API, so it gets Share-sheet steps.
+const INSTALL_KEY='geoQuizInstall',INSTALL_SNOOZE_DAYS=14;
+let deferredInstall=null;
+function isStandalone(){return ['standalone','fullscreen','minimal-ui'].some(m=>matchMedia(`(display-mode: ${m})`).matches)||navigator.standalone===true}
+function isIOS(){const ua=navigator.userAgent;return /iPad|iPhone|iPod/.test(ua)||(/Macintosh/.test(ua)&&'ontouchend' in document)}
+function installState(){return readJSON(INSTALL_KEY,{})}
+function saveInstallState(v){localStorage.setItem(INSTALL_KEY,JSON.stringify(v))}
+function installSnoozed(){const st=installState();if(st.installed)return true;if(!st.dismissedAt)return false;return (Date.now()-new Date(st.dismissedAt).getTime())<INSTALL_SNOOZE_DAYS*864e5}
+function canInstall(){return !isStandalone()&&(!!deferredInstall||isIOS())}
+function hideInstallBanner(){document.getElementById('installBanner').hidden=true}
+function showInstallBanner(force){
+  const el=document.getElementById('installBanner');
+  if(!canInstall()||(!force&&installSnoozed())){el.hidden=true;return}
+  el.classList.remove('guide');
+  document.getElementById('installHint').textContent='Full screen, and it works offline.';
+  document.getElementById('installBtn').textContent='Add';
+  el.hidden=false;
+}
+const SHARE_ICON='<svg class="ios-share" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M8.5 6.5 12 3l3.5 3.5"/><path d="M6 11H4.5v9.5h15V11H18"/></svg>';
+function showIOSGuide(){
+  const el=document.getElementById('installBanner');el.hidden=false;el.classList.add('guide');
+  document.getElementById('installHint').innerHTML=`Tap ${SHARE_ICON} in the browser bar, then choose <b>Add to Home Screen</b>.`;
+  document.getElementById('installBtn').textContent='Got it';
+}
+async function runInstall(){
+  const btn=document.getElementById('installBtn');
+  if(btn.textContent==='Got it'){snoozeInstall();return}
+  if(deferredInstall){const p=deferredInstall;deferredInstall=null;p.prompt();const r=await p.userChoice.catch(()=>({outcome:'dismissed'}));hideInstallBanner();if(r.outcome!=='accepted')snoozeInstall();return}
+  if(isIOS()){showIOSGuide();return}
+  hideInstallBanner();
+}
+function snoozeInstall(){const st=installState();st.dismissedAt=new Date().toISOString();saveInstallState(st);hideInstallBanner()}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;if(state.activeTab!=='settings')showInstallBanner(false)});
+window.addEventListener('appinstalled',()=>{const st=installState();st.installed=true;saveInstallState(st);deferredInstall=null;hideInstallBanner();renderProfile()});
+document.getElementById('installBtn').addEventListener('click',runInstall);
+document.getElementById('installClose').addEventListener('click',snoozeInstall);
+// Give the quiz the first 15 seconds before asking.
+setTimeout(()=>{if(state.activeTab!=='settings')showInstallBanner(false)},15000);
 function openMenu(){clearTimeout(state.sheetCloseHandle);els.menuSheet.classList.remove('closing');els.menuSheet.hidden=false;document.getElementById('practiceBadge').textContent=(()=>{const n=MODES.reduce((a,m)=>a+missedPool(m).length,0);return n?String(n):''})()}
 function closeMenu(){if(els.menuSheet.hidden)return;sheetPress(null);els.menuSheet.classList.add('closing');clearTimeout(state.sheetCloseHandle);state.sheetCloseHandle=setTimeout(()=>{els.menuSheet.hidden=true;els.menuSheet.classList.remove('closing')},200)}
 function openPage(page){
-  closeMenu();pauseTimer();cancelAutoAdvance();
+  closeMenu();hideInstallBanner();pauseTimer();cancelAutoAdvance();
   if(state.activeTab!=='settings'){autoPauseCurrentSession();els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);document.body.classList.add('settings-open');state.activeTab='settings';els.quiz.style.display='none';els.pages.style.display='block';els.timerControls.style.display='none';els.pageTitleIcon.style.display='none';els.pageBack.style.display='';document.querySelectorAll('.mobile-nav').forEach(b=>b.classList.toggle('active',b.dataset.tab==='settings'));moveNavIndicator()}
   state.page=page;updatePageTitle();
   document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.dataset.page===page));
@@ -1132,6 +1187,7 @@ function openPage(page){
 }
 function closePages(){if(state.activeTab!=='settings')return;els.pageTitleIcon.style.display='';els.pageBack.style.display='none';els.pages.style.display='none';loadMode(state.lastGameMode)}
 function renderProfile(){
+  document.getElementById('installCard').hidden=!canInstall();
   const name=state.settings.name||'Guest';document.getElementById('profileName').textContent=name;document.getElementById('profileAvatar').textContent=name.trim()[0].toUpperCase();
   if(!state.settings.createdAt){state.settings.createdAt=new Date().toISOString();saveSettings()}
   const d=new Date(state.settings.createdAt);document.getElementById('profileSince').textContent=`Playing since ${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()} · local profile`;
@@ -1155,6 +1211,7 @@ function renderSettingsPage(){
 }
 document.addEventListener('click',e=>{const b=e.target.closest('[data-pref]');if(!b)return;state.settings[b.dataset.pref]=b.dataset.value;saveSettings();renderSettingsPage()});
 document.getElementById('practiceCards').addEventListener('click',e=>{const b=e.target.closest('[data-practice]');if(b)startPractice(b.dataset.practice)});
+document.getElementById('installFromProfile').addEventListener('click',()=>{closePages();showInstallBanner(true);runInstall()});
 document.getElementById('profileName').addEventListener('click',()=>{const v=prompt('Display name',state.settings.name||'');if(v===null)return;state.settings.name=v.trim().slice(0,24);saveSettings();renderProfile()});
 // Press-drag-release: the pressed highlight tracks the finger, releasing over an item
 // picks it, releasing outside cancels. Pointer capture keeps the events coming to the sheet.
