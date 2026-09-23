@@ -460,9 +460,9 @@ function saveHistory(){localStorage.setItem('geoQuizHistory',JSON.stringify(stat
 function recordSessionResult(s,outcome){
   if(!s||s.recorded||!s.answered)return;
   s.recorded=true;
-  const prev=bestFor(s.mode,s.region);
+  const prev=bestFor(s.mode,s.region,sessionAnswerMode(s));
   state.history.push({id:`${Date.now().toString(36)}${Math.random().toString(36).slice(2,6)}`,endedAt:new Date().toISOString(),mode:s.mode,region:s.region,outcome,
-    answerMode:s.mode==='capital'?s.capitalDirection:s.answerMode,correct:s.correct,answered:s.answered,total:s.order.length,mistakes:s.mistakes,hinted:s.hinted,
+    answerMode:sessionAnswerMode(s),correct:s.correct,answered:s.answered,total:s.order.length,mistakes:s.mistakes,hinted:s.hinted,
     durationMs:Math.max(0,sessionMsFor(s.region)-(s.remainingMs||0))});
   const rec=state.history[state.history.length-1];
   s.record=!prev?'first':(rec.correct>prev.correct?'score':(beatsRecord(rec,prev)?'time':null));
@@ -585,7 +585,7 @@ function renderTrend(){
 function renderHistory(){
   const f=state.statFilter.history;const all=state.history.filter(h=>f==='all'||h.mode===f).slice().reverse();const rows=all.slice(0,state.historyShown);
   const when=iso=>{const d=new Date(iso);return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`};
-  const kind=h=>h.mode==='capital'?(h.answerMode==='shuffle'?'Mixed':h.answerMode==='country'?'Country':'Capital'):(h.answerMode==='both'?'Both':h.answerMode==='country'?'Country':'Capital');
+  const kind=h=>answerModeLabel(h.mode,h.answerMode);
   els.historyList.innerHTML=rows.length?rows.map(r=>`<div class="history-row"><span>${MODE_LABEL[r.mode]||r.mode} · ${r.region} · ${kind(r)}</span><span class="score">${r.correct}/${r.answered} · ${pct(r.correct,r.answered)}%</span><span class="meta">${when(r.endedAt)} · ${formatTime(r.durationMs)}</span><span class="outcome">${r.outcome}</span></div>`).join(''):'<p class="note">No finished sessions yet.</p>';
   els.historyMore.style.display=all.length>rows.length?'block':'none';
 }
@@ -703,18 +703,21 @@ function renderQuestionUnderlay(s){
 }
 // The record for a mode+region is one session: the highest score, ties broken by the
 // shorter time. Fastest-overall would reward skipping every question, so it is not used.
+function sessionAnswerMode(s){return s.mode==='capital'?(s.capitalDirection||'shuffle'):(s.answerMode||'both')}
+function answerModeLabel(mode,am){return am==='country'?'Country':am==='capital'?'Capital':mode==='capital'?'Mixed':'Both';}
 function beatsRecord(a,b){return !b||a.correct>b.correct||(a.correct===b.correct&&(a.durationMs||0)<(b.durationMs||0))}
-function bestFor(mode,region){
-  const rows=state.history.filter(h=>h.mode===mode&&h.region===region&&h.answered>0);
+function bestFor(mode,region,answerMode){
+  const rows=state.history.filter(h=>h.mode===mode&&h.region===region&&h.answered>0&&(!answerMode||h.answerMode===answerMode));
   return rows.length?rows.reduce((b,h)=>beatsRecord(h,b)?h:b,rows[0]):null;
 }
-function renderReadyBest(){
+function renderReadyBest(s){
   const el=document.getElementById('readyBest');if(!el)return;
-  const b=bestFor(state.lastGameMode,state.region);
+  const am=sessionAnswerMode(s||currentSession()||{mode:state.lastGameMode});
+  const b=bestFor(state.lastGameMode,state.region,am);
   if(!b){el.innerHTML='<span class="none">No records yet</span>';return}
   const d=new Date(b.endedAt),day=d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate();
   el.innerHTML='<div class="best-grid">'
-    +'<span class="lbl">Best record</span>'
+    +'<span class="lbl">Best \u00b7 '+answerModeLabel(state.lastGameMode,am)+'</span>'
     +'<span class="vals">'+pct(b.correct,b.total)+'%<i>\u00b7</i>'+formatTime(b.durationMs)+'</span>'
     +'<span class="frac">'+b.correct+'/'+b.total+'</span>'
     +'<span class="date">'+day+'</span></div>';
@@ -731,7 +734,7 @@ function renderReadySession(s){
   els.form.style.display='block';els.result.style.display='';
   els.startPanel.style.display='flex';
   renderReadyRegion(false);
-  renderReadyBest();
+  renderReadyBest(s);
   renderAnswerModeOptions(s);
   lockReadyPanelOffset();
   renderTimer();
