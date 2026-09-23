@@ -81,6 +81,7 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .finished-panel.show{display:flex}
 .finished-title{font-size:30px;font-weight:700;color:var(--accent);margin:0 0 14px}
 .confetti-canvas{position:fixed;inset:0;z-index:1500;pointer-events:none}
+.finished-badge{display:inline-flex;align-items:center;gap:6px;margin:0 0 12px;padding:5px 12px 5px 9px;border-radius:999px;font-size:12px;font-weight:700;color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,transparent);border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);animation:popIn .45s cubic-bezier(.34,1.56,.64,1) .15s both}.finished-badge[hidden]{display:none}.finished-badge svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .finished-score{font-size:22px;font-weight:700;color:var(--text);margin-bottom:14px}
 .finished-note{color:var(--muted);font-size:15px;line-height:1.5;max-width:320px;margin:0 auto}
 .finished-pep{color:var(--text);font-size:16px;font-weight:700;line-height:1.5;max-width:320px;margin:12px auto 0}
@@ -305,6 +306,7 @@ button.primary{font-weight:500}
         <div><span class="state-region" id="finishedRegion">All</span></div>
         <div class="finished-title" id="finishedTitle">Finished!</div>
         <div class="finished-score" id="finishedScore"></div>
+        <div class="finished-badge" id="finishedBadge" hidden></div>
         <div class="finished-note" id="finishedNote"></div>
         <div class="finished-pep" id="finishedPep"></div>
         <div class="pause-actions" style="margin-top:20px"><button id="restartSessionBtn" class="primary state-btn" type="button" style="display:none">Back</button></div>
@@ -457,9 +459,12 @@ function saveHistory(){localStorage.setItem('geoQuizHistory',JSON.stringify(stat
 function recordSessionResult(s,outcome){
   if(!s||s.recorded||!s.answered)return;
   s.recorded=true;
+  const prev=bestFor(s.mode,s.region);
   state.history.push({id:`${Date.now().toString(36)}${Math.random().toString(36).slice(2,6)}`,endedAt:new Date().toISOString(),mode:s.mode,region:s.region,outcome,
     answerMode:s.mode==='capital'?s.capitalDirection:s.answerMode,correct:s.correct,answered:s.answered,total:s.order.length,mistakes:s.mistakes,hinted:s.hinted,
     durationMs:Math.max(0,sessionMsFor(s.region)-(s.remainingMs||0))});
+  const rec=state.history[state.history.length-1];
+  s.record=!prev?'first':(rec.correct>prev.correct?'score':(beatsRecord(rec,prev)?'time':null));
   if(state.history.length>500)state.history=state.history.slice(-500);
   saveHistory();saveSessions();
   console.debug('[geo] session recorded',state.history[state.history.length-1]);
@@ -692,25 +697,20 @@ function renderQuestionUnderlay(s){
   else renderMap();
   restoreDraft(s);
 }
-// Records for the mode+region about to be played: highest score (ties go to the faster
-// run) and the fastest completed run, each with its date.
+// The record for a mode+region is one session: the highest score, ties broken by the
+// shorter time. Fastest-overall would reward skipping every question, so it is not used.
+function beatsRecord(a,b){return !b||a.correct>b.correct||(a.correct===b.correct&&(a.durationMs||0)<(b.durationMs||0))}
 function bestFor(mode,region){
   const rows=state.history.filter(h=>h.mode===mode&&h.region===region&&h.answered>0);
-  if(!rows.length)return null;
-  const score=rows.reduce((b,h)=>(h.correct>b.correct||(h.correct===b.correct&&(h.durationMs||0)<(b.durationMs||0)))?h:b,rows[0]);
-  const done=rows.filter(h=>h.outcome==='finished');
-  const time=done.length?done.reduce((b,h)=>(h.durationMs||0)<(b.durationMs||0)?h:b,done[0]):null;
-  return {score,time};
+  return rows.length?rows.reduce((b,h)=>beatsRecord(h,b)?h:b,rows[0]):null;
 }
 function renderReadyBest(){
   const el=document.getElementById('readyBest');if(!el)return;
   const b=bestFor(state.lastGameMode,state.region);
   if(!b){el.innerHTML='<span class="none">No records yet</span>';return}
-  const day=iso=>{const d=new Date(iso);return (d.getMonth()+1)+'/'+d.getDate()};
-  const row=(label,value,iso)=>'<div class="best-row"><span>'+label+'</span><b>'+value+'</b><i>'+day(iso)+'</i></div>';
-  let html=row('Best score',b.score.correct+'/'+b.score.total,b.score.endedAt);
-  if(b.time)html+=row('Best time',formatTime(b.time.durationMs),b.time.endedAt);
-  el.innerHTML=html;
+  const d=new Date(b.endedAt),day=(d.getMonth()+1)+'/'+d.getDate();
+  el.innerHTML='<div class="best-row"><span>Best score</span><b>'+b.correct+'/'+b.total+'</b><i>'+day+'</i></div>'
+    +'<div class="best-row"><span>Best time</span><b>'+formatTime(b.durationMs)+'</b><i></i></div>';
 }
 function renderReadySession(s){
   renderQuestionUnderlay(s);
@@ -855,6 +855,7 @@ function renderQuitResult(s){els.quiz.classList.add('state-screen');setStateUnde
   els.result.style.display='';
 
   document.getElementById('finishedRegion').textContent=s.region||state.region;
+  renderRecordBadge(s);
   els.finishedTitle.textContent='Session ended';
   els.finishedTitle.style.color='var(--text)';
   animateScore(els.finishedScore,s.correct,s.answered,accuracyPercent(s));
@@ -866,6 +867,12 @@ function renderQuitResult(s){els.quiz.classList.add('state-screen');setStateUnde
   renderTimer();
 }
 
+const TROPHY='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M7 6H4.5v1A3.5 3.5 0 0 0 8 10.5M17 6h2.5v1a3.5 3.5 0 0 1-3.5 3.5"/><path d="M12 14v3M9 20h6M10 17h4l.5 3h-5l.5-3Z"/></svg>';
+function renderRecordBadge(s){
+  const el=document.getElementById('finishedBadge');
+  const label={first:'First record',score:'New best score',time:'New best time'}[s&&s.record];
+  el.hidden=!label;if(label)el.innerHTML=TROPHY+label;
+}
 function renderCompletedSession(s,celebrate=false,animate=celebrate){els.quiz.classList.add('state-screen');setStateUnderlayBlur(true);setSessionControl('hidden');
   pauseTimer();
   state.isPaused=false;
@@ -885,6 +892,7 @@ function renderCompletedSession(s,celebrate=false,animate=celebrate){els.quiz.cl
   els.result.style.display='';
 
   const timeUp=s.index<s.order.length;
+  renderRecordBadge(s);
   document.getElementById('finishedRegion').textContent=s.region||state.region;
   if(timeUp){
     els.finishedTitle.textContent="Time's up!";

@@ -61,7 +61,8 @@ const p=await b.newPage({viewport:{width:390,height:844},deviceScaleFactor:2})
 - **타이머**: All 20분, 개별 지역 10분, 연습(Mistakes)은 무제한(`Practice` 표시).
 - **색**: `--flag` 라벤더 / `--map` 카키 / `--capital` 탄 / `--settings` 로즈. 결과색은 `--good/--warn/--bad`. 새 색을 쓰지 말고 토큰을 쓴다. 활성 탭 색은 `--accent`로 자동 전환된다.
 - **힌트로 맞힌 답은 오답 집계**(노란 체크는 그대로).
-- **글래스 화면**(Ready / Paused / Finished / Session ended)은 모두 Ready 패널 기준 높이로 상단 정렬된다(`lockReadyPanelOffset`). Ready의 Start 아래 슬롯은 Paused의 Quit 자리를 43px 고정 높이로 재사용해 최고 기록(`#readyBest`)을 넣은 것이므로, 높이를 바꾸면 모든 패널이 움직인다. 전환 애니메이션은 **문제 화면 ↔ 글래스 화면**에만 넣고 글래스 → 글래스는 즉시 전환한다.
+- **글래스 화면**(Ready / Paused / Finished / Session ended)은 모두 Ready 패널 기준 높이로 상단 정렬된다(`lockReadyPanelOffset`). Ready의 Start 아래 슬롯은 Paused의 Quit 자리를 43px 고정 높이로 재사용해 최고 기록(`#readyBest`)을 넣은 것이므로, 높이를 바꾸면 모든 패널이 움직인다.
+- **기록은 한 세션**이다(`bestFor`/`beatsRecord`): 최고 점수, 동점이면 더 짧은 시간. 모드+지역별로 따로 집계한다. "가장 빠른 세션"을 따로 두면 전부 틀리고 넘기는 게 1위가 되므로 쓰지 않는다. 경신하면 결과 화면에 배지가 뜬다(`s.record` = first/score/time). 전환 애니메이션은 **문제 화면 ↔ 글래스 화면**에만 넣고 글래스 → 글래스는 즉시 전환한다.
 - **일시정지는 커닝 수단이 될 수 없어야 한다**: 답하지 않은 문제에서 멈추면 `#visual`(국기·지도·이름)을 즉시 숨기고(`.quiz.hide-question`), Resume 시 남은 문제를 다시 섞어 다른 문제를 낸다. 이미 채점된 문제에서는 둘 다 하지 않는다. 일시정지된 세션이 있는 모드는 그 탭이 비활성일 때 아이콘이 강조색으로 점멸한다(`updateNavPausedMarks`, `saveSessions`에서 호출).
 - 애니메이션은 `prefers-reduced-motion`에서 꺼져야 한다.
 - 시트 메뉴는 **press-drag-release**(누른 채 끌면 하이라이트가 손가락을 따라가고, 항목 밖에서 떼면 취소)로 동작한다. 포인터 이벤트 + `setPointerCapture`를 쓰고 `touch-action:none`이 필요하다.
