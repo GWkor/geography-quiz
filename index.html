@@ -150,6 +150,7 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .mistake-list{display:grid;gap:8px}.mistake-row{display:flex;justify-content:space-between;gap:12px;padding:10px 12px;background:var(--bg);border:1px solid var(--line);border-radius:10px}
 .bottom-nav{display:none}
 .quiz.state-screen{position:relative}
+.quiz.hide-question #visual{visibility:hidden}
 .start-panel{text-align:center}
 .start-panel .ready-region-link{margin-bottom:14px;animation:chipPulse 2.2s ease-in-out infinite}.start-panel .ready-region-link[aria-expanded="true"]{animation:none;border-color:var(--accent)}.start-panel .ready-region-link.static{animation:none;cursor:default}@keyframes chipPulse{0%,100%{border-color:var(--line);box-shadow:0 0 0 0 transparent}50%{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 22%,transparent)}}.ready-region-link .chev{font-size:11px;opacity:.7;margin-left:2px}
 .region-picker{position:relative;display:block}
@@ -639,12 +640,13 @@ function autoPauseCurrentSession(){
   ensureSessionState(s);
   if(s.started&&!s.completed&&!s.quit){
     saveCurrentDraft(s);
+    if(!state.answered)s.reshuffleOnResume=true;
     s.paused=true;
     pauseTimer();
     saveSessions();
   }
 }
-function renderPausedView(){els.quiz.classList.add('state-screen');els.finishedPanel.classList.remove('show');setSessionControl('play');els.quiz.style.minHeight='';
+function renderPausedView(){els.quiz.classList.add('state-screen');els.quiz.classList.add('hide-question');els.finishedPanel.classList.remove('show');setSessionControl('play');els.quiz.style.minHeight='';
   const s=currentSession();
   if(!s)return;
   ensureSessionState(s);
@@ -666,6 +668,7 @@ function renderPausedView(){els.quiz.classList.add('state-screen');els.finishedP
 }
 
 function renderQuestionUnderlay(s){
+  els.quiz.classList.remove('hide-question');
   els.quiz.style.minHeight='';
   resetQuestionUI();
   const index=Math.min(s.index,s.order.length-1);
@@ -784,7 +787,7 @@ document.querySelectorAll('.mobile-nav').forEach(b=>b.classList.toggle('active',
     startTimer();
   }
 }
-function showCurrentQuestion(){state.reviewIndex=null;els.quiz.style.minHeight='';els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);els.finishedPanel.classList.remove('show');setSessionControl('pause');resetQuestionUI();els.pausePanel.classList.remove('show');els.prompt.style.display='';els.questionText.style.display='';els.visual.style.display='';els.form.style.display='block';const s=getSession(state.lastGameMode,true);if(!s.order.length){els.prompt.textContent='No questions available';els.questionText.textContent='Try another region.';els.visual.innerHTML='';els.checkBtn.disabled=true;return}if(s.index>=s.order.length){s.completed=true;saveSessions();renderCompletedSession(s);return}state.current=getCountryByCode(s.order[s.index]);if(state.lastGameMode==='flag')renderFlag();else if(state.lastGameMode==='capital')renderCapital(s);else renderMap();updateActionButtons()}
+function showCurrentQuestion(){state.reviewIndex=null;els.quiz.classList.remove('hide-question');els.quiz.style.minHeight='';els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);els.finishedPanel.classList.remove('show');setSessionControl('pause');resetQuestionUI();els.pausePanel.classList.remove('show');els.prompt.style.display='';els.questionText.style.display='';els.visual.style.display='';els.form.style.display='block';const s=getSession(state.lastGameMode,true);if(!s.order.length){els.prompt.textContent='No questions available';els.questionText.textContent='Try another region.';els.visual.innerHTML='';els.checkBtn.disabled=true;return}if(s.index>=s.order.length){s.completed=true;saveSessions();renderCompletedSession(s);return}state.current=getCountryByCode(s.order[s.index]);if(state.lastGameMode==='flag')renderFlag();else if(state.lastGameMode==='capital')renderCapital(s);else renderMap();updateActionButtons()}
 
 // Count the finished score up from 0 over ~700ms.
 function animateScore(el,correct,total,percent){const t0=performance.now(),dur=700;const ease=x=>1-Math.pow(1-x,3);const step=now=>{const k=Math.min(1,(now-t0)/dur),e=ease(k);el.textContent=`Score ${Math.round(correct*e)}/${total} · ${Math.round(percent*e)}%`;if(k<1)requestAnimationFrame(step)};requestAnimationFrame(step)}
@@ -929,12 +932,23 @@ function renderFieldResult(field,input,ok,correctText,hinted,url){
     : `<div class="answer-review-main"><span class="user-answer">${typed}</span><span class="correct-answer">${correctText}</span></div>${statusIconMarkup('bad',url)}`;
   field.appendChild(box);
 }
+// Pausing on an unanswered question hands out a different one on resume, so a pause
+// cannot be used to study the flag/map/name at leisure.
+function reshuffleRemaining(s){
+  const rest=s.order.slice(s.index);
+  if(rest.length<2)return false;
+  const next=shuffled(rest);
+  if(next[0]===rest[0]){const j=1+Math.floor(Math.random()*(next.length-1));[next[0],next[j]]=[next[j],next[0]]}
+  s.order=s.order.slice(0,s.index).concat(next);
+  return true;
+}
 function pauseSession(){
   cancelAutoAdvance();
   const s=currentSession();
   if(!s||!s.started||s.completed)return;
   ensureSessionState(s);
   saveCurrentDraft(s);
+  if(!state.answered)s.reshuffleOnResume=true;
   s.paused=true;
   saveSessions();
   renderPausedView();
@@ -954,7 +968,13 @@ function resumeSessionNow(){els.quiz.classList.remove('state-screen');setStateUn
   els.visual.style.display='';
   els.form.style.display='block';
   els.result.style.display='';
-  restoreDraft(s);
+  if(s.reshuffleOnResume){
+    s.reshuffleOnResume=false;s.draft=null;
+    reshuffleRemaining(s);saveSessions();
+    showCurrentQuestion();
+  }else{
+    restoreDraft(s);
+  }
   focusAnswerField();
   startTimer();
 }
@@ -1078,6 +1098,7 @@ function updateActionButtons(){
   if(reviewing)els.nextBtn.disabled=false;
 }
 function renderReview(index){
+  els.quiz.classList.remove('hide-question');
   const s=currentSession();if(!s||!s.reviews||!s.reviews[index])return;
   cancelAutoAdvance();
   if(state.reviewIndex===null)saveCurrentDraft(s);
