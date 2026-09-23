@@ -1336,7 +1336,8 @@ els.menuSheet.addEventListener('pointerup',e=>{const item=sheetPressed,started=s
 els.menuSheet.addEventListener('pointercancel',()=>{sheetPress(null);sheetFromItem=false});
 // Keyboard activation still arrives as a click (detail 0); pointer clicks are already handled above.
 els.menuSheet.addEventListener('click',e=>{if(e.detail!==0)return;const item=e.target.closest('.sheet-item');if(item)openPage(item.dataset.page)});
-els.pageBack.addEventListener('click',closePages);
+// Back from a page returns to the menu it was opened from, not straight to the quiz.
+els.pageBack.addEventListener('click',()=>{closePages();openMenu()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!els.menuSheet.hidden)closeMenu()});
 // export / import
 document.getElementById('exportBtn').addEventListener('click',()=>{const data={schema:SCHEMA_VERSION,exportedAt:new Date().toISOString(),settings:state.settings,stats:state.stats,history:state.history};const blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`geography-quiz-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});
