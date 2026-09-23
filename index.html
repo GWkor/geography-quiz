@@ -67,7 +67,7 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .best-box{height:64px;width:200px;display:flex;flex-direction:column;justify-content:center;align-items:center}
 .best-grid{display:flex;flex-direction:column;align-items:center;line-height:1.3;text-align:center}
 .best-grid .lbl{font-size:11px;color:var(--muted)}.best-grid .date{font-size:10px;color:var(--muted);opacity:.8;font-variant-numeric:tabular-nums}
-.best-grid .vals{margin-top:3px;font-size:15px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}.best-grid .vals i{font-style:normal;font-weight:400;color:var(--muted);margin:0 7px}
+.best-grid .vals{margin-top:2px;font-size:15px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}.best-grid .vals i{font-style:normal;font-weight:400;color:var(--muted);margin:0 7px}
 .best-grid .frac{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
 .best-box .none{font-size:11px;color:var(--muted);text-align:center;opacity:.75}
 .state-region{display:inline-block;padding:4px 8px;border:1px solid var(--line);border-radius:999px;background:var(--panel2);color:var(--text);font-weight:700;line-height:1;margin-bottom:14px}
@@ -715,9 +715,9 @@ function renderReadyBest(){
   const d=new Date(b.endedAt),day=d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate();
   el.innerHTML='<div class="best-grid">'
     +'<span class="lbl">Best record</span>'
-    +'<span class="date">'+day+'</span>'
     +'<span class="vals">'+pct(b.correct,b.total)+'%<i>\u00b7</i>'+formatTime(b.durationMs)+'</span>'
-    +'<span class="frac">'+b.correct+'/'+b.total+'</span></div>';
+    +'<span class="frac">'+b.correct+'/'+b.total+'</span>'
+    +'<span class="date">'+day+'</span></div>';
 }
 function renderReadySession(s){
   renderQuestionUnderlay(s);
