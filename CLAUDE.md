@@ -42,22 +42,27 @@ const p=await b.newPage({viewport:{width:390,height:844},deviceScaleFactor:2})
 
 작업이 끝나면 커밋하고 **바로 `git push origin main`** 한다(사용자가 매번 폰에서 확인함). 커밋 메시지는 영어, 본문에 무엇을·왜를 적는다. 배포 URL: https://gwkor.github.io/geography-quiz/
 
-## 데이터 모델 (localStorage, schema 2)
+## 데이터 모델 (localStorage, schema 3)
 
 | 키 | 내용 |
 |---|---|
-| `geoQuizSchema` | `"2"` — `migrateStorage()`가 v1 키를 흡수 |
-| `geoQuizSettings` | `{regions:{flag,map,capital}, autoMode, answerMode, capitalDirection, name, createdAt}` |
-| `geoQuizStats` | 누적 집계 + `byMode[모드].seenByCode/correctByCode` + `missedByMode[모드]` |
-| `geoQuizHistory` | 종료된 세션 기록(최대 500건) |
+| `geoQuizSchema` | `"3"` — `migrateStorage()`가 v1·v2 키를 흡수 |
+| `geoQuizSettings` | `{region, difficulty, autoMode, answerMode, capitalDirection, name, createdAt}` |
+| `geoQuizStats` | 누적 집계 + `byMode[모드][난이도].seenByCode/correctByCode` + `missedByMode[모드][난이도]` |
+| `geoQuizHistory` | 종료된 세션 기록(최대 500건). 각 항목에 `difficulty` 포함 |
 | `geoQuizSessionsV2` | 진행 중 세션. **기기 로컬 전용, 동기화 대상 아님** |
 | `geoQuizInstall` | 홈 화면 추가 배너 상태 `{dismissedAt, installed}` |
 
-향후 계정 동기화 시 올릴 단위는 settings + stats + history. 세션 키는 `모드:지역`(예: `flag:Asia`), 연습은 `flag:Mistakes`.
+향후 계정 동기화 시 올릴 단위는 settings + stats + history. 세션 키는 `모드:난이도:지역`(예: `flag:typed:Asia`), 연습은 `flag:typed:Mistakes`.
+
+v2 → v3 마이그레이션은 지역을 `All`로 리셋하고, 진행 중 세션을 전부 버리고(`geoQuizSessionsV2` 삭제), 기존 통계·기록을 `typed`쪽으로 옮긴다.
 
 ## 규칙·관례
 
-- **모드 3종** flag / map / capital. 지역 설정은 **모드별로 따로** 저장된다(공유하지 않음).
+- **모드 3종** flag / map / capital. **지역과 난이도는 전역 설정 1개씩**이다(세 모드가 공유). 헤더와 문제 카드 사이의 칩 바(`#chipBar`)에서 바꾼다. 난이도 칩은 설명이 붙은 팝오버다.
+- **난이도 2종** `typed`(주관식 입력) / `choice`(4지선다). `difficulty()`로 읽고, 통계·연습·기록은 현재 난이도 기준으로만 보여준다(지역으로는 나누지 않는다 — By region 매트릭스가 깨진다).
+- **전역 값을 바꿀 때 진행 중 세션이 있으면** `confirmDiscardLive()`로 먼저 물어보고, 수락하면 `endLiveSessions()`가 한 문제라도 푼 세션은 quit으로 기록하고 전부 정리한다. 세션 키에 지역·난이도가 들어가므로 이 정리를 빠뜨리면 세션이 유령처럼 남는다.
+- **오답 목록은 난이도별로 따로**다. 단 `typed`로 맞히면 `choice`쪽 오답까지 지우고, `choice`로 맞히면 `choice`쪽만 지운다(주관식이 더 어려우므로).
 - **타이머**(`sessionMsFor`): All은 20분, 단 Flag/Map에서 Country+Capital 둘 다 답하면 25분(한 문제에 두 칸을 채우므로). Capital Quiz는 토글과 무관하게 답하는 칸이 하나라 항상 20분. 개별 지역은 10분, 연습(Mistakes)은 무제한(`Practice` 표시). 시작 전 토글을 바꾸면 남은 시간도 다시 계산된다.
 - **색**: `--flag` 라벤더 / `--map` 카키 / `--capital` 탄 / `--settings` 로즈. 결과색은 `--good/--warn/--bad`. 새 색을 쓰지 말고 토큰을 쓴다. 활성 탭 색은 `--accent`로 자동 전환된다.
 - **채점 결과는 세 가지다**: 정답(초록) / 힌트 정답(노랑, 일부만 힌트로 보고 나머지는 직접 입력) / 오답(빨강). 뒤 둘은 모두 점수에 포함되지 않지만 힌트 정답만 `hinted`·`hintedByCode`로 따로 집계해 Statistics·결과 화면·Weak spots에 표시한다.
