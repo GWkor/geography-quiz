@@ -36,7 +36,12 @@ select{background:var(--panel);color:var(--text);border:1px solid var(--line);bo
 #visual{display:flex;flex-direction:column;flex:1}
 .flag-wrap,.name-wrap{display:flex;justify-content:center;align-items:center;min-height:var(--visual-h);flex:1;margin:6px 0 18px;background:var(--bg);border:1px solid var(--line);border-radius:16px}
 .name-wrap{padding:16px;text-align:center}.name-wrap .name{font-size:36px;font-weight:700;line-height:1.15;word-break:break-word}
-.flag{font-size:150px;line-height:1}.map-wrap{position:relative;background:var(--bg);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:6px 0 18px;min-height:var(--visual-h);flex:1}
+.flag{font-size:150px;line-height:1}
+.flag-wrap.compare{gap:12px;padding:0 10px}
+.flag-wrap.compare .flag{font-size:92px}
+.flag-cmp{display:flex;flex-direction:column;align-items:center;gap:10px;min-width:0;flex:1}
+.flag-cmp b{font-size:13px;font-weight:700;line-height:1.25;text-align:center;word-break:break-word}
+.flag-cmp b.is-correct{color:var(--good)}.flag-cmp b.is-wrong{color:var(--bad)}.map-wrap{position:relative;background:var(--bg);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:6px 0 18px;min-height:var(--visual-h);flex:1}
 svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0;width:100%;height:100%}.country{fill:#505050;stroke:var(--bg);stroke-width:1;vector-effect:non-scaling-stroke}.country.target{fill:var(--accent);stroke:var(--text);stroke-width:1.6}.target-ring{fill:none;stroke:var(--accent);stroke-width:2;vector-effect:non-scaling-stroke;opacity:.95}.map-inset-bg{fill:var(--panel2)}.map-inset-frame{fill:none;stroke:color-mix(in srgb,var(--accent) 70%,transparent);stroke-width:1.5;vector-effect:non-scaling-stroke}
 .fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;color:var(--muted);font-size:13px;margin:0 0 6px}.field-label-row{display:flex;align-items:center;justify-content:flex-start;gap:6px;margin:0 0 6px}.field-label-row label{margin:0}.hint-btn{padding:2px 5px;border-radius:7px;font-size:14px;line-height:1;background:transparent;color:var(--muted);border-color:transparent;vertical-align:middle}.hint-btn:hover{color:var(--text)}
 .field input{width:100%;height:50px;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:0 12px;font-size:17px;font-weight:700;outline:none}.field input:focus{border-color:var(--accent)}
@@ -51,8 +56,7 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .actions #checkBtn{flex:1;min-width:0}
 .actions #nextBtn{margin-left:auto;width:56px;min-width:56px;padding-left:0;padding-right:0;font-size:24px;line-height:1}.actions #prevBtn{width:56px;min-width:56px;padding-left:0;padding-right:0;font-size:24px;line-height:1}.result{margin-top:18px;border-top:1px solid var(--line);padding-top:18px;display:none}.result.show{display:block}
 .answerline{font-size:22px;font-weight:700}.good{color:var(--good)}.bad{color:var(--bad)}.warn{color:var(--warn)}
-.note{color:var(--muted);margin-top:8px;line-height:1.55}.similar{margin-top:14px}.similar-grid{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
-.sim-card{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 14px;min-width:150px}.sim-flag{font-size:44px;vertical-align:middle;margin-right:8px}
+.note{color:var(--muted);margin-top:8px;line-height:1.55}
 .footer-note{color:var(--muted);font-size:12px;margin-top:14px}
 
 .title-row{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%}
@@ -380,7 +384,6 @@ button.primary{font-weight:500}
       <div class="answerline" id="answerline"></div>
       <div class="note" id="detail"></div>
       <div class="note" id="wikiLink"></div>
-      <div class="similar" id="similar"></div>
     </div>
     
   </div>
@@ -489,7 +492,7 @@ const CAPITAL_ALIASES={
 };
 function capitalAnswers(c){return [...(c.capitals||[c.capital]),...(CAPITAL_ALIASES[c.name]||[])]}
 const SESSION_MS=20*60*1000,BOTH_SESSION_MS=25*60*1000,REGION_SESSION_MS=10*60*1000,REGION_ORDER=['All','Africa','Asia','Europe','Americas','Oceania'];
-const els={answerModeOptions:document.getElementById('answerModeOptions'),prevBtn:document.getElementById('prevBtn'),answerSearch:document.getElementById('answerSearch'),answerSummary:document.getElementById('answerSummary'),answerList:document.getElementById('answerList'),autoModeToggles:document.querySelectorAll('.auto-toggle'),screenFlash:document.getElementById('screenFlash'),pageTitle:document.getElementById('pageTitle'),pageTitleIcon:document.getElementById('pageTitleIcon'),pageTitleText:document.getElementById('pageTitleText'),timer:document.getElementById('timer'),timerControls:document.getElementById('timerControls'),headerChips:document.getElementById('headerChips'),sessionPauseBtn:document.getElementById('sessionPauseBtn'),sessionPauseIcon:document.getElementById('sessionPauseIcon'),startPanel:document.getElementById('startPanel'),startBtn:document.getElementById('startBtn'),pausePanel:document.getElementById('pausePanel'),resumeBtn:document.getElementById('resumeBtn'),quitBtn:document.getElementById('quitBtn'),finishedPanel:document.getElementById('finishedPanel'),finishedTitle:document.getElementById('finishedTitle'),finishedScore:document.getElementById('finishedScore'),finishedNote:document.getElementById('finishedNote'),finishedPep:document.getElementById('finishedPep'),restartSessionBtn:document.getElementById('restartSessionBtn'),prompt:document.getElementById('prompt'),questionText:document.getElementById('questionText'),visual:document.getElementById('visual'),form:document.getElementById('answerForm'),quiz:document.querySelector('.quiz'),pages:document.getElementById('pages'),menuSheet:document.getElementById('menuSheet'),pageBack:document.getElementById('pageBack'),fields:document.querySelector('.fields'),choiceList:document.getElementById('choiceList'),countryField:document.getElementById('countryField'),capitalField:document.getElementById('capitalField'),countryInput:document.getElementById('countryInput'),capitalInput:document.getElementById('capitalInput'),countryHintBtn:document.getElementById('countryHintBtn'),capitalHintBtn:document.getElementById('capitalHintBtn'),checkBtn:document.getElementById('checkBtn'),nextBtn:document.getElementById('nextBtn'),result:document.getElementById('result'),answerline:document.getElementById('answerline'),detail:document.getElementById('detail'),wikiLink:document.getElementById('wikiLink'),similar:document.getElementById('similar'),resetStats:document.getElementById('resetStats'),profileSessionInfo:document.getElementById('profileSessionInfo'),endSessionBtn:document.getElementById('endSessionBtn'),mistakeList:document.getElementById('mistakeList'),statOverview:document.getElementById('statOverview'),statModes:document.getElementById('statModes'),statWeak:document.getElementById('statWeak'),statRegions:document.getElementById('statRegions'),statTrend:document.getElementById('statTrend'),historyList:document.getElementById('historyList'),historyMore:document.getElementById('historyMore')};
+const els={answerModeOptions:document.getElementById('answerModeOptions'),prevBtn:document.getElementById('prevBtn'),answerSearch:document.getElementById('answerSearch'),answerSummary:document.getElementById('answerSummary'),answerList:document.getElementById('answerList'),autoModeToggles:document.querySelectorAll('.auto-toggle'),screenFlash:document.getElementById('screenFlash'),pageTitle:document.getElementById('pageTitle'),pageTitleIcon:document.getElementById('pageTitleIcon'),pageTitleText:document.getElementById('pageTitleText'),timer:document.getElementById('timer'),timerControls:document.getElementById('timerControls'),headerChips:document.getElementById('headerChips'),sessionPauseBtn:document.getElementById('sessionPauseBtn'),sessionPauseIcon:document.getElementById('sessionPauseIcon'),startPanel:document.getElementById('startPanel'),startBtn:document.getElementById('startBtn'),pausePanel:document.getElementById('pausePanel'),resumeBtn:document.getElementById('resumeBtn'),quitBtn:document.getElementById('quitBtn'),finishedPanel:document.getElementById('finishedPanel'),finishedTitle:document.getElementById('finishedTitle'),finishedScore:document.getElementById('finishedScore'),finishedNote:document.getElementById('finishedNote'),finishedPep:document.getElementById('finishedPep'),restartSessionBtn:document.getElementById('restartSessionBtn'),prompt:document.getElementById('prompt'),questionText:document.getElementById('questionText'),visual:document.getElementById('visual'),form:document.getElementById('answerForm'),quiz:document.querySelector('.quiz'),pages:document.getElementById('pages'),menuSheet:document.getElementById('menuSheet'),pageBack:document.getElementById('pageBack'),fields:document.querySelector('.fields'),choiceList:document.getElementById('choiceList'),countryField:document.getElementById('countryField'),capitalField:document.getElementById('capitalField'),countryInput:document.getElementById('countryInput'),capitalInput:document.getElementById('capitalInput'),countryHintBtn:document.getElementById('countryHintBtn'),capitalHintBtn:document.getElementById('capitalHintBtn'),checkBtn:document.getElementById('checkBtn'),nextBtn:document.getElementById('nextBtn'),result:document.getElementById('result'),answerline:document.getElementById('answerline'),detail:document.getElementById('detail'),wikiLink:document.getElementById('wikiLink'),resetStats:document.getElementById('resetStats'),profileSessionInfo:document.getElementById('profileSessionInfo'),endSessionBtn:document.getElementById('endSessionBtn'),mistakeList:document.getElementById('mistakeList'),statOverview:document.getElementById('statOverview'),statModes:document.getElementById('statModes'),statWeak:document.getElementById('statWeak'),statRegions:document.getElementById('statRegions'),statTrend:document.getElementById('statTrend'),historyList:document.getElementById('historyList'),historyMore:document.getElementById('historyMore')};
 // ---- Local storage layout (schema 2) ----
 //   geoQuizSchema      "2"
 //   geoQuizSettings    { regions:{flag,map,capital}, autoMode, answerMode, capitalDirection }
@@ -657,6 +660,16 @@ function choiceFor(s,index,variant){
 }
 function renderChoiceList(ch){
   els.choiceList.innerHTML=ch.options.map((o,i)=>`<button type="button" data-pick="${i}">${o}</button>`).join('');
+}
+function countryByLabel(label,variant){return COUNTRIES.find(c=>answerLabel(c,variant)===label)||null}
+// A wrong pick in Flag Quiz is worth seeing: put the flag you chose next to the one in the
+// question so the difference is visible instead of described.
+function renderChoiceCompare(ch,pick){
+  if(state.lastGameMode!=='flag'||!pick)return;
+  const other=countryByLabel(pick,ch.variant);
+  if(!other||other.code===state.current.code)return;
+  const cell=(c,cls)=>`<div class="flag-cmp"><div class="flag">${flagEmoji(c.code)}</div><b class="${cls}">${c.name}</b></div>`;
+  els.visual.innerHTML=`<div class="flag-wrap compare">${cell(state.current,'is-correct')}${cell(other,'is-wrong')}</div>`;
 }
 function markChoices(pick,answer){
   for(const b of els.choiceList.children){
@@ -1448,6 +1461,7 @@ function checkAnswer(){
   if(choice){
     const answer=answerLabel(state.current,choice.variant);
     markChoices(state.choicePick,answer);
+    if(!ok)renderChoiceCompare(choice,state.choicePick);
     if(!ok){const b=[...els.choiceList.children].find(x=>x.textContent===state.choicePick);if(b)shakeField(b)}
   }else{
     if(countryVisible){
@@ -1479,7 +1493,7 @@ function checkAnswer(){
 }
 // Shared end state after an answer is graded: in auto mode a wrong answer waits for "Got it".
 function finishAnswerUI(ok){
-  els.answerline.innerHTML='';els.detail.textContent='';els.wikiLink.innerHTML='';els.similar.innerHTML='';els.result.classList.remove('show');
+  els.answerline.innerHTML='';els.detail.textContent='';els.wikiLink.innerHTML='';els.result.classList.remove('show');
   const gotIt=state.settings.autoMode&&!ok;
   els.nextBtn.disabled=false;els.checkBtn.disabled=!gotIt;els.checkBtn.textContent=gotIt?'Got it':'Show answer';
   els.countryInput.disabled=true;els.capitalInput.disabled=true;els.countryHintBtn.disabled=true;els.capitalHintBtn.disabled=true;
@@ -1495,6 +1509,7 @@ function showReviewResults(r){
     if(!ch)return;
     els.fields.style.display='none';els.choiceList.hidden=false;
     renderChoiceList(ch);markChoices(r.pick,answerLabel(state.current,ch.variant));
+    if(!(r.countryOK&&r.capitalOK))renderChoiceCompare(ch,r.pick);
     return;
   }
   els.countryField.style.display=r.countryVisible?'block':'none';els.capitalField.style.display=r.capitalVisible?'block':'none';
@@ -1539,7 +1554,6 @@ function cancelAutoAdvance(){if(state.autoAdvanceHandle){clearTimeout(state.auto
 function scheduleAutoAdvance(){cancelAutoAdvance();state.autoAdvanceHandle=setTimeout(()=>{state.autoAdvanceHandle=null;if(!state.answered||state.isPaused||state.activeTab==='settings'||els.quiz.classList.contains('state-screen'))return;advanceQuestion()},1000)}
 function setAutoMode(on){state.settings.autoMode=on;saveSettings();els.autoModeToggles.forEach(t=>t.setAttribute('aria-pressed',on?'true':'false'));if(!on)cancelAutoAdvance();updateActionButtons()}
 function advanceQuestion(){cancelAutoAdvance();const s=getSession(state.lastGameMode,true);ensureSessionState(s);s.review=null;s.draft=null;s.index++;if(s.index>=s.order.length){s.completed=true;pauseTimer();saveSessions();renderCompletedSession(s,true);updateStats();updateSettingsViews();return}saveSessions();showCurrentQuestion();updateStats()}
-function renderSimilar(){if(state.questionType!=='flag'){els.similar.innerHTML='';return}const names=SIMILAR[state.current.name]||[];if(!names.length){els.similar.innerHTML='';return}const cards=names.map(n=>{const c=byName.get(n);return c?`<div class="sim-card"><span class="sim-flag">${flagEmoji(c.code)}</span><b>${c.name}</b><div class="note">${(c.capitals||[c.capital]).join(" / ")}</div></div>`:''}).join('');els.similar.innerHTML=`<b>Similar flags to compare</b><div class="similar-grid">${cards}</div>`}
 function showHint(kind){
   if(isChoice())return;
   if(!state.current||state.answered||state.isPaused||els.quiz.classList.contains('state-screen'))return;
