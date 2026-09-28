@@ -57,15 +57,15 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 
 .title-row{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%}
 .timer-controls{display:none;align-items:center;gap:6px}
-.timer-pill{min-width:76px;text-align:center;padding:8px 10px;border:1px solid var(--line);border-radius:999px;background:var(--panel);font-variant-numeric:tabular-nums;font-weight:700}
+.timer-pill{min-width:62px;height:32px;display:flex;align-items:center;justify-content:center;padding:0 10px;font-size:14px;border:1px solid var(--line);border-radius:999px;background:var(--panel);font-variant-numeric:tabular-nums;font-weight:700}
 .timer-pill.warning{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 55%,transparent)}
 .timer-pill.danger{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 60%,transparent)}
 .timer-pill.critical{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 75%,transparent);animation:timerPulse 1.6s cubic-bezier(.4,0,.6,1) infinite}
 .timer-pill.still{animation:none}
 @keyframes timerPulse{0%,100%{opacity:1;box-shadow:0 0 0 0 color-mix(in srgb,var(--bad) 30%,transparent)}50%{opacity:.62;box-shadow:0 0 0 5px transparent}}
 
-.session-pause{width:36px;height:36px;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--panel);color:var(--muted)}
-.session-pause svg{width:17px;height:17px;fill:currentColor;stroke:none}
+.session-pause{width:32px;height:32px;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--panel);color:var(--muted)}
+.session-pause svg{width:15px;height:15px;fill:currentColor;stroke:none}
 .start-panel{display:none;justify-content:center;align-items:center;min-height:0}
 .state-btn{width:180px;min-width:180px;display:block;margin-left:auto;margin-right:auto;transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s ease,background-color .22s ease,filter .22s ease}
 .state-btn.primary{display:flex;justify-content:center;align-items:center}
@@ -86,6 +86,8 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .pause-panel.show{display:flex}
 .pause-actions{display:flex;flex-direction:column;gap:10px;align-items:center}
 .pause-actions button{width:180px;min-width:180px}.pause-actions{gap:10px}
+.panel-region{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 13px;border:1px solid var(--line);border-radius:999px;background:color-mix(in srgb,var(--panel) 80%,transparent);color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.3px;margin:0 0 14px}
+.panel-region svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .pause-title{font-size:28px;font-weight:700;margin:0 0 18px}
 .finished-panel{display:none;min-height:0;align-items:center;justify-content:center;text-align:center;padding-top:0}
 .finished-panel.show{display:flex}
@@ -170,11 +172,16 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .quiz.state-screen{position:relative;z-index:0}
 .quiz.hide-question #visual{visibility:hidden}
 .start-panel{text-align:center}
-.chip-bar{display:flex;gap:8px;justify-content:center;margin:12px 0 -6px;position:relative;z-index:40}
-.bar-chip{padding:6px 14px;border-radius:999px;font-size:13px;font-weight:700;background:var(--panel);color:var(--text);line-height:1}
-.bar-chip[aria-expanded="true"]{border-color:var(--accent);color:var(--accent)}
-.bar-chip.locked{opacity:.6}
+.header-tools{position:relative;z-index:60;display:flex;align-items:center;gap:6px}
+.header-chips{display:flex;align-items:center;gap:6px}
+.icon-chip{width:32px;height:32px;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--panel);color:var(--muted)}
+.icon-chip svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.icon-chip[aria-expanded="true"]{border-color:var(--accent);color:var(--accent)}
+.icon-chip.locked{opacity:.55}
 .chip-picker{position:relative}
+/* Both popovers hang off the right edge of the header so a wide one cannot run off screen. */
+.header-tools .chip-picker{position:static}
+.header-tools .chip-options{left:auto;right:0;translate:none}
 .chip-options{position:absolute;left:50%;top:calc(100% + 8px);translate:-50% 0;width:max-content;max-width:min(320px,calc(100vw - 40px));display:flex;flex-wrap:wrap;justify-content:center;gap:6px;padding:8px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.4);z-index:30;animation:popIn .2s cubic-bezier(.34,1.56,.64,1) both;transform-origin:50% 0}
 .chip-options[hidden]{display:none}
 .chip-options button{padding:6px 11px;border-radius:999px;font-size:13px;background:var(--panel2)}
@@ -276,12 +283,24 @@ button.primary{font-weight:500}
 <div class="app">
   <div class="top">
     <div class="title-row">
-      <div><h1 id="pageTitle"><button class="page-back" id="pageBack" type="button" aria-label="Back" style="display:none"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button><span class="header-icon" id="pageTitleIcon" aria-hidden="true"></span><span id="pageTitleText">Flag Quiz</span></h1><div class="sub">Flags · Capitals · Map locations · Local progress tracking</div></div>
-      <div class="timer-controls" id="timerControls">
-        <div class="timer-pill" id="timer">15:00</div>
-        <button class="session-pause" id="sessionPauseBtn" type="button" aria-label="Pause quiz" title="Pause">
-          <svg id="sessionPauseIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
-        </button>
+      <div><h1 id="pageTitle"><button class="page-back" id="pageBack" type="button" aria-label="Back" style="display:none"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button><span class="header-icon" id="pageTitleIcon" aria-hidden="true"></span><span id="pageTitleText">Flag</span></h1><div class="sub">Flags · Capitals · Map locations · Local progress tracking</div></div>
+      <div class="header-tools">
+        <div class="header-chips" id="headerChips">
+          <div class="chip-picker" data-picker="region">
+            <button class="icon-chip" type="button" data-chip="region" aria-expanded="false"></button>
+            <div class="chip-options" data-options="region" hidden></div>
+          </div>
+          <div class="chip-picker" data-picker="difficulty">
+            <button class="icon-chip" type="button" data-chip="difficulty" aria-expanded="false"></button>
+            <div class="chip-options wide" data-options="difficulty" hidden></div>
+          </div>
+        </div>
+        <div class="timer-controls" id="timerControls">
+          <div class="timer-pill" id="timer">15:00</div>
+          <button class="session-pause" id="sessionPauseBtn" type="button" aria-label="Pause quiz" title="Pause">
+            <svg id="sessionPauseIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -291,23 +310,13 @@ button.primary{font-weight:500}
     <button class="mode" data-mode="capital">Capital Quiz</button>
   </div>
 
-  <div class="chip-bar" id="chipBar">
-    <div class="chip-picker" data-picker="region">
-      <button class="bar-chip" type="button" data-chip="region" aria-expanded="false">All</button>
-      <div class="chip-options" data-options="region" hidden></div>
-    </div>
-    <div class="chip-picker" data-picker="difficulty">
-      <button class="bar-chip" type="button" data-chip="difficulty" aria-expanded="false">Typing</button>
-      <div class="chip-options wide" data-options="difficulty" hidden></div>
-    </div>
-  </div>
-
   <div class="quiz">
     <div class="prompt" id="prompt"></div>
     <div class="big-question" id="questionText"></div>
     <div id="visual"></div>
     <div class="start-panel" id="startPanel">
       <div>
+        <div class="panel-region" data-panel-region></div>
         <div class="pause-title" id="readyTitle">Ready?</div>
         <div class="answer-mode" id="answerModeOptions" role="group" aria-label="Question type"></div>
         <div><button class="auto-toggle" type="button" aria-pressed="false"><span class="switch" aria-hidden="true"></span>Auto mode</button></div>
@@ -319,6 +328,7 @@ button.primary{font-weight:500}
     </div>
     <div class="pause-panel" id="pausePanel">
       <div>
+        <div class="panel-region" data-panel-region></div>
         <div class="pause-title">Paused</div>
         <div class="answer-mode show placeholder" aria-hidden="true"><button type="button" tabindex="-1" disabled><span data-label="Country">Country</span></button></div>
         <div><button class="auto-toggle" type="button" aria-pressed="false"><span class="switch" aria-hidden="true"></span>Auto mode</button></div>
@@ -330,6 +340,7 @@ button.primary{font-weight:500}
     </div>
     <div class="finished-panel" id="finishedPanel">
       <div>
+        <div class="panel-region" data-panel-region></div>
         <div class="finished-title" id="finishedTitle">Finished!</div>
         <div class="finished-score" id="finishedScore"></div>
         <div class="finished-badge" id="finishedBadge" hidden></div>
@@ -449,7 +460,7 @@ const CAPITAL_ALIASES={
 };
 function capitalAnswers(c){return [...(c.capitals||[c.capital]),...(CAPITAL_ALIASES[c.name]||[])]}
 const SESSION_MS=20*60*1000,BOTH_SESSION_MS=25*60*1000,REGION_SESSION_MS=10*60*1000,REGION_ORDER=['All','Africa','Asia','Europe','Americas','Oceania'];
-const els={answerModeOptions:document.getElementById('answerModeOptions'),prevBtn:document.getElementById('prevBtn'),answerSearch:document.getElementById('answerSearch'),answerSummary:document.getElementById('answerSummary'),answerList:document.getElementById('answerList'),autoModeToggles:document.querySelectorAll('.auto-toggle'),screenFlash:document.getElementById('screenFlash'),pageTitle:document.getElementById('pageTitle'),pageTitleIcon:document.getElementById('pageTitleIcon'),pageTitleText:document.getElementById('pageTitleText'),timer:document.getElementById('timer'),timerControls:document.getElementById('timerControls'),sessionPauseBtn:document.getElementById('sessionPauseBtn'),sessionPauseIcon:document.getElementById('sessionPauseIcon'),startPanel:document.getElementById('startPanel'),startBtn:document.getElementById('startBtn'),pausePanel:document.getElementById('pausePanel'),resumeBtn:document.getElementById('resumeBtn'),quitBtn:document.getElementById('quitBtn'),finishedPanel:document.getElementById('finishedPanel'),finishedTitle:document.getElementById('finishedTitle'),finishedScore:document.getElementById('finishedScore'),finishedNote:document.getElementById('finishedNote'),finishedPep:document.getElementById('finishedPep'),restartSessionBtn:document.getElementById('restartSessionBtn'),prompt:document.getElementById('prompt'),questionText:document.getElementById('questionText'),visual:document.getElementById('visual'),form:document.getElementById('answerForm'),quiz:document.querySelector('.quiz'),pages:document.getElementById('pages'),menuSheet:document.getElementById('menuSheet'),pageBack:document.getElementById('pageBack'),fields:document.querySelector('.fields'),choiceList:document.getElementById('choiceList'),countryField:document.getElementById('countryField'),capitalField:document.getElementById('capitalField'),countryInput:document.getElementById('countryInput'),capitalInput:document.getElementById('capitalInput'),countryHintBtn:document.getElementById('countryHintBtn'),capitalHintBtn:document.getElementById('capitalHintBtn'),checkBtn:document.getElementById('checkBtn'),nextBtn:document.getElementById('nextBtn'),result:document.getElementById('result'),answerline:document.getElementById('answerline'),detail:document.getElementById('detail'),wikiLink:document.getElementById('wikiLink'),similar:document.getElementById('similar'),resetStats:document.getElementById('resetStats'),profileSessionInfo:document.getElementById('profileSessionInfo'),endSessionBtn:document.getElementById('endSessionBtn'),mistakeList:document.getElementById('mistakeList'),statOverview:document.getElementById('statOverview'),statModes:document.getElementById('statModes'),statWeak:document.getElementById('statWeak'),statRegions:document.getElementById('statRegions'),statTrend:document.getElementById('statTrend'),historyList:document.getElementById('historyList'),historyMore:document.getElementById('historyMore')};
+const els={answerModeOptions:document.getElementById('answerModeOptions'),prevBtn:document.getElementById('prevBtn'),answerSearch:document.getElementById('answerSearch'),answerSummary:document.getElementById('answerSummary'),answerList:document.getElementById('answerList'),autoModeToggles:document.querySelectorAll('.auto-toggle'),screenFlash:document.getElementById('screenFlash'),pageTitle:document.getElementById('pageTitle'),pageTitleIcon:document.getElementById('pageTitleIcon'),pageTitleText:document.getElementById('pageTitleText'),timer:document.getElementById('timer'),timerControls:document.getElementById('timerControls'),headerChips:document.getElementById('headerChips'),sessionPauseBtn:document.getElementById('sessionPauseBtn'),sessionPauseIcon:document.getElementById('sessionPauseIcon'),startPanel:document.getElementById('startPanel'),startBtn:document.getElementById('startBtn'),pausePanel:document.getElementById('pausePanel'),resumeBtn:document.getElementById('resumeBtn'),quitBtn:document.getElementById('quitBtn'),finishedPanel:document.getElementById('finishedPanel'),finishedTitle:document.getElementById('finishedTitle'),finishedScore:document.getElementById('finishedScore'),finishedNote:document.getElementById('finishedNote'),finishedPep:document.getElementById('finishedPep'),restartSessionBtn:document.getElementById('restartSessionBtn'),prompt:document.getElementById('prompt'),questionText:document.getElementById('questionText'),visual:document.getElementById('visual'),form:document.getElementById('answerForm'),quiz:document.querySelector('.quiz'),pages:document.getElementById('pages'),menuSheet:document.getElementById('menuSheet'),pageBack:document.getElementById('pageBack'),fields:document.querySelector('.fields'),choiceList:document.getElementById('choiceList'),countryField:document.getElementById('countryField'),capitalField:document.getElementById('capitalField'),countryInput:document.getElementById('countryInput'),capitalInput:document.getElementById('capitalInput'),countryHintBtn:document.getElementById('countryHintBtn'),capitalHintBtn:document.getElementById('capitalHintBtn'),checkBtn:document.getElementById('checkBtn'),nextBtn:document.getElementById('nextBtn'),result:document.getElementById('result'),answerline:document.getElementById('answerline'),detail:document.getElementById('detail'),wikiLink:document.getElementById('wikiLink'),similar:document.getElementById('similar'),resetStats:document.getElementById('resetStats'),profileSessionInfo:document.getElementById('profileSessionInfo'),endSessionBtn:document.getElementById('endSessionBtn'),mistakeList:document.getElementById('mistakeList'),statOverview:document.getElementById('statOverview'),statModes:document.getElementById('statModes'),statWeak:document.getElementById('statWeak'),statRegions:document.getElementById('statRegions'),statTrend:document.getElementById('statTrend'),historyList:document.getElementById('historyList'),historyMore:document.getElementById('historyMore')};
 // ---- Local storage layout (schema 2) ----
 //   geoQuizSchema      "2"
 //   geoQuizSettings    { regions:{flag,map,capital}, autoMode, answerMode, capitalDirection }
@@ -647,11 +658,11 @@ function updateStats(){}
 function updatePageTitle(){
   const tab=state.activeTab;
   document.body.dataset.theme=tab;
-  const titles={flag:'Flag Quiz',capital:'Capital Quiz',map:'Map Quiz',settings:PAGE_TITLES[state.page]||'Profile'};
+  const titles={flag:'Flag',capital:'Capital',map:'Map',settings:PAGE_TITLES[state.page]||'Profile'};
   const icons={...MODE_ICON,
     settings:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3"/><path d="M5 21c.8-4 3.1-6 7-6s6.2 2 7 6"/></svg>'
   };
-  els.pageTitleText.textContent=titles[tab]||'Flag Quiz';
+  els.pageTitleText.textContent=titles[tab]||'Flag';
   els.pageTitleIcon.innerHTML=icons[tab]||icons.flag;
 }
 function updateSettingsViews(){const s=currentSession();els.profileSessionInfo.textContent=s?`${MODE_LABEL[state.lastGameMode]} · ${s.region} · ${s.index}/${s.order.length} questions${s.practice?'':` · ${formatTime(s.remainingMs)} remaining`}`:`No active ${MODE_LABEL[state.lastGameMode]} session.`;els.endSessionBtn.textContent=`End ${state.lastGameMode[0].toUpperCase()+state.lastGameMode.slice(1)} session`;renderStatistics()}
@@ -919,12 +930,23 @@ function lockReadyPanelOffset(panel=els.startPanel){const inner=panel.firstEleme
 // The bar above the card owns region and difficulty; both are global, so a change ends any
 // session in flight (see confirmDiscardLive).
 const DIFFICULTY_BLURB={typed:'Type the answer yourself.',choice:'Pick the answer from four options.'};
-function chipEl(kind){return document.querySelector(`.bar-chip[data-chip="${kind}"]`)}
+const GLOBE_ICON='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4.1" ry="9"/><path d="M3.3 9.2h17.4M3.3 14.8h17.4"/></svg>';
+const DIFFICULTY_ICON={
+  typed:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2.6"/><path d="M6.4 9.9h.01M9.8 9.9h.01M13.2 9.9h.01M16.6 9.9h.01M6.4 13.3h.01M9.8 13.3h.01M13.2 13.3h.01M16.6 13.3h.01M8.6 16.2h6.8"/></svg>',
+  choice:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="7" rx="2.2"/><rect x="3" y="13" width="18" height="7" rx="2.2"/><path d="m6.4 7.6 1.3 1.3 2.5-2.7"/></svg>'
+};
+function chipEl(kind){return document.querySelector(`.icon-chip[data-chip="${kind}"]`)}
 function chipOptions(kind){return document.querySelector(`.chip-options[data-options="${kind}"]`)}
+// The header only has room for icons, so the region name is spelled out on the glass panels.
 function renderChipBar(){
-  const locked=state.region==='Mistakes';
-  const rc=chipEl('region');rc.textContent=locked?'Mistakes':state.region;rc.classList.toggle('locked',locked);
-  chipEl('difficulty').textContent=DIFFICULTY_LABEL[difficulty()];
+  const locked=state.region==='Mistakes',name=locked?'Mistakes':state.region;
+  const rc=chipEl('region');
+  rc.innerHTML=GLOBE_ICON;rc.classList.toggle('locked',locked);
+  rc.setAttribute('aria-label',`Region: ${name}`);rc.title=name;
+  const d=difficulty(),dc=chipEl('difficulty');
+  dc.innerHTML=DIFFICULTY_ICON[d];
+  dc.setAttribute('aria-label',`Difficulty: ${DIFFICULTY_LABEL[d]}`);dc.title=DIFFICULTY_LABEL[d];
+  for(const el of document.querySelectorAll('[data-panel-region]'))el.innerHTML=GLOBE_ICON+name;
   // The frame gives up some height to the option list so the card measures the same either way.
   els.quiz.classList.toggle('diff-choice',isChoice());
 }
@@ -938,8 +960,8 @@ function openChip(kind,open){
     : DIFFICULTIES.map(d=>`<button type="button" data-value="${d}" class="${d===difficulty()?'active':''}"><b>${DIFFICULTY_LABEL[d]}</b><small>${DIFFICULTY_BLURB[d]}</small></button>`).join('');
 }
 function closeChips(){for(const k of ['region','difficulty'])openChip(k,false)}
-document.getElementById('chipBar').addEventListener('click',e=>{
-  const btn=e.target.closest('.bar-chip');
+document.getElementById('headerChips').addEventListener('click',e=>{
+  const btn=e.target.closest('.icon-chip');
   if(btn){const kind=btn.dataset.chip,wasOpen=!chipOptions(kind).hidden;closeChips();openChip(kind,!wasOpen);return}
   const opt=e.target.closest('.chip-options button');
   if(!opt)return;
@@ -947,7 +969,7 @@ document.getElementById('chipBar').addEventListener('click',e=>{
   closeChips();
   if(kind==='region')setRegion(v);else setDifficulty(v);
 });
-document.addEventListener('pointerdown',e=>{if(!e.target.closest('#chipBar'))closeChips()});
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('#headerChips'))closeChips()});
 els.answerModeOptions.addEventListener('click',e=>{const b=e.target.closest('[data-answer-mode]');if(!b)return;const s=getSession(state.lastGameMode,true);ensureSessionState(s);if(s.started)return;const v=b.dataset.answerMode,isCap=state.lastGameMode==='capital';const cur=isCap?(s.capitalDirection||'shuffle'):answerModeFor(s);let country=cur!=='capital',capital=cur!=='country';if(v==='country')country=!country;else capital=!capital;if(!country&&!capital)return;const next=country&&capital?(isCap?'shuffle':'both'):country?'country':'capital';if(isCap){s.capitalDirection=next;state.settings.capitalDirection=next}else{s.answerMode=next;state.settings.answerMode=next}s.remainingMs=sessionMsFor(s.region,s.mode,sessionAnswerMode(s));saveSettings();saveSessions();renderReadySession(s)});
 function beginSession(){els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);els.finishedPanel.classList.remove('show');setSessionControl('pause');const s=getSession(state.lastGameMode,true);if(!s||s.completed)return;ensureSessionState(s);state.isPaused=false;s.started=true;s.paused=false;saveSessions();els.startPanel.style.display='none';els.form.style.display='block';showCurrentQuestion();updateStats();updateSettingsViews();startTimer()}
 function loadMode(mode,region){
@@ -961,7 +983,7 @@ function loadMode(mode,region){
   updatePageTitle();
   els.quiz.style.display='';
   els.pages.style.display='none';
-  els.timerControls.style.display='flex';
+  els.timerControls.style.display='flex';els.headerChips.style.display='flex';
   
 let quizSwipeStartX=0,quizSwipeStartY=0;
 const quizEl=document.querySelector('.quiz');
@@ -1526,7 +1548,7 @@ function openMenu(){clearTimeout(state.sheetCloseHandle);els.menuSheet.classList
 function closeMenu(){if(els.menuSheet.hidden)return;sheetPress(null);syncNavActive(state.activeTab);els.menuSheet.classList.add('closing');clearTimeout(state.sheetCloseHandle);state.sheetCloseHandle=setTimeout(()=>{els.menuSheet.hidden=true;els.menuSheet.classList.remove('closing')},200)}
 function openPage(page){
   closeMenu();hideInstallBanner();pauseTimer();cancelAutoAdvance();
-  if(state.activeTab!=='settings'){autoPauseCurrentSession();els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);document.body.classList.add('settings-open');state.activeTab='settings';els.quiz.style.display='none';els.pages.style.display='block';els.timerControls.style.display='none';els.pageTitleIcon.style.display='none';els.pageBack.style.display='';syncNavActive('settings')}
+  if(state.activeTab!=='settings'){autoPauseCurrentSession();els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);document.body.classList.add('settings-open');state.activeTab='settings';els.quiz.style.display='none';els.pages.style.display='block';els.timerControls.style.display='none';els.headerChips.style.display='none';closeChips();els.pageTitleIcon.style.display='none';els.pageBack.style.display='';syncNavActive('settings')}
   state.page=page;updatePageTitle();
   document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.dataset.page===page));
   if(page==='answers')renderAnswerList();
