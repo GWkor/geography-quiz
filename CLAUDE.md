@@ -18,6 +18,13 @@ assets/fonts/Geist-Variable.ttf
 ## 수정 방법
 
 - 큰 편집은 Python 패치 스크립트로 한다. 스크래치패드에 스크립트를 쓰고, 각 치환마다 `assert s.count(old)==1`로 유일성을 검증한 뒤 적용한다. 정규식으로 CSS 규칙을 일괄 삭제할 때는 비슷한 이름(`.sub` vs `.stat-sub`, `.region-option` vs `.region-options`)을 같이 지우지 않는지 확인한다 — 실제로 두 번 사고가 났다.
+- **CSS를 지울 때 조각(특히 `@keyframes`의 스텝과 짝 없는 `}`)을 남기지 말 것.** 남은 `}` 하나가 바로 **다음 규칙을 통째로 삼킨다** — 에러도 안 나고 선택자는 소스에 멀쩡히 보이는데 그 규칙만 안 먹는다(`.answer-mode`의 `justify-content:center`가 이렇게 죽어 Ready 화면 칩이 왼쪽으로 쏠렸다). CSS를 건드렸으면 CSSOM으로 확인한다:
+  ```js
+  // 최상위에 올라온 키프레임 스텝이 있으면 그 앞이 깨진 것이다
+  const seen=new Set();(function w(rs){for(const r of rs){if(r.selectorText)seen.add(r.selectorText);if(r.cssRules)w(r.cssRules)}})(document.styleSheets[0].cssRules);
+  [...seen].filter(s=>/^\d+%/.test(s))   // []이어야 한다
+  ```
+  그리고 바꾼 속성은 `getComputedStyle`로 실제 값이 들어갔는지 본다.
 - 편집 후 항상 문법 검사:
   ```
   node -e "const h=require('fs').readFileSync('index.html','utf8');for(const x of h.matchAll(/<script>([\s\S]*?)<\/script>/g)){try{new Function(x[1])}catch(e){console.log('SYNTAX',e.message)}}"
