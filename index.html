@@ -198,6 +198,7 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .header-tools{position:relative;z-index:60;display:flex;align-items:center;gap:6px}
 .header-chips{display:flex;align-items:center;gap:6px}
 .icon-chip{width:32px;height:32px;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--panel);color:var(--muted)}
+.icon-chip .chip-code{font-size:12px;font-weight:800;letter-spacing:.3px;color:var(--accent)}
 .icon-chip svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .icon-chip[aria-expanded="true"]{border-color:var(--accent);color:var(--accent)}
 .icon-chip.locked{opacity:.55}
@@ -1025,6 +1026,9 @@ function lockReadyPanelOffset(panel=els.startPanel){const inner=panel.firstEleme
 // The bar above the card owns region and difficulty; both are global, so a change ends any
 // session in flight (see confirmDiscardLive).
 const DIFFICULTY_BLURB={typed:'Type the answer yourself.',choice:'Pick the answer from four options.'};
+// AF/AS/EU/OC follow the continent codes geo data uses; there is no standard one for a
+// combined Americas, so AM. The full name is always on the glass panels underneath.
+const REGION_CODE={Europe:'EU',Asia:'AS',Americas:'AM',Africa:'AF',Oceania:'OC'};
 const GLOBE_ICON='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4.1" ry="9"/><path d="M3.3 9.2h17.4M3.3 14.8h17.4"/></svg>';
 const DIFFICULTY_ICON={
   typed:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2.6"/><path d="M6.4 9.9h.01M9.8 9.9h.01M13.2 9.9h.01M16.6 9.9h.01M6.4 13.3h.01M9.8 13.3h.01M13.2 13.3h.01M16.6 13.3h.01M8.6 16.2h6.8"/></svg>',
@@ -1036,7 +1040,8 @@ function chipOptions(kind){return document.querySelector(`.chip-options[data-opt
 function renderChipBar(){
   const locked=state.region==='Mistakes',name=locked?'Mistakes':state.region;
   const rc=chipEl('region');
-  rc.innerHTML=GLOBE_ICON;rc.classList.toggle('locked',locked);
+  rc.innerHTML=REGION_CODE[state.region]?`<span class="chip-code">${REGION_CODE[state.region]}</span>`:GLOBE_ICON;
+  rc.classList.toggle('locked',locked);
   rc.setAttribute('aria-label',`Region: ${name}`);rc.title=name;
   const d=difficulty(),dc=chipEl('difficulty');
   dc.innerHTML=DIFFICULTY_ICON[d];
