@@ -831,7 +831,7 @@ async function confirmDiscardLive(what){
   endLiveSessions();return true;
 }
 async function setRegion(region){
-  if(region===state.region)return;
+  if(region===state.region||state.region==='Mistakes')return;
   if(!await confirmDiscardLive('region'))return;
   pauseTimer();state.region=region;state.settings.region=region;saveSettings();
   const key=sessionKey(state.lastGameMode),old=state.sessions[key];
@@ -841,7 +841,7 @@ async function setRegion(region){
   updateSettingsViews();
 }
 async function setDifficulty(d){
-  if(d===difficulty())return;
+  if(d===difficulty()||state.region==='Mistakes')return;
   if(!await confirmDiscardLive('difficulty'))return;
   pauseTimer();state.settings.difficulty=d;saveSettings();
   renderChipBar();
@@ -1044,17 +1044,18 @@ function renderChipBar(){
   rc.classList.toggle('locked',locked);
   rc.setAttribute('aria-label',`Region: ${name}`);rc.title=name;
   const d=difficulty(),dc=chipEl('difficulty');
-  dc.innerHTML=DIFFICULTY_ICON[d];
+  dc.innerHTML=DIFFICULTY_ICON[d];dc.classList.toggle('locked',locked);
   dc.setAttribute('aria-label',`Difficulty: ${DIFFICULTY_LABEL[d]}`);dc.title=DIFFICULTY_LABEL[d];
-  const chips=`<button type="button" class="panel-chip" data-open-chip="region" aria-expanded="false"${locked?' disabled':''}>${GLOBE_ICON}${name}</button>`
-    +`<button type="button" class="panel-chip" data-open-chip="difficulty" aria-expanded="false">${DIFFICULTY_ICON[d]}${DIFFICULTY_LABEL[d]}</button>`;
+  const off=locked?' disabled':'';
+  const chips=`<button type="button" class="panel-chip" data-open-chip="region" aria-expanded="false"${off}>${GLOBE_ICON}${name}</button>`
+    +`<button type="button" class="panel-chip" data-open-chip="difficulty" aria-expanded="false"${off}>${DIFFICULTY_ICON[d]}${DIFFICULTY_LABEL[d]}</button>`;
   for(const el of document.querySelectorAll('[data-panel-chips]'))el.innerHTML=chips;
   // The frame gives up some height to the option list so the card measures the same either way.
   els.quiz.classList.toggle('diff-choice',isChoice());
 }
 function openChip(kind,open){
   const btn=chipEl(kind),opts=chipOptions(kind);
-  if(kind==='region'&&state.region==='Mistakes')open=false;
+  if(state.region==='Mistakes')open=false;
   btn.setAttribute('aria-expanded',open?'true':'false');opts.hidden=!open;
   for(const el of document.querySelectorAll(`[data-open-chip="${kind}"]`))el.setAttribute('aria-expanded',open?'true':'false');
   if(!open)return;
