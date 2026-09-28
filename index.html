@@ -86,8 +86,9 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .pause-panel.show{display:flex}
 .pause-actions{display:flex;flex-direction:column;gap:10px;align-items:center}
 .pause-actions button{width:180px;min-width:180px}.pause-actions{gap:10px}
-.panel-region{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 13px;border:1px solid var(--line);border-radius:999px;background:color-mix(in srgb,var(--panel) 80%,transparent);color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.3px;margin:0 0 14px}
-.panel-region svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.panel-chips{display:flex;flex-direction:column;align-items:center;gap:8px;margin:0 0 16px}
+.panel-chip{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 14px;border:1px solid var(--accent);border-radius:999px;background:var(--panel2);color:var(--text);font-size:14px;font-weight:700}
+.panel-chip svg{width:16px;height:16px;fill:none;stroke:var(--accent);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
 .pause-title{font-size:28px;font-weight:700;margin:0 0 18px}
 .finished-panel{display:none;min-height:0;align-items:center;justify-content:center;text-align:center;padding-top:0}
 .finished-panel.show{display:flex}
@@ -141,6 +142,19 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 #installBtn{padding:8px 16px;font-size:14px;flex:0 0 auto}.ib-close{width:30px;height:30px;flex:0 0 30px;padding:0;border:0;background:transparent;color:var(--muted);font-size:20px;line-height:1;border-radius:8px}.ib-close:hover{color:var(--text)}
 .ios-share{display:inline-flex;vertical-align:-3px;width:14px;height:14px;margin:0 1px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .install-banner.guide{align-items:flex-start}.install-banner.guide .ib-text span{color:var(--text);line-height:1.5}
+.modal-backdrop{position:fixed;inset:0;z-index:1200;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .16s ease-out}.modal-backdrop[hidden]{display:none}
+.modal-backdrop.closing{animation:fadeOut .16s ease-in forwards}.modal-backdrop.closing .modal-card{animation:modalOut .16s ease-in forwards}
+.modal-card{width:100%;max-width:330px;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px 20px 16px;text-align:center;animation:modalIn .22s cubic-bezier(.2,.8,.2,1)}
+@keyframes modalIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}@keyframes modalOut{to{opacity:0;transform:scale(.97)}}
+.modal-title{font-size:19px;font-weight:700;letter-spacing:-.2px}
+.modal-text{margin-top:8px;color:var(--muted);font-size:14px;line-height:1.5}
+.modal-text:empty{display:none}
+.modal-input{width:100%;height:46px;margin-top:16px;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:0 13px;font-size:16px;font-weight:700;text-align:center;outline:none}
+.modal-input:focus{border-color:var(--accent)}.modal-input[hidden]{display:none}
+.modal-actions{display:flex;gap:9px;margin-top:20px}
+.modal-actions button{flex:1;min-width:0;height:44px;border-radius:12px;font-size:15px;font-weight:700}
+.modal-actions button[hidden]{display:none}
+.modal-actions .primary.danger{background:var(--bad);border-color:var(--bad);color:var(--bg)}
 .sheet-backdrop{position:fixed;inset:0;bottom:calc(70px + env(safe-area-inset-bottom));z-index:900;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .18s ease-out;touch-action:none}.sheet-backdrop[hidden]{display:none}
 .sheet-backdrop.closing{animation:fadeOut .2s ease-in forwards}.sheet-backdrop.closing .sheet{animation:sheetDown .2s cubic-bezier(.4,0,1,1) forwards}@keyframes fadeOut{to{opacity:0}}@keyframes sheetDown{to{transform:translateY(40px);opacity:0}}
 .sheet{width:100%;max-width:560px;background:var(--panel);border:1px solid var(--line);border-bottom:0;border-radius:22px 22px 0 0;padding:10px 10px 8px;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1)}@keyframes sheetUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
@@ -316,7 +330,7 @@ button.primary{font-weight:500}
     <div id="visual"></div>
     <div class="start-panel" id="startPanel">
       <div>
-        <div class="panel-region" data-panel-region></div>
+        <div class="panel-chips" data-panel-chips></div>
         <div class="pause-title" id="readyTitle">Ready?</div>
         <div class="answer-mode" id="answerModeOptions" role="group" aria-label="Question type"></div>
         <div><button class="auto-toggle" type="button" aria-pressed="false"><span class="switch" aria-hidden="true"></span>Auto mode</button></div>
@@ -328,7 +342,7 @@ button.primary{font-weight:500}
     </div>
     <div class="pause-panel" id="pausePanel">
       <div>
-        <div class="panel-region" data-panel-region></div>
+        <div class="panel-chips" data-panel-chips></div>
         <div class="pause-title">Paused</div>
         <div class="answer-mode show placeholder" aria-hidden="true"><button type="button" tabindex="-1" disabled><span data-label="Country">Country</span></button></div>
         <div><button class="auto-toggle" type="button" aria-pressed="false"><span class="switch" aria-hidden="true"></span>Auto mode</button></div>
@@ -340,7 +354,7 @@ button.primary{font-weight:500}
     </div>
     <div class="finished-panel" id="finishedPanel">
       <div>
-        <div class="panel-region" data-panel-region></div>
+        <div class="panel-chips" data-panel-chips></div>
         <div class="finished-title" id="finishedTitle">Finished!</div>
         <div class="finished-score" id="finishedScore"></div>
         <div class="finished-badge" id="finishedBadge" hidden></div>
@@ -417,6 +431,16 @@ button.primary{font-weight:500}
   <button id="installBtn" class="primary" type="button">Add</button>
   <button id="installClose" class="ib-close" type="button" aria-label="Not now">&times;</button>
 </div>
+<div class="modal-backdrop" id="modal" hidden><div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-title" id="modalTitle"></div>
+  <div class="modal-text" id="modalText"></div>
+  <input class="modal-input" id="modalInput" autocomplete="off" hidden>
+  <div class="modal-actions">
+    <button class="secondary" id="modalCancel" type="button">Cancel</button>
+    <button class="primary" id="modalOk" type="button">Continue</button>
+  </div>
+</div></div>
+
 <div class="sheet-backdrop" id="menuSheet" hidden><div class="sheet" role="menu">
   <button class="sheet-item" data-page="profile"><span class="sheet-icon" style="--c:var(--settings)"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c.6-4 3.1-6 7.5-6s6.9 2 7.5 6"/></svg></span>Profile</button>
   <button class="sheet-item" data-page="practice"><span class="sheet-icon" style="--c:var(--warn)"><svg viewBox="0 0 24 24"><path d="M6 8v8M18 8v8M3 10v4M21 10v4M6 12h12"/></svg></span>Practice<span class="sheet-badge" id="practiceBadge"></span></button>
@@ -717,6 +741,44 @@ document.addEventListener('click',e=>{const b=e.target.closest('.stat-filter but
 document.getElementById('historyMore').addEventListener('click',()=>{state.historyShown+=20;renderHistory()});
 // Region and difficulty are one global choice each, so a change invalidates every session in
 // flight. Ask once, then end them the way Quit does: recorded if anything was answered.
+// One in-app dialog for every question the app used to ask with confirm()/prompt().
+// Resolves to false/null on cancel, true/the typed string on confirm.
+let modalResolve=null;
+function closeModal(value){
+  if(!modalResolve)return;
+  const el=document.getElementById('modal'),done=modalResolve;modalResolve=null;
+  el.classList.add('closing');
+  setTimeout(()=>{el.hidden=true;el.classList.remove('closing')},160);
+  done(value);
+}
+function openModal({title,text='',ok='Continue',cancel='Cancel',danger=false,input=null}){
+  closeModal(input!==null?null:false);
+  const el=document.getElementById('modal'),field=document.getElementById('modalInput');
+  document.getElementById('modalTitle').textContent=title;
+  document.getElementById('modalText').textContent=text;
+  const okBtn=document.getElementById('modalOk');
+  okBtn.textContent=ok;okBtn.classList.toggle('danger',danger);
+  const cancelBtn=document.getElementById('modalCancel');
+  cancelBtn.hidden=cancel===false;cancelBtn.textContent=cancel||'Cancel';
+  field.hidden=input===null;
+  if(input!==null){field.value=input.value||'';field.placeholder=input.placeholder||'';field.maxLength=input.maxLength||100}
+  el.hidden=false;el.classList.remove('closing');
+  (input!==null?field:okBtn).focus();
+  if(input!==null)field.select();
+  return new Promise(res=>{modalResolve=res});
+}
+function askConfirm(opts){return openModal(opts)}
+function askInfo(title,text){return openModal({title,text,ok:'OK',cancel:false})}
+function askText(opts){return openModal({ok:'Save',...opts,input:{value:opts.value||'',placeholder:opts.placeholder||'',maxLength:opts.maxLength}})}
+document.getElementById('modal').addEventListener('click',e=>{
+  const field=document.getElementById('modalInput');
+  if(e.target.id==='modalOk'){closeModal(field.hidden?true:field.value);return}
+  if(e.target.id==='modalCancel'||e.target.id==='modal')closeModal(field.hidden?false:null);
+});
+document.getElementById('modal').addEventListener('keydown',e=>{
+  if(e.key==='Escape'){e.stopPropagation();closeModal(document.getElementById('modalInput').hidden?false:null)}
+  else if(e.key==='Enter'){e.preventDefault();document.getElementById('modalOk').click()}
+});
 function liveSessions(){return Object.entries(state.sessions).filter(([,x])=>x&&x.started&&!x.completed&&!x.quit)}
 function endLiveSessions(){
   pauseTimer();cancelAutoAdvance();cancelAutoCheck();
@@ -727,16 +789,21 @@ function endLiveSessions(){
   }
   state.isPaused=false;saveSessions();
 }
-function confirmDiscardLive(what){
+async function confirmDiscardLive(what){
   const live=liveSessions();
   if(!live.length)return true;
+  const many=live.length>1;
   const names=[...new Set(live.map(([k])=>MODE_LABEL[k.split(':')[0]]||k))].join(', ');
-  if(!confirm(`${names} session${live.length>1?'s are':' is'} in progress. Changing the ${what} will end ${live.length>1?'them':'it'}. Continue?`))return false;
+  const okd=await askConfirm({
+    title:`End ${many?'these sessions':'this session'}?`,
+    text:`${names} ${many?'quizzes are':'quiz is'} in progress. Changing the ${what} ends ${many?'them':'it'}.`,
+    ok:`End and switch`,danger:true});
+  if(!okd)return false;
   endLiveSessions();return true;
 }
-function setRegion(region){
+async function setRegion(region){
   if(region===state.region)return;
-  if(!confirmDiscardLive('region'))return;
+  if(!await confirmDiscardLive('region'))return;
   pauseTimer();state.region=region;state.settings.region=region;saveSettings();
   const key=sessionKey(state.lastGameMode),old=state.sessions[key];
   if(old&&(old.quit||old.completed)){delete state.sessions[key];saveSessions()}
@@ -744,9 +811,9 @@ function setRegion(region){
   if(state.activeTab!=='settings')loadMode(state.lastGameMode);
   updateSettingsViews();
 }
-function setDifficulty(d){
+async function setDifficulty(d){
   if(d===difficulty())return;
-  if(!confirmDiscardLive('difficulty'))return;
+  if(!await confirmDiscardLive('difficulty'))return;
   pauseTimer();state.settings.difficulty=d;saveSettings();
   renderChipBar();
   if(state.activeTab!=='settings')loadMode(state.lastGameMode);
@@ -946,7 +1013,8 @@ function renderChipBar(){
   const d=difficulty(),dc=chipEl('difficulty');
   dc.innerHTML=DIFFICULTY_ICON[d];
   dc.setAttribute('aria-label',`Difficulty: ${DIFFICULTY_LABEL[d]}`);dc.title=DIFFICULTY_LABEL[d];
-  for(const el of document.querySelectorAll('[data-panel-region]'))el.innerHTML=GLOBE_ICON+name;
+  const chips=`<span class="panel-chip">${GLOBE_ICON}${name}</span><span class="panel-chip">${DIFFICULTY_ICON[d]}${DIFFICULTY_LABEL[d]}</span>`;
+  for(const el of document.querySelectorAll('[data-panel-chips]'))el.innerHTML=chips;
   // The frame gives up some height to the option list so the card measures the same either way.
   els.quiz.classList.toggle('diff-choice',isChoice());
 }
@@ -1585,7 +1653,7 @@ function renderSettingsPage(){
 document.addEventListener('click',e=>{const b=e.target.closest('[data-pref]');if(!b)return;state.settings[b.dataset.pref]=b.dataset.value;saveSettings();renderSettingsPage()});
 document.getElementById('practiceCards').addEventListener('click',e=>{const b=e.target.closest('[data-practice]');if(b)startPractice(b.dataset.practice)});
 document.getElementById('installFromProfile').addEventListener('click',()=>{closePages();showInstallBanner(true);runInstall()});
-document.getElementById('profileName').addEventListener('click',()=>{const v=prompt('Display name',state.settings.name||'');if(v===null)return;state.settings.name=v.trim().slice(0,24);saveSettings();renderProfile()});
+document.getElementById('profileName').addEventListener('click',async()=>{const v=await askText({title:'Display name',value:state.settings.name||'',placeholder:'Your name',maxLength:24});if(v===null)return;state.settings.name=v.trim().slice(0,24);saveSettings();renderProfile()});
 // Press-drag-release: the pressed highlight tracks the finger, releasing over an item
 // picks it, releasing outside cancels. Pointer capture keeps the events coming to the sheet.
 let sheetPressed=null,sheetFromItem=false;
@@ -1603,7 +1671,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!els.menuSheet.hidd
 // export / import
 document.getElementById('exportBtn').addEventListener('click',()=>{const data={schema:SCHEMA_VERSION,exportedAt:new Date().toISOString(),settings:state.settings,stats:state.stats,history:state.history};const blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`geography-quiz-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});
 document.getElementById('importBtn').addEventListener('click',()=>document.getElementById('importFile').click());
-document.getElementById('importFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{const d=JSON.parse(t);if(!d||!d.stats||!d.settings)throw new Error('bad file');if(!confirm('Replace the data on this device with the imported file?'))return;state.settings={...DEFAULT_SETTINGS,...d.settings};delete state.settings.regions;state.stats=d.stats;state.history=Array.isArray(d.history)?d.history:[];normalizeStats();saveSettings();saveStats();saveHistory();renderProfile();renderSettingsPage();alert('Imported.')}).catch(()=>alert('Could not read that file.'));e.target.value=''});
+document.getElementById('importFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;f.text().then(async t=>{const d=JSON.parse(t);if(!d||!d.stats||!d.settings)throw new Error('bad file');if(!await askConfirm({title:'Replace all data?',text:'Everything stored on this device is overwritten with the imported file.',ok:'Replace',danger:true}))return;state.settings={...DEFAULT_SETTINGS,...d.settings};delete state.settings.regions;state.stats=d.stats;state.history=Array.isArray(d.history)?d.history:[];normalizeStats();saveSettings();saveStats();saveHistory();renderProfile();renderSettingsPage();askInfo('Imported','Your data has been restored on this device.')}).catch(()=>askInfo('Import failed','That file could not be read.'));e.target.value=''});
 function openSettings(){openPage(state.page||'profile')}
 function moveNavIndicator(){const ind=document.getElementById('navIndicator'),nav=document.getElementById('bottomNav'),b=nav.querySelector('.mobile-nav.active');if(!ind||!b)return;const nr=nav.getBoundingClientRect(),br=b.getBoundingClientRect();ind.style.left=`${br.left-nr.left}px`;ind.style.width=`${br.width}px`;ind.classList.add('on')}
 window.addEventListener('resize',moveNavIndicator);
@@ -1633,7 +1701,7 @@ function renderAnswerList(){
 }
 els.answerSearch.addEventListener('input',renderAnswerList);
 document.getElementById('answerRegionFilter').addEventListener('click',e=>{const b=e.target.closest('[data-answer-region]');if(!b)return;state.answerRegion=b.dataset.answerRegion;renderAnswerList();document.querySelector('.app').scrollTop=0});
-els.endSessionBtn.addEventListener('click',()=>{const key=sessionKey(state.lastGameMode);if(confirm(`End this ${state.lastGameMode} session and start over?`)){delete state.sessions[key];saveSessions();updateSettingsViews();updateStats()}});
+els.endSessionBtn.addEventListener('click',async()=>{const key=sessionKey(state.lastGameMode);if(await askConfirm({title:`End the ${MODE_LABEL[state.lastGameMode]} session?`,text:'Its progress is discarded and the next start begins a new session.',ok:'End session',danger:true})){delete state.sessions[key];saveSessions();updateSettingsViews();updateStats()}});
 
 function restartSession(){setSessionControl('hidden');
   pauseTimer();
@@ -1649,7 +1717,7 @@ function startPractice(mode){const key=sessionKey(mode,'Mistakes');const existin
 els.startBtn.addEventListener('click',()=>exitPanel(els.startPanel,beginSession));els.autoModeToggles.forEach(t=>t.addEventListener('click',()=>setAutoMode(!state.settings.autoMode)));setAutoMode(state.settings.autoMode);els.restartSessionBtn.addEventListener('click',restartSession);
 els.sessionPauseBtn.addEventListener('click',()=>{if(state.isPaused)resumeSession();else pauseSession()});els.resumeBtn.addEventListener('click',resumeSession);els.quitBtn.addEventListener('click',quitSession);
 els.nextBtn.addEventListener('click',()=>{if(state.reviewIndex!==null){const s=currentSession();if(state.reviewIndex+1>=s.index)exitReview();else renderReview(state.reviewIndex+1)}else advanceQuestion()});els.prevBtn.addEventListener('click',()=>{const s=currentSession();if(!s)return;const cur=state.reviewIndex!==null?state.reviewIndex:s.index;if(cur>0&&s.reviews&&s.reviews[cur-1])renderReview(cur-1)});document.querySelectorAll('.mode').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.mode!==state.activeTab){autoPauseCurrentSession();loadMode(b.dataset.mode)}}));
-els.resetStats.addEventListener('click',()=>{if(confirm('Reset all quiz statistics and mistake history?')){state.stats={correct:0,total:0,streak:0,wrongByCode:{},hintedByCode:{},byMode:{},missedByMode:{}};normalizeStats();state.history=[];saveHistory();saveStats()}});
+els.resetStats.addEventListener('click',async()=>{if(await askConfirm({title:'Reset statistics?',text:'All scores, records and missed countries are cleared. This cannot be undone.',ok:'Reset',danger:true})){state.stats={correct:0,total:0,streak:0,wrongByCode:{},hintedByCode:{},byMode:{},missedByMode:{}};normalizeStats();state.history=[];saveHistory();saveStats()}});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){const s=currentSession();if(s)saveCurrentDraft(s);pauseTimer()}else if(state.activeTab!=='settings'&&!state.isPaused)startTimer()});window.addEventListener('beforeunload',pauseTimer);
 const scrollRoot=document.querySelector('.app');let touchStartY=0;
 scrollRoot.addEventListener('touchstart',e=>{if(e.touches&&e.touches[0])touchStartY=e.touches[0].clientY},{passive:true});

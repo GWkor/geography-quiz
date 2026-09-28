@@ -1,4 +1,4 @@
-const STATIC_CACHE = 'geography-quiz-static-v13';
+const STATIC_CACHE = 'geography-quiz-static-v14';
 const PAGE_CACHE = 'geography-quiz-pages-v9';
 
 const STATIC_ASSETS = [

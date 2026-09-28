@@ -68,7 +68,8 @@ v2 → v3 마이그레이션은 지역을 `All`로 리셋하고, 진행 중 세�
 
 - **모드 3종** flag / map / capital. 헤더 제목은 `Flag`/`Map`/`Capital`(`Quiz`를 빼서 칩 자리를 만들었다).
 - **지역과 난이도는 전역 설정 1개씩**이다(세 모드가 공유). 헤더 오른쪽 타이머 옆의 아이콘 칩(`#headerChips`)에서 바꾼다 — 지구본 = 지역, 키보드/목록 = 난이도. 난이도 칩은 설명이 붙은 팝오버다. 팝오버는 폭이 넓어서 칩이 아니라 **`.header-tools` 오른쪽 끝에 붙인다**(`position:static` + `right:0`) — 칩 기준으로 가운데 정렬하면 화면 밖으로 나간다.
-- 헤더에는 아이콘만 들어가므로 **지금 지역이 어디인지는 글래스 화면 제목 위의 읽기 전용 칩**(`[data-panel-region]`)이 알려준다. 누르는 물건이 아니다. Ready·Paused·Session ended 셋 다 있어야 패널 높이가 맞는다.
+- 헤더에는 아이콘만 들어가므로 **지금 지역·난이도가 무엇인지는 글래스 화면 제목 위의 읽기 전용 칩**(`[data-panel-chips]`, `renderChipBar`가 채운다)이 알려준다. 누르는 물건이 아니다. Auto mode 토글과 같은 34px 높이에 테두리는 `var(--accent)`라 모드마다 색이 바뀐다. Ready·Paused·Session ended 셋 다 있어야 패널 높이가 맞는다.
+- **묻는 건 전부 앱 안의 대화상자로 한다**(`askConfirm` / `askText` / `askInfo`, `#modal`). `confirm`·`prompt`·`alert`는 쓰지 않는다 — iOS 홈 화면 앱에서 모양이 튄다. 셋 다 Promise를 돌려주므로 호출하는 쪽을 `async`로 바꿔야 한다(`setRegion`/`setDifficulty`가 그래서 async다). 파괴적인 동작은 `danger:true`로 빨간 버튼을 쓰되, **`button.danger`가 글자색을 빨강으로 칠하므로 채운 버튼에는 `color`를 다시 지정해야 한다** — 안 그러면 빨강 위 빨강으로 글자가 사라진다.
 - **난이도 2종** `typed`(주관식 입력) / `choice`(4지선다). `difficulty()`로 읽고, 통계·연습·기록은 현재 난이도 기준으로만 보여준다(지역으로는 나누지 않는다 — By region 매트릭스가 깨진다).
 - **Choice 모드는 한 문제에 한 칸만 묻는다**(`questionVariant`). Country·Capital 토글이 둘 다 켜져 있으면 Capital Quiz처럼 문제마다 번갈아 내고 라벨도 `Mixed`가 된다. 따라서 타이머에 25분(`BOTH_SESSION_MS`)을 주지 않는다.
 - **보기는 답에 가까운 것부터 뽑는다**(`buildChoices`): 국기 문제의 나라 이름은 `SIMILAR` → 같은 subregion → 같은 region 순. 다른 대륙 나라가 섞이면 답이 바로 보인다. 뽑은 보기는 `s.choices[index]`에 저장해 다시 굴릴 수 없게 한다. 단 **일시정지는 남은 문제를 다시 섞으므로** 저장 키에 국가 코드를 함께 넣어 슬롯이 밀렸을 때 새로 뽑는다.
@@ -92,6 +93,7 @@ v2 → v3 마이그레이션은 지역을 `All`로 리셋하고, 진행 중 세�
 
 ## 하지 말 것
 
+- `confirm()` / `alert()` / `prompt()` (브라우저의 설치 프롬프트만 예외)
 - 파일 분리, 번들러·프레임워크 도입, `node_modules`를 저장소에 추가
 - 외부 CDN 의존 추가 (오프라인 동작이 깨진다)
 - `COUNTRIES` 데이터를 손으로 편집 (Node 스크립트로 파싱→수정→직렬화)
