@@ -102,6 +102,9 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .finished-pep{color:var(--text);font-size:16px;font-weight:700;line-height:1.5;max-width:320px;margin:12px auto 0}
 .answer-review{width:100%;min-height:50px;font-size:17px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:4px 12px;display:flex;align-items:center;gap:10px}
 .answer-review-main{min-width:0;flex:1;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.answer-review-col{min-width:0;flex:1;display:flex;flex-direction:column;gap:1px}
+.answer-review-col .answer-review-main{flex:0 0 auto;width:100%}
+.twin-note{font-size:11px;color:var(--muted);line-height:1.25}
 .answer-review.correct .correct-answer{font-weight:700;color:var(--text)}
 .answer-review.wrong .user-answer{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .answer-review.wrong .correct-answer{font-weight:700;color:var(--text);text-align:right}
@@ -597,6 +600,13 @@ function capitalDisplayFor(c,typed,ok){const caps=c.capitals||[c.capital];const 
 function shuffled(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function missedPool(mode){const missed=missedFor(mode)||{};let p=COUNTRIES.filter(c=>missed[c.code]>0);if(mode==='map')p=p.filter(c=>c.geometry);return p}
 function poolFor(mode,region=state.region){if(region==='Mistakes')return missedPool(mode);let p=COUNTRIES.filter(c=>region==='All'||c.region===region);if(mode==='map')p=p.filter(c=>c.geometry);return p}
+// Measured over all 197 emoji: every other pair differs by a p98 Lab deltaE of 36 or more,
+// these two by 8.4 and 24.2. The picture simply does not say which country it is, so the quiz
+// must not force the guess.
+const FLAG_TWINS={Chad:'Romania',Romania:'Chad',Indonesia:'Monaco',Monaco:'Indonesia'};
+function flagTwin(c,mode){
+  return c&&(mode||state.lastGameMode)==='flag'&&FLAG_TWINS[c.name]?byName.get(FLAG_TWINS[c.name]):null;
+}
 function isChoice(){return difficulty()==='choice'}
 function answerLabel(c,variant){return variant==='country'?c.name:(c.capitals||[c.capital])[0]}
 // Which single field this question asks for. Typed flag/map sessions can ask for both at once
@@ -619,6 +629,9 @@ function buildChoices(c,variant,mode){
   tiers.push(COUNTRIES.filter(x=>x.code!==c.code&&x.region===c.region));
   tiers.push(COUNTRIES.filter(x=>x.code!==c.code));
   const answer=answerLabel(c,variant),seen=new Set([answer]),picked=[];
+  // offering the twin would make the question a coin toss rather than a question
+  const twin=flagTwin(c,mode);
+  if(twin)seen.add(answerLabel(twin,variant));
   for(const tier of tiers){
     for(const x of shuffled(tier)){
       const l=answerLabel(x,variant);
@@ -1264,6 +1277,13 @@ function statusIconMarkup(kind,url){
   return `<a class="answer-status ${cls}" href="${url}" target="_blank" rel="noopener noreferrer" aria-label="Open NamuWiki">${svg}</a>`;
 }
 function shakeField(field){field.classList.remove('shake');void field.offsetWidth;field.classList.add('shake');field.addEventListener('animationend',()=>field.classList.remove('shake'),{once:true})}
+// The twin note goes on whichever field is the first one shown, so it appears exactly once.
+function twinNoteFor(field){
+  const t=flagTwin(state.current);
+  if(!t)return '';
+  const first=els.countryField.style.display!=='none'?els.countryField:els.capitalField;
+  return field===first?`Same flag as ${t.name}` : '';
+}
 function renderFieldResult(field,input,ok,correctText,hinted,url){
   const typed=(input.value||'').trim()||'—';
   input.style.display='none';
@@ -1271,9 +1291,12 @@ function renderFieldResult(field,input,ok,correctText,hinted,url){
   const box=document.createElement('div');
   box.className=`answer-review ${ok?'correct':'wrong'}`;
   const kind=ok?(hinted?'warn':'good'):'bad';
-  box.innerHTML=ok
-    ? `<div class="answer-review-main"><span class="correct-answer">${correctText}</span></div>${statusIconMarkup(kind,url)}`
-    : `<div class="answer-review-main"><span class="user-answer">${typed}</span><span class="correct-answer">${correctText}</span></div>${statusIconMarkup('bad',url)}`;
+  const main=ok
+    ? `<div class="answer-review-main"><span class="correct-answer">${correctText}</span></div>`
+    : `<div class="answer-review-main"><span class="user-answer">${typed}</span><span class="correct-answer">${correctText}</span></div>`;
+  const note=twinNoteFor(field);
+  box.innerHTML=(note?`<div class="answer-review-col">${main}<small class="twin-note">${note}</small></div>`:main)
+    +statusIconMarkup(ok?kind:'bad',url);
   field.appendChild(box);
 }
 // Pausing on an unanswered question hands out a different one on resume, so a pause
@@ -1369,6 +1392,14 @@ function checkAnswer(){
     // A field the hint spelled out completely earns nothing, even if it is cleared and retyped.
     if(countryVisible)countryOK=countryMatches(els.countryInput.value,state.current)&&!state.countryRevealed;
     if(capitalVisible)capitalOK=capitalMatches(els.capitalInput.value,state.current)&&!state.capitalRevealed;
+    // The flag names a pair of countries, not one, so an answer consistent with the other
+    // half of the pair is as right as the image allows.
+    const twin=flagTwin(state.current);
+    if(twin&&!(countryOK&&capitalOK)){
+      const c2=!countryVisible||(countryMatches(els.countryInput.value,twin)&&!state.countryRevealed);
+      const k2=!capitalVisible||(capitalMatches(els.capitalInput.value,twin)&&!state.capitalRevealed);
+      if(c2&&k2){countryOK=true;capitalOK=true}
+    }
   }
 
   const ok=countryOK&&capitalOK;

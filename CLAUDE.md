@@ -72,6 +72,10 @@ v2 → v3 마이그레이션은 지역을 `All`로 리셋하고, 진행 중 세�
 - **묻는 건 전부 앱 안의 대화상자로 한다**(`askConfirm` / `askText` / `askInfo`, `#modal`). `confirm`·`prompt`·`alert`는 쓰지 않는다 — iOS 홈 화면 앱에서 모양이 튄다. 셋 다 Promise를 돌려주므로 호출하는 쪽을 `async`로 바꿔야 한다(`setRegion`/`setDifficulty`가 그래서 async다). 파괴적인 동작은 `danger:true`로 빨간 버튼을 쓰되, **`button.danger`가 글자색을 빨강으로 칠하므로 채운 버튼에는 `color`를 다시 지정해야 한다** — 안 그러면 빨강 위 빨강으로 글자가 사라진다.
 - **난이도 2종** `typed`(주관식 입력) / `choice`(4지선다). `difficulty()`로 읽고, 통계·연습·기록은 현재 난이도 기준으로만 보여준다(지역으로는 나누지 않는다 — By region 매트릭스가 깨진다).
 - **Choice 모드는 한 문제에 한 칸만 묻는다**(`questionVariant`). Country·Capital 토글이 둘 다 켜져 있으면 Capital Quiz처럼 문제마다 번갈아 내고 라벨도 `Mixed`가 된다. 따라서 타이머에 25분(`BOTH_SESSION_MS`)을 주지 않는다.
+- **이모지로 구분이 안 되는 국기 쌍은 `FLAG_TWINS`에 있다**(Chad↔Romania, Indonesia↔Monaco). 197개국을 Lab ΔE로 전수 비교했을 때 나머지 쌍은 전부 p98 ΔE 36 이상인데 이 둘만 8.4·24.2다 — **그림에 답이 없으므로 둘 중 하나를 고르게 만들면 안 된다**. 국기 모드에서만 적용된다(지도·수도 모드는 문제가 국기가 아니라 답이 정해진다).
+  - 객관식: `buildChoices`가 쌍둥이를 보기에서 제외한다.
+  - 주관식: 쌍둥이 쪽 답도 정답으로 받는다. 단 **둘 중 한쪽으로 일관되게** 답해야 한다(Romania + Bucharest은 정답, Romania + N'Djamena은 오답). 채점 결과에 `Same flag as …` 주석을 붙인다(`twinNoteFor`).
+  - 이게 없으면 맞힐 수 없는 문제가 오답 목록에 쌓여 Practice로 무한 반복된다.
 - **보기는 답에 가까운 것부터 뽑는다**(`buildChoices`): 국기 문제의 나라 이름은 `SIMILAR` → 같은 subregion → 같은 region 순. 다른 대륙 나라가 섞이면 답이 바로 보인다. 뽑은 보기는 `s.choices[index]`에 저장해 다시 굴릴 수 없게 한다. 단 **일시정지는 남은 문제를 다시 섞으므로** 저장 키에 국가 코드를 함께 넣어 슬롯이 밀렸을 때 새로 뽑는다.
 - Choice 모드에서는 힌트가 의미 없으므로 `showHint`가 바로 빠지고 입력 필드 대신 `#choiceList`를 보여준다. 문제 프레임(`--visual-h`)이 그만큼 줄어들어 **카드 높이는 두 난이도가 동일**하다 — 이게 깨지면 글래스 패널 정렬과 스크롤이 함께 깨진다.
 - **전역 값을 바꿀 때 진행 중 세션이 있으면** `confirmDiscardLive()`로 먼저 물어보고, 수락하면 `endLiveSessions()`가 한 문제라도 푼 세션은 quit으로 기록하고 전부 정리한다. 세션 키에 지역·난이도가 들어가므로 이 정리를 빠뜨리면 세션이 유령처럼 남는다.
