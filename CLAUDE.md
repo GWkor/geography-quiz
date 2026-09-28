@@ -89,9 +89,7 @@ v2 → v3 마이그레이션은 지역을 `All`로 리셋하고, 진행 중 세�
 - **글래스 화면**(Ready / Paused / Finished / Session ended)은 모두 Ready 패널 기준 높이로 상단 정렬된다(`lockReadyPanelOffset`). Ready의 Start 아래에는 최고 기록 블록(`#readyBest`, 높이 64px 고정)이 있고 Paused에서는 같은 자리에 Quit이 온다. 이 블록 높이를 바꾸면 모든 패널이 같이 움직이므로 빈 상태에도 같은 높이를 유지해야 한다.
 - **기록은 한 세션**이다(`bestFor`/`beatsRecord`): 최고 점수, 동점이면 더 짧은 시간. **모드 + 지역 + 답변 유형**(country/capital/both, capital quiz는 shuffle)별로 따로 집계한다 — Country만 맞추는 세션과 Both는 난이도가 달라 섞으면 안 된다. "가장 빠른 세션"을 따로 두면 전부 틀리고 넘기는 게 1위가 되므로 쓰지 않는다. 경신하면 결과 화면에 배지가 뜬다(`s.record` = first/score/time). 전환 애니메이션은 **문제 화면 ↔ 글래스 화면**에만 넣고 글래스 → 글래스는 즉시 전환한다.
 - **일시정지는 커닝 수단이 될 수 없어야 한다**: 답하지 않은 문제에서 멈추면 `#visual`(국기·지도·이름)을 즉시 숨기고(`.quiz.hide-question`), Resume 시 남은 문제를 다시 섞어 다른 문제를 낸다. 이미 채점된 문제에서는 둘 다 하지 않는다. 일시정지된 세션이 있는 모드는 그 탭이 비활성일 때 아이콘이 강조색으로 점멸한다(`updateNavPausedMarks`, `saveSessions`에서 호출).
-- **햅틱은 `flashScreen`에 붙어 있다**(`haptic`) — 채점 결과 세 가지와 그대로 대응한다(정답 18ms / 힌트 정답 35ms / 오답 90ms). 설정에서 끌 수 있고(`settings.haptics`), 브라우저가 첫 탭 전에는 거부하므로 `navigator.userActivation.hasBeenActive`로 먼저 막는다(안 막으면 콘솔에 경고가 쌓인다).
-  - **iOS Safari에는 Vibration API가 없다.** 대신 `<input type="checkbox" switch>`를 프로그램으로 토글하면 나는 햅틱을 쓴다(`#hapticProbe`). 세기 조절이 안 되고 한 번의 짧은 탭만 나오므로 **길이를 탭 횟수로 표현한다**(1/2/3회, 70ms 간격). 이 프로브는 `display:none`이면 안 되고 실제로 배치돼 있어야 한다(1px, `opacity:.01`).
-  - `.haptic-toggle`은 `.auto-toggle` 스타일을 그대로 쓰므로 `els.autoModeToggles`가 `:not(.haptic-toggle)`로 걸러낸다.
+- **햅틱은 넣지 않는다.** iOS에는 Vibration API가 없고, WebKit이 유일하게 내주는 햅틱(`<input type="checkbox" switch>` 토글)은 **사용자의 진짜 탭에서만** 난다 — 실기기 테스트로 확인했다. 코드로 부른 `.click()`은 스위치가 화면에 보이든 숨겨져 있든 절대 진동하지 않는다. 탭은 채점보다 먼저 일어나고 세기도 고를 수 없으므로 정답/오답을 구분하는 햅틱은 iOS에서 불가능하고, 그래서 이 기능은 제거했다.
 - 애니메이션은 `prefers-reduced-motion`에서 꺼져야 한다.
 - 시트 메뉴는 **press-drag-release**(누른 채 끌면 하이라이트가 손가락을 따라가고, 항목 밖에서 떼면 취소)로 동작한다. 포인터 이벤트 + `setPointerCapture`를 쓰고 `touch-action:none`이 필요하다.
 - 지도 데이터는 Natural Earth(110m 기본, 작은 섬나라는 10m). 새 국가를 추가하면 같은 소스에서 외곽선을 가져오고 좌표는 소수점 4자리로 줄인다.
