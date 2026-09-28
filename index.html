@@ -86,7 +86,7 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .pause-panel.show{display:flex}
 .pause-actions{display:flex;flex-direction:column;gap:10px;align-items:center}
 .pause-actions button{width:180px;min-width:180px}.pause-actions{gap:10px}
-.panel-chips{display:flex;flex-direction:column;align-items:center;gap:8px;margin:0 0 16px}
+.panel-chips{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;margin:0 0 16px}
 .panel-chip{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 14px;border:1px solid var(--accent);border-radius:999px;background:var(--panel2);color:var(--text);font-size:14px;font-weight:700}
 .panel-chip svg{width:16px;height:16px;fill:none;stroke:var(--accent);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
 .pause-title{font-size:28px;font-weight:700;margin:0 0 18px}
@@ -214,7 +214,7 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
   .quiz.state-screen .pause-panel,
   .quiz.state-screen .finished-panel{
     position:absolute;
-    inset:0;
+    inset:-1px;
     z-index:30;
     min-height:0;
     width:auto;

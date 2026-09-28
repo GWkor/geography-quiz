@@ -68,7 +68,7 @@ v2 → v3 마이그레이션은 지역을 `All`로 리셋하고, 진행 중 세�
 
 - **모드 3종** flag / map / capital. 헤더 제목은 `Flag`/`Map`/`Capital`(`Quiz`를 빼서 칩 자리를 만들었다).
 - **지역과 난이도는 전역 설정 1개씩**이다(세 모드가 공유). 헤더 오른쪽 타이머 옆의 아이콘 칩(`#headerChips`)에서 바꾼다 — 지구본 = 지역, 키보드/목록 = 난이도. 난이도 칩은 설명이 붙은 팝오버다. 팝오버는 폭이 넓어서 칩이 아니라 **`.header-tools` 오른쪽 끝에 붙인다**(`position:static` + `right:0`) — 칩 기준으로 가운데 정렬하면 화면 밖으로 나간다.
-- 헤더에는 아이콘만 들어가므로 **지금 지역·난이도가 무엇인지는 글래스 화면 제목 위의 읽기 전용 칩**(`[data-panel-chips]`, `renderChipBar`가 채운다)이 알려준다. 누르는 물건이 아니다. Auto mode 토글과 같은 34px 높이에 테두리는 `var(--accent)`라 모드마다 색이 바뀐다. Ready·Paused·Session ended 셋 다 있어야 패널 높이가 맞는다.
+- 헤더에는 아이콘만 들어가므로 **지금 지역·난이도가 무엇인지는 글래스 화면 제목 위의 읽기 전용 칩**(`[data-panel-chips]`, `renderChipBar`가 채운다)이 알려준다. 누르는 물건이 아니다. Auto mode 토글과 같은 34px 높이로 가로로 나란히 놓이고, 테두리는 `var(--accent)`라 모드마다 색이 바뀐다. Ready·Paused·Session ended 셋 다 있어야 패널 높이가 맞는다.
 - **묻는 건 전부 앱 안의 대화상자로 한다**(`askConfirm` / `askText` / `askInfo`, `#modal`). `confirm`·`prompt`·`alert`는 쓰지 않는다 — iOS 홈 화면 앱에서 모양이 튄다. 셋 다 Promise를 돌려주므로 호출하는 쪽을 `async`로 바꿔야 한다(`setRegion`/`setDifficulty`가 그래서 async다). 파괴적인 동작은 `danger:true`로 빨간 버튼을 쓰되, **`button.danger`가 글자색을 빨강으로 칠하므로 채운 버튼에는 `color`를 다시 지정해야 한다** — 안 그러면 빨강 위 빨강으로 글자가 사라진다.
 - **난이도 2종** `typed`(주관식 입력) / `choice`(4지선다). `difficulty()`로 읽고, 통계·연습·기록은 현재 난이도 기준으로만 보여준다(지역으로는 나누지 않는다 — By region 매트릭스가 깨진다).
 - **Choice 모드는 한 문제에 한 칸만 묻는다**(`questionVariant`). Country·Capital 토글이 둘 다 켜져 있으면 Capital Quiz처럼 문제마다 번갈아 내고 라벨도 `Mixed`가 된다. 따라서 타이머에 25분(`BOTH_SESSION_MS`)을 주지 않는다.
@@ -80,6 +80,7 @@ v2 → v3 마이그레이션은 지역을 `All`로 리셋하고, 진행 중 세�
 - **색**: `--flag` 라벤더 / `--map` 카키 / `--capital` 탄 / `--settings` 로즈. 결과색은 `--good/--warn/--bad`. 새 색을 쓰지 말고 토큰을 쓴다. 활성 탭 색은 `--accent`로 자동 전환된다.
 - **채점 결과는 세 가지다**: 정답(초록) / 힌트 정답(노랑, 일부만 힌트로 보고 나머지는 직접 입력) / 오답(빨강). 뒤 둘은 모두 점수에 포함되지 않지만 힌트 정답만 `hinted`·`hintedByCode`로 따로 집계해 Statistics·결과 화면·Weak spots에 표시한다.
 - **한 칸을 힌트로 전부 열면 그 칸은 오답이다**(`state.countryRevealed`/`capitalRevealed`). 플래그는 문제 단위로 고정되므로 지웠다 다시 직접 입력해도 되살아나지 않는다. 전부 열리면 자동 제출되고, Auto mode에서도 자동 진행하지 않고 `Got it`을 기다린다.
+- **글래스 패널은 카드 위에 `inset:-1px`로 덮는다.** `inset:0`이면 카드의 1px 테두리 *안쪽*(반지름 17px)에 앉는데 `border-radius:inherit`는 바깥 18px을 그대로 받아서 모서리에서 두 곡선이 어긋나 테두리가 겹쳐 보인다.
 - **글래스 화면**(Ready / Paused / Finished / Session ended)은 모두 Ready 패널 기준 높이로 상단 정렬된다(`lockReadyPanelOffset`). Ready의 Start 아래에는 최고 기록 블록(`#readyBest`, 높이 64px 고정)이 있고 Paused에서는 같은 자리에 Quit이 온다. 이 블록 높이를 바꾸면 모든 패널이 같이 움직이므로 빈 상태에도 같은 높이를 유지해야 한다.
 - **기록은 한 세션**이다(`bestFor`/`beatsRecord`): 최고 점수, 동점이면 더 짧은 시간. **모드 + 지역 + 답변 유형**(country/capital/both, capital quiz는 shuffle)별로 따로 집계한다 — Country만 맞추는 세션과 Both는 난이도가 달라 섞으면 안 된다. "가장 빠른 세션"을 따로 두면 전부 틀리고 넘기는 게 1위가 되므로 쓰지 않는다. 경신하면 결과 화면에 배지가 뜬다(`s.record` = first/score/time). 전환 애니메이션은 **문제 화면 ↔ 글래스 화면**에만 넣고 글래스 → 글래스는 즉시 전환한다.
 - **일시정지는 커닝 수단이 될 수 없어야 한다**: 답하지 않은 문제에서 멈추면 `#visual`(국기·지도·이름)을 즉시 숨기고(`.quiz.hide-question`), Resume 시 남은 문제를 다시 섞어 다른 문제를 낸다. 이미 채점된 문제에서는 둘 다 하지 않는다. 일시정지된 세션이 있는 모드는 그 탭이 비활성일 때 아이콘이 강조색으로 점멸한다(`updateNavPausedMarks`, `saveSessions`에서 호출).
