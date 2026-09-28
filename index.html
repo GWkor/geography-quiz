@@ -86,8 +86,10 @@ svg{display:block;width:100%;height:auto}.map-wrap svg{position:absolute;inset:0
 .pause-panel.show{display:flex}
 .pause-actions{display:flex;flex-direction:column;gap:10px;align-items:center}
 .pause-actions button{width:180px;min-width:180px}.pause-actions{gap:10px}
-.panel-chips{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;margin:0 0 16px}
+.panel-chips{display:flex;flex-direction:column;align-items:center;gap:8px;margin:0 0 16px}
 .panel-chip{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 14px;border:1px solid var(--accent);border-radius:999px;background:var(--panel2);color:var(--text);font-size:14px;font-weight:700}
+.panel-chip[aria-expanded="true"]{background:color-mix(in srgb,var(--accent) 20%,var(--panel2))}
+.panel-chip:disabled{opacity:.55;cursor:default}
 .panel-chip svg{width:16px;height:16px;fill:none;stroke:var(--accent);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
 .pause-title{font-size:28px;font-weight:700;margin:0 0 18px}
 .finished-panel{display:none;min-height:0;align-items:center;justify-content:center;text-align:center;padding-top:0}
@@ -1013,7 +1015,8 @@ function renderChipBar(){
   const d=difficulty(),dc=chipEl('difficulty');
   dc.innerHTML=DIFFICULTY_ICON[d];
   dc.setAttribute('aria-label',`Difficulty: ${DIFFICULTY_LABEL[d]}`);dc.title=DIFFICULTY_LABEL[d];
-  const chips=`<span class="panel-chip">${GLOBE_ICON}${name}</span><span class="panel-chip">${DIFFICULTY_ICON[d]}${DIFFICULTY_LABEL[d]}</span>`;
+  const chips=`<button type="button" class="panel-chip" data-open-chip="region" aria-expanded="false"${locked?' disabled':''}>${GLOBE_ICON}${name}</button>`
+    +`<button type="button" class="panel-chip" data-open-chip="difficulty" aria-expanded="false">${DIFFICULTY_ICON[d]}${DIFFICULTY_LABEL[d]}</button>`;
   for(const el of document.querySelectorAll('[data-panel-chips]'))el.innerHTML=chips;
   // The frame gives up some height to the option list so the card measures the same either way.
   els.quiz.classList.toggle('diff-choice',isChoice());
@@ -1022,6 +1025,7 @@ function openChip(kind,open){
   const btn=chipEl(kind),opts=chipOptions(kind);
   if(kind==='region'&&state.region==='Mistakes')open=false;
   btn.setAttribute('aria-expanded',open?'true':'false');opts.hidden=!open;
+  for(const el of document.querySelectorAll(`[data-open-chip="${kind}"]`))el.setAttribute('aria-expanded',open?'true':'false');
   if(!open)return;
   opts.innerHTML=kind==='region'
     ? REGION_ORDER.map(r=>`<button type="button" data-value="${r}" class="${r===state.region?'active':''}"><span data-label="${r}">${r}</span></button>`).join('')
@@ -1037,7 +1041,13 @@ document.getElementById('headerChips').addEventListener('click',e=>{
   closeChips();
   if(kind==='region')setRegion(v);else setDifficulty(v);
 });
-document.addEventListener('pointerdown',e=>{if(!e.target.closest('#headerChips'))closeChips()});
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-open-chip]');
+  if(!b||b.disabled)return;
+  const kind=b.dataset.openChip,wasOpen=!chipOptions(kind).hidden;
+  closeChips();openChip(kind,!wasOpen);
+});
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('#headerChips')&&!e.target.closest('[data-open-chip]'))closeChips()});
 els.answerModeOptions.addEventListener('click',e=>{const b=e.target.closest('[data-answer-mode]');if(!b)return;const s=getSession(state.lastGameMode,true);ensureSessionState(s);if(s.started)return;const v=b.dataset.answerMode,isCap=state.lastGameMode==='capital';const cur=isCap?(s.capitalDirection||'shuffle'):answerModeFor(s);let country=cur!=='capital',capital=cur!=='country';if(v==='country')country=!country;else capital=!capital;if(!country&&!capital)return;const next=country&&capital?(isCap?'shuffle':'both'):country?'country':'capital';if(isCap){s.capitalDirection=next;state.settings.capitalDirection=next}else{s.answerMode=next;state.settings.answerMode=next}s.remainingMs=sessionMsFor(s.region,s.mode,sessionAnswerMode(s));saveSettings();saveSessions();renderReadySession(s)});
 function beginSession(){els.quiz.classList.remove('state-screen');setStateUnderlayBlur(false);els.finishedPanel.classList.remove('show');setSessionControl('pause');const s=getSession(state.lastGameMode,true);if(!s||s.completed)return;ensureSessionState(s);state.isPaused=false;s.started=true;s.paused=false;saveSessions();els.startPanel.style.display='none';els.form.style.display='block';showCurrentQuestion();updateStats();updateSettingsViews();startTimer()}
 function loadMode(mode,region){
