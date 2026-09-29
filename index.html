@@ -278,6 +278,7 @@ h1{display:flex;align-items:center;gap:10px;letter-spacing:-.5px}
 .mobile-nav[data-tab="settings"]{--accent:var(--settings)}
 .field input::placeholder{color:var(--muted);opacity:1;font-weight:400}
 button.primary{font-weight:500}
+#pageTitleText{white-space:nowrap}
 @media(max-width:680px){
   .app{display:flex;flex-direction:column}
   .quiz{display:flex;flex-direction:column;flex-shrink:0}
@@ -313,7 +314,7 @@ button.primary{font-weight:500}
 <div class="app">
   <div class="top">
     <div class="title-row">
-      <div><h1 id="pageTitle"><button class="page-back" id="pageBack" type="button" aria-label="Back" style="display:none"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button><span class="header-icon" id="pageTitleIcon" aria-hidden="true"></span><span id="pageTitleText">Flag</span></h1><div class="sub">Flags · Capitals · Map locations · Local progress tracking</div></div>
+      <div><h1 id="pageTitle"><button class="page-back" id="pageBack" type="button" aria-label="Back" style="display:none"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button><span class="header-icon" id="pageTitleIcon" aria-hidden="true"></span><span id="pageTitleText">Flag Quiz</span></h1><div class="sub">Flags · Capitals · Map locations · Local progress tracking</div></div>
       <div class="header-tools">
         <div class="header-chips" id="headerChips">
           <div class="chip-picker" data-picker="region">
@@ -717,11 +718,11 @@ function updateStats(){}
 function updatePageTitle(){
   const tab=state.activeTab;
   document.body.dataset.theme=tab;
-  const titles={flag:'Flag',capital:'Capital',map:'Map',settings:PAGE_TITLES[state.page]||'Profile'};
+  const titles={flag:'Flag Quiz',capital:'Capital Quiz',map:'Map Quiz',settings:PAGE_TITLES[state.page]||'Profile'};
   const icons={...MODE_ICON,
     settings:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3"/><path d="M5 21c.8-4 3.1-6 7-6s6.2 2 7 6"/></svg>'
   };
-  els.pageTitleText.textContent=titles[tab]||'Flag';
+  els.pageTitleText.textContent=titles[tab]||'Flag Quiz';
   els.pageTitleIcon.innerHTML=icons[tab]||icons.flag;
 }
 function updateSettingsViews(){const s=currentSession();els.profileSessionInfo.textContent=s?`${MODE_LABEL[state.lastGameMode]} · ${s.region} · ${s.index}/${s.order.length} questions${s.practice?'':` · ${formatTime(s.remainingMs)} remaining`}`:`No active ${MODE_LABEL[state.lastGameMode]} session.`;els.endSessionBtn.textContent=`End ${state.lastGameMode[0].toUpperCase()+state.lastGameMode.slice(1)} session`;renderStatistics()}
